@@ -1,0 +1,142 @@
+"use client";
+
+import Image from "next/image";
+import Link from "next/link";
+import { Button } from "@heroui/react";
+import { ArrowRight, Calendar } from "lucide-react";
+
+export default function HeroSection() {
+  return (
+    <section
+      className="relative w-full min-h-[680px] lg:min-h-[780px] flex flex-col justify-between overflow-hidden bg-[#0A0A0A] text-white"
+      aria-label="Welcome to Morning Football Academy"
+    >
+      {/* 1. Cinematic Background Stadium Layer */}
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none select-none">
+        {/* Neutral Base Gradient Fallback */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0A0A0A] via-[#111111] to-[#050505]" />
+
+        {/* Real Professional Stadium Photograph */}
+        <Image
+          src="/images/team.jpeg"
+          alt="Morning Football Academy Stadium with players under bright floodlights at night"
+          fill
+          priority
+          sizes="100vw"
+          quality={90}
+          className="object-cover object-[70%_center] md:object-[center_35%] animate-hero-zoom opacity-80 saturate-[0.8] brightness-95"
+        />
+
+        {/* Neutral Dark Gradient Overlay:
+            Left side stays dark for high text legibility, right side stays lightly shaded to keep the photo clean */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0A0A0A] via-[#0A0A0A]/90 md:via-[#0A0A0A]/75 to-[#0A0A0A]/55 md:to-[#0A0A0A]/25" />
+
+        {/* Top Gradient: Smooth transition from sticky header */}
+        <div className="absolute top-0 inset-x-0 h-32 bg-gradient-to-b from-[#0A0A0A] via-[#0A0A0A]/50 to-transparent" />
+
+        {/* Bottom Gradient: Seamless blend into the bottom info bar */}
+        <div className="absolute bottom-0 inset-x-0 h-44 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/70 to-transparent" />
+
+        {/* Atmospheric Stadium Floodlight Glow */}
+        <div className="absolute -top-24 right-1/4 w-[500px] h-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white/10 via-[#B9F66B]/5 to-transparent blur-3xl opacity-60" />
+      </div>
+
+      {/* 2. Main Hero Content Container */}
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex-1 flex flex-col justify-center py-16 sm:py-20 lg:py-24">
+        {/* Left-Aligned Content Box (Max width 750px preserves visual stadium action on the right) */}
+        <div className="max-w-[750px] space-y-6 sm:space-y-8">
+          {/* Eyebrow Badge */}
+          <div className="animate-hero-fade-1">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#18181B]/90 border border-[#B9F66B]/30 backdrop-blur-md shadow-[0_0_15px_rgba(185,246,107,0.15)]">
+              <span className="w-2 h-2 rounded-full bg-[#B9F66B] animate-pulse" />
+              <span className="text-[10px] sm:text-[11px] font-black tracking-[0.25em] text-[#B9F66B] uppercase">
+                OFFICIAL FOOTBALL CLUB
+              </span>
+            </div>
+          </div>
+
+          {/* Main Heading */}
+          <h1 className="animate-hero-fade-2 text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-white leading-[1.08] uppercase">
+            BUILT ON{" "}
+            <span className="text-[#B9F66B] drop-shadow-[0_0_30px_rgba(185,246,107,0.4)]">
+              PASSION
+            </span>
+            .<br />
+            DRIVEN BY{" "}
+            <span className="text-[#B9F66B] drop-shadow-[0_0_30px_rgba(185,246,107,0.4)]">
+              VICTORY
+            </span>
+            .
+          </h1>
+
+          {/* Description */}
+          <p className="animate-hero-fade-3 text-base sm:text-lg text-[#A4B0A8] max-w-[620px] leading-relaxed">
+            Welcome to Morning Football Academy. We develop talent, build
+            character, and compete with passion. Our journey starts on the pitch
+            and our ambition goes beyond the game.
+          </p>
+
+          {/* CTA Buttons */}
+          <div className="animate-hero-fade-4 pt-2 sm:pt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+            <Link href="/players" className="group">
+              <Button
+                variant="primary"
+                className="w-full sm:w-auto bg-[#B9F66B] text-[#0A0A0A] font-black text-xs tracking-[0.16em] uppercase rounded-full px-7 py-3.5 hover:bg-[#cbfd82] active:scale-95 transition-all duration-300 shadow-[0_0_20px_rgba(185,246,107,0.3)] hover:shadow-[0_0_30px_rgba(185,246,107,0.5)] cursor-pointer flex items-center justify-center gap-2"
+              >
+                <span>EXPLORE OUR TEAM</span>
+                <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
+              </Button>
+            </Link>
+
+            <Link href="/fixtures" className="group">
+              <Button
+                variant="outline"
+                className="w-full sm:w-auto bg-white/[0.04] backdrop-blur-sm border border-white/25 hover:border-white/60 text-white font-black text-xs tracking-[0.16em] uppercase rounded-full px-7 py-3.5 hover:bg-white/10 active:scale-95 transition-all duration-300 cursor-pointer flex items-center justify-center gap-2"
+              >
+                <Calendar className="w-4 h-4 text-[#B9F66B]" />
+                <span>UPCOMING MATCHES</span>
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. Bottom Information Bar */}
+      <div className="relative z-10 w-full border-t border-white/10 bg-[#0A0A0A]/85 backdrop-blur-md animate-hero-fade-5">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-white/10 py-5 sm:py-6">
+            {/* 01 - OUR CLUB */}
+            <div className="py-3 md:py-0 md:pr-8 flex flex-col justify-center">
+              <span className="text-[11px] font-black tracking-[0.22em] text-[#A4B0A8] uppercase flex items-center gap-1.5">
+                <span className="text-[#B9F66B] font-mono">01</span> — OUR CLUB
+              </span>
+              <span className="text-sm sm:text-base font-black tracking-wider text-white uppercase mt-1">
+                MORNING FOOTBALL ACADEMY
+              </span>
+            </div>
+
+            {/* 02 - OUR MISSION */}
+            <div className="py-3 md:py-0 md:px-8 flex flex-col justify-center">
+              <span className="text-[11px] font-black tracking-[0.22em] text-[#A4B0A8] uppercase flex items-center gap-1.5">
+                <span className="text-[#B9F66B] font-mono">02</span> — OUR MISSION
+              </span>
+              <span className="text-sm sm:text-base font-black tracking-wider text-white uppercase mt-1">
+                DEVELOPING TALENT
+              </span>
+            </div>
+
+            {/* 03 - OUR PHILOSOPHY */}
+            <div className="py-3 md:py-0 md:pl-8 flex flex-col justify-center">
+              <span className="text-[11px] font-black tracking-[0.22em] text-[#A4B0A8] uppercase flex items-center gap-1.5">
+                <span className="text-[#B9F66B] font-mono">03</span> — OUR PHILOSOPHY
+              </span>
+              <span className="text-sm sm:text-base font-black tracking-wider text-[#B9F66B] uppercase mt-1">
+                RISE TOGETHER. PLAY TO WIN.
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
