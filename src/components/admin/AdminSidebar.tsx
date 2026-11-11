@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -18,6 +19,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { useAdminAuth } from "../../lib/use-admin-auth";
+import { apiClient } from "../../lib/api-client";
 
 export interface NavItem {
   label: string;
@@ -32,7 +34,7 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
   { label: "Matches", href: "/admin/matches", icon: Calendar },
   { label: "Results", href: "/admin/results", icon: Trophy },
   { label: "Gallery", href: "/admin/gallery", icon: ImageIcon },
-  { label: "Registrations", href: "/admin/registrations", icon: FileText, badge: "7" },
+  { label: "Registrations", href: "/admin/registrations", icon: FileText },
   { label: "Settings", href: "/admin/settings", icon: Settings },
 ];
 
@@ -55,6 +57,22 @@ export default function AdminSidebar({
 }: AdminSidebarProps) {
   const pathname = usePathname();
   const { user, logout } = useAdminAuth(null);
+  const [pendingCount, setPendingCount] = useState<number>(0);
+
+  useEffect(() => {
+    let isMounted = true;
+    apiClient.registrations
+      .countPending()
+      .then((count) => {
+        if (isMounted) setPendingCount(count);
+      })
+      .catch(() => {
+        // Silently swallow in sidebar if unauthorized or loading
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const isActive = (href: string) => {
     if (href === "/admin") {
@@ -113,6 +131,10 @@ export default function AdminSidebar({
           {ADMIN_NAV_ITEMS.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.href);
+            const badge =
+              item.href === "/admin/registrations" && pendingCount > 0
+                ? String(pendingCount)
+                : item.badge;
 
             return (
               <Link
@@ -137,7 +159,7 @@ export default function AdminSidebar({
                   <span className="flex-1 uppercase tracking-wider">{item.label}</span>
                 )}
 
-                {!isCollapsed && item.badge && (
+                {!isCollapsed && badge && (
                   <span
                     className={`px-1.5 py-0.5 rounded-md text-[10px] font-mono font-bold ${
                       active
@@ -145,7 +167,7 @@ export default function AdminSidebar({
                         : "bg-[#B9F66B]/15 text-[#B9F66B] border border-[#B9F66B]/30"
                     }`}
                   >
-                    {item.badge}
+                    {badge}
                   </span>
                 )}
               </Link>

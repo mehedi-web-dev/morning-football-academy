@@ -103,7 +103,7 @@ export default function JoinAcademy() {
           </Link>
 
           {/* Secondary CTA: CONTACT US */}
-          <Link href="/contact" className="w-full sm:w-auto group">
+          <Link href="/#contact" className="w-full sm:w-auto group">
             <Button
               variant="outline"
               className="w-full sm:w-auto bg-white/[0.04] backdrop-blur-md border border-white/20 hover:border-[#B9F66B]/50 hover:bg-[#B9F66B]/10 text-white hover:text-[#B9F66B] font-black text-xs sm:text-sm tracking-[0.18em] uppercase rounded-full px-8 sm:px-10 py-4 active:scale-95 transition-all duration-300 cursor-pointer flex items-center justify-center gap-2.5"

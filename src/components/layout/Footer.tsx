@@ -231,7 +231,7 @@ export default function Footer() {
           </div>
 
           {/* Column 4: Contact Information */}
-          <div className="space-y-4">
+          <div id="contact" className="space-y-4">
             <h3 className="text-xs font-black tracking-[0.22em] text-white uppercase flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B] shadow-[0_0_8px_#B9F66B]" />
               Contact Information

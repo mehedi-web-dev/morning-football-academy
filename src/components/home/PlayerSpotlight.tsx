@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button, Chip, Card } from "@heroui/react";
@@ -16,104 +16,114 @@ import {
   Flame,
   Star,
 } from "lucide-react";
-import { DEMO_SQUAD_PLAYERS, Player } from "../../data/players";
+import { apiClient, PlayerDocument } from "../../lib/api-client";
+import { getShortPosition } from "../../lib/player-utils";
 
-/**
- * Extended spotlight attributes for high-fidelity academy scouting presentation
- */
-interface ExtendedPlayerAttributes {
-  formRating: string;
-  seasonAppearances: number;
-  seasonGoalsOrCleanSheets: string;
-  seasonGoalsLabel: string;
-  passAccuracy: string;
-  coachNote: string;
-  keyAttributes: {
-    label: string;
-    value: number;
-  }[];
+function getPositionAttributes(position: string) {
+  switch (position) {
+    case "Goalkeeper":
+      return [
+        { label: "Reflexes & Shot-Stopping", value: 92 },
+        { label: "1-on-1 Box Dominance", value: 88 },
+        { label: "Distribution From Back", value: 85 },
+        { label: "Cross Claiming & Reach", value: 87 },
+        { label: "Command of the Area", value: 89 },
+      ];
+    case "Defender":
+      return [
+        { label: "Defensive Awareness", value: 90 },
+        { label: "Physical Aerial Duels", value: 88 },
+        { label: "Tackling Precision", value: 87 },
+        { label: "Backline Leadership", value: 86 },
+        { label: "Strength & Balance", value: 85 },
+      ];
+    case "Midfielder":
+      return [
+        { label: "Vision & Distribution", value: 91 },
+        { label: "Passing Accuracy", value: 89 },
+        { label: "Ball Control & Composure", value: 88 },
+        { label: "Press Resistance", value: 87 },
+        { label: "Stamina & Coverage", value: 88 },
+      ];
+    case "Forward":
+    default:
+      return [
+        { label: "Pace & Acceleration", value: 91 },
+        { label: "Clinical Finishing", value: 88 },
+        { label: "Dribbling in Tight Spaces", value: 86 },
+        { label: "Tactical Movement", value: 89 },
+        { label: "Work Rate & Pressing", value: 85 },
+      ];
+  }
 }
 
-const SPOTLIGHT_METRICS: Record<string, ExtendedPlayerAttributes> = {
-  "player-one": {
-    formRating: "9.2",
-    seasonAppearances: 14,
-    seasonGoalsOrCleanSheets: "11",
-    seasonGoalsLabel: "GOALS",
-    passAccuracy: "88%",
-    coachNote:
-      "Explosive acceleration with ruthless finishing inside the box. Reads defensive transitions with mature tactical vision.",
-    keyAttributes: [
-      { label: "Pace & Acceleration", value: 91 },
-      { label: "Clinical Finishing", value: 87 },
-      { label: "Dribbling in Tight Spaces", value: 85 },
-      { label: "Tactical Movement", value: 89 },
-      { label: "Work Rate & Pressing", value: 84 },
-    ],
-  },
-  "player-two": {
-    formRating: "8.9",
-    seasonAppearances: 15,
-    seasonGoalsOrCleanSheets: "9",
-    seasonGoalsLabel: "ASSISTS",
-    passAccuracy: "92%",
-    coachNote:
-      "The academy tempo setter. Controls midfield rhythm effortlessly and delivers precision passes that break defensive lines.",
-    keyAttributes: [
-      { label: "Vision & Distribution", value: 92 },
-      { label: "Short & Long Passing", value: 90 },
-      { label: "Ball Control & Composure", value: 88 },
-      { label: "Press Resistance", value: 86 },
-      { label: "Stamina & Coverage", value: 87 },
-    ],
-  },
-  "player-three": {
-    formRating: "8.8",
-    seasonAppearances: 16,
-    seasonGoalsOrCleanSheets: "6",
-    seasonGoalsLabel: "CLEAN SHEETS",
-    passAccuracy: "84%",
-    coachNote:
-      "Commanding presence in the backline with unmatched aerial supremacy and disciplined man-marking execution.",
-    keyAttributes: [
-      { label: "Defensive Awareness", value: 89 },
-      { label: "Physical Aerial Duels", value: 88 },
-      { label: "Tackling Precision", value: 87 },
-      { label: "Backline Leadership", value: 85 },
-      { label: "Strength & Balance", value: 86 },
-    ],
-  },
-  "player-four": {
-    formRating: "9.0",
-    seasonAppearances: 15,
-    seasonGoalsOrCleanSheets: "8",
-    seasonGoalsLabel: "CLEAN SHEETS",
-    passAccuracy: "82%",
-    coachNote:
-      "Agile shot-stopper commanding the 18-yard box. Extraordinary instinct in one-on-one scenarios and calm distribution under pressure.",
-    keyAttributes: [
-      { label: "Reflexes & Shot-Stopping", value: 93 },
-      { label: "1-on-1 Box Dominance", value: 89 },
-      { label: "Distribution From Back", value: 84 },
-      { label: "Cross Claiming & Reach", value: 86 },
-      { label: "Command of the Area", value: 88 },
-    ],
-  },
-};
-
 export default function PlayerSpotlight() {
+  const [players, setPlayers] = useState<PlayerDocument[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [imageErrorMap, setImageErrorMap] = useState<Record<string, boolean>>({});
 
-  const players = DEMO_SQUAD_PLAYERS;
-  const currentPlayer: Player = players[selectedIndex] || players[0];
-  const metrics: ExtendedPlayerAttributes =
-    SPOTLIGHT_METRICS[currentPlayer.id] || SPOTLIGHT_METRICS["player-one"];
+  useEffect(() => {
+    let isMounted = true;
+    async function fetchPlayers() {
+      try {
+        const res = await apiClient.players.getAll({ isActive: true, limit: 6 });
+        if (isMounted && res.data && res.data.length > 0) {
+          setPlayers(res.data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch spotlight players:", err);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+    fetchPlayers();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
-  // Fallback to verified existing local image asset if primary image fails
-  const displayImage = imageErrorMap[currentPlayer.id]
-    ? "/images/players/player-1.jpg"
-    : currentPlayer.image;
+  if (loading) {
+    return (
+      <section className="relative w-full py-16 sm:py-20 lg:py-24 bg-[#0A0A0A] text-white border-t border-white/[0.08]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="h-96 rounded-3xl bg-[#141416]/50 animate-pulse border border-white/5" />
+        </div>
+      </section>
+    );
+  }
+
+  if (players.length === 0) {
+    return null;
+  }
+
+  const currentPlayer = players[selectedIndex] || players[0];
+  const isGK = currentPlayer.position === "Goalkeeper";
+  const isMID = currentPlayer.position === "Midfielder";
+
+  const appearances = currentPlayer.statistics?.appearances ?? 0;
+  const primaryStatValue = isGK
+    ? (currentPlayer.statistics?.cleanSheets ?? 0)
+    : isMID
+    ? (currentPlayer.statistics?.assists ?? 0)
+    : (currentPlayer.statistics?.goals ?? 0);
+  const primaryStatLabel = isGK
+    ? "CLEAN SHEETS"
+    : isMID
+    ? "ASSISTS"
+    : "GOALS";
+
+  const formRating = "9.1";
+  const passAccuracy = isGK ? "82%" : isMID ? "91%" : "87%";
+  const coachNote =
+    currentPlayer.bio ||
+    "Demonstrates high athletic discipline, technical precision, and tactical intelligence in academy competitions.";
+
+  const attributes = getPositionAttributes(currentPlayer.position);
+
+  const displayImage = imageErrorMap[currentPlayer._id]
+    ? "/images/team.jpeg"
+    : (currentPlayer.photo || "/images/team.jpeg");
 
   const handlePrev = () => {
     setSelectedIndex((prev) => (prev === 0 ? players.length - 1 : prev - 1));
@@ -170,16 +180,16 @@ export default function PlayerSpotlight() {
             <div className="hidden sm:flex items-center bg-[#141417] p-1 rounded-full border border-white/10">
               {players.map((player, idx) => (
                 <button
-                  key={player.id}
+                  key={player._id}
                   onClick={() => setSelectedIndex(idx)}
                   className={`px-3.5 py-1.5 rounded-full text-xs font-black tracking-wider transition-all duration-300 cursor-pointer ${
                     selectedIndex === idx
                       ? "bg-[#B9F66B] text-[#0A0A0A] shadow-[0_0_12px_rgba(185,246,107,0.35)]"
                       : "text-[#A4B0A8] hover:text-white"
                   }`}
-                  aria-label={`Select ${player.name}`}
+                  aria-label={`Select ${player.fullName}`}
                 >
-                  #{player.number} {player.shortPosition}
+                  #{player.jerseyNumber} {getShortPosition(player.position)}
                 </button>
               ))}
             </div>
@@ -218,13 +228,13 @@ export default function PlayerSpotlight() {
               <div className="relative w-full h-full min-h-[460px] sm:min-h-[520px]">
                 <Image
                   src={displayImage}
-                  alt={`${currentPlayer.name} - Morning Football Academy Spotlight`}
+                  alt={`${currentPlayer.fullName} - Morning Football Academy Spotlight`}
                   fill
                   priority
                   sizes="(max-width: 1024px) 100vw, 40vw"
                   className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
                   onError={() =>
-                    setImageErrorMap((prev) => ({ ...prev, [currentPlayer.id]: true }))
+                    setImageErrorMap((prev) => ({ ...prev, [currentPlayer._id]: true }))
                   }
                 />
 
@@ -239,14 +249,14 @@ export default function PlayerSpotlight() {
                     {currentPlayer.position}
                   </span>
                   <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/[0.06] backdrop-blur-md border border-white/10 text-[10px] font-mono font-bold text-white/80 uppercase">
-                    FORM: {metrics.formRating} / 10
+                    FORM: {formRating} / 10
                   </span>
                 </div>
 
                 {/* Top-Right: Watermark Jersey Number */}
                 <div className="absolute top-3 right-4 z-20 select-none pointer-events-none">
                   <span className="text-6xl sm:text-7xl font-black font-mono tracking-tighter text-white/15 drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">
-                    #{currentPlayer.number}
+                    #{currentPlayer.jerseyNumber}
                   </span>
                 </div>
 
@@ -255,23 +265,23 @@ export default function PlayerSpotlight() {
                   <div className="flex items-center justify-between">
                     <div>
                       <span className="text-xs font-mono font-bold tracking-[0.2em] text-[#B9F66B] uppercase">
-                        SQUAD #{currentPlayer.number} • {currentPlayer.shortPosition}
+                        SQUAD #{currentPlayer.jerseyNumber} • {getShortPosition(currentPlayer.position)}
                       </span>
                       <h3 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight">
-                        {currentPlayer.name}
+                        {currentPlayer.fullName}
                       </h3>
                     </div>
 
                     <div className="w-12 h-12 rounded-2xl bg-[#18181B]/90 border border-white/15 flex flex-col items-center justify-center text-center shrink-0">
                       <span className="text-[9px] font-mono text-[#A4B0A8] uppercase">FORM</span>
                       <span className="text-base font-black font-mono text-[#B9F66B] leading-none">
-                        {metrics.formRating}
+                        {formRating}
                       </span>
                     </div>
                   </div>
 
                   <p className="text-xs sm:text-sm text-[#A4B0A8] line-clamp-2">
-                    {currentPlayer.roleDescription}
+                    {currentPlayer.bio || `${currentPlayer.position} • ${currentPlayer.nationality}`}
                   </p>
                 </div>
               </div>
@@ -288,7 +298,7 @@ export default function PlayerSpotlight() {
                 </span>
                 <div className="flex items-baseline gap-1">
                   <span className="text-2xl sm:text-3xl font-black font-mono text-[#B9F66B]">
-                    {metrics.formRating}
+                    {formRating}
                   </span>
                   <span className="text-xs text-[#A4B0A8] font-mono">/10</span>
                 </div>
@@ -303,7 +313,7 @@ export default function PlayerSpotlight() {
                   APPEARANCES
                 </span>
                 <span className="text-2xl sm:text-3xl font-black font-mono text-white">
-                  {metrics.seasonAppearances}
+                  {appearances}
                 </span>
                 <div className="mt-1 flex items-center gap-1 text-[10px] font-mono text-white/50">
                   <Shield className="w-3 h-3 text-[#B9F66B]" />
@@ -313,10 +323,10 @@ export default function PlayerSpotlight() {
 
               <div className="p-4 rounded-2xl bg-[#141417] border border-white/10 hover:border-[#B9F66B]/30 transition-colors">
                 <span className="text-[10px] font-bold text-[#A4B0A8] uppercase tracking-wider block mb-1">
-                  {metrics.seasonGoalsLabel}
+                  {primaryStatLabel}
                 </span>
                 <span className="text-2xl sm:text-3xl font-black font-mono text-[#B9F66B]">
-                  {metrics.seasonGoalsOrCleanSheets}
+                  {primaryStatValue}
                 </span>
                 <div className="mt-1 flex items-center gap-1 text-[10px] font-mono text-white/50">
                   <Target className="w-3 h-3 text-[#B9F66B]" />
@@ -329,7 +339,7 @@ export default function PlayerSpotlight() {
                   PASS ACCURACY
                 </span>
                 <span className="text-2xl sm:text-3xl font-black font-mono text-white">
-                  {metrics.passAccuracy}
+                  {passAccuracy}
                 </span>
                 <div className="mt-1 flex items-center gap-1 text-[10px] font-mono text-white/50">
                   <Zap className="w-3 h-3 text-[#B9F66B]" />
@@ -353,7 +363,7 @@ export default function PlayerSpotlight() {
               </div>
 
               <div className="space-y-3.5 pt-1">
-                {metrics.keyAttributes.map((attr) => (
+                {attributes.map((attr) => (
                   <div key={attr.label} className="space-y-1.5">
                     <div className="flex justify-between items-center text-xs">
                       <span className="font-bold text-white/85 tracking-wide uppercase">
@@ -385,7 +395,7 @@ export default function PlayerSpotlight() {
                   TECHNICAL DIRECTOR EVALUATION
                 </span>
                 <p className="text-xs sm:text-sm text-[#A4B0A8] leading-relaxed italic">
-                  &ldquo;{metrics.coachNote}&rdquo;
+                  &ldquo;{coachNote}&rdquo;
                 </p>
               </div>
             </div>
@@ -393,17 +403,17 @@ export default function PlayerSpotlight() {
             {/* 2.4 Action CTA & Navigation Row */}
             <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
               <div className="flex flex-wrap items-center gap-3">
-                <Link href={currentPlayer.profileHref} className="group">
+                <Link href={`/squad/${currentPlayer.slug}`} className="group">
                   <Button
                     variant="primary"
                     className="w-full sm:w-auto bg-[#B9F66B] text-[#0A0A0A] font-black text-xs tracking-[0.16em] uppercase rounded-full px-6 py-3 hover:bg-[#cbfd82] active:scale-95 transition-all duration-300 shadow-[0_0_20px_rgba(185,246,107,0.25)] hover:shadow-[0_0_28px_rgba(185,246,107,0.45)] cursor-pointer flex items-center justify-center gap-2"
                   >
-                    <span>VIEW {currentPlayer.name}&apos;S FULL PROFILE</span>
+                    <span>VIEW {currentPlayer.fullName}&apos;S FULL PROFILE</span>
                     <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
                   </Button>
                 </Link>
 
-                <Link href="/players">
+                <Link href="/squad">
                   <Button
                     variant="outline"
                     className="w-full sm:w-auto bg-white/[0.03] border border-white/20 hover:border-white/50 text-white font-bold text-xs tracking-wider uppercase rounded-full px-5 py-3 hover:bg-white/10 active:scale-95 transition-all cursor-pointer"

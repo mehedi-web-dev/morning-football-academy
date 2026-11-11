@@ -1,9 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
-import { Button, Chip } from "@heroui/react";
-import { ArrowRight, Calendar, Clock, Newspaper } from "lucide-react";
+import { Chip } from "@heroui/react";
+import { Calendar, Clock, Newspaper } from "lucide-react";
 import { DEMO_NEWS_ARTICLES, NewsArticle } from "../../data/news";
 
 /**
@@ -12,10 +11,9 @@ import { DEMO_NEWS_ARTICLES, NewsArticle } from "../../data/news";
  */
 function FeaturedArticleCard({ article }: { article: NewsArticle }) {
   return (
-    <Link
-      href={`/news/${article.slug}`}
-      className="group relative flex flex-col h-full rounded-3xl bg-[#18251F] border border-white/10 overflow-hidden transition-all duration-300 hover:border-[#B9F66B]/50 hover:shadow-[0_20px_50px_rgba(0,0,0,0.6)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B9F66B]"
-      aria-label={`Read featured article: ${article.title}`}
+    <div
+      className="group relative flex flex-col h-full rounded-3xl bg-[#18251F] border border-white/10 overflow-hidden transition-all duration-300 hover:border-[#B9F66B]/50 hover:shadow-[0_20px_50px_rgba(0,0,0,0.6)] cursor-default"
+      aria-label={`Featured article: ${article.title}`}
     >
       <div className="relative w-full h-full min-h-[440px] sm:min-h-[500px] lg:min-h-[560px] flex flex-col justify-between overflow-hidden">
         {/* Real Local Football Image */}
@@ -71,9 +69,8 @@ function FeaturedArticleCard({ article }: { article: NewsArticle }) {
           </p>
 
           <div className="pt-2 flex items-center justify-between border-t border-white/10">
-            <span className="inline-flex items-center gap-2 text-xs sm:text-sm font-black tracking-[0.16em] uppercase text-[#B9F66B] group-hover:text-white transition-colors duration-200">
-              <span>READ FULL ARTICLE</span>
-              <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1.5" />
+            <span className="inline-flex items-center gap-2 text-xs sm:text-sm font-black tracking-[0.16em] uppercase text-[#B9F66B]">
+              <span>FEATURE STORY</span>
             </span>
 
             <span className="text-[11px] font-mono text-[#A4B0A8]/60 uppercase tracking-widest">
@@ -82,7 +79,7 @@ function FeaturedArticleCard({ article }: { article: NewsArticle }) {
           </div>
         </div>
       </div>
-    </Link>
+    </div>
   );
 }
 
@@ -92,10 +89,9 @@ function FeaturedArticleCard({ article }: { article: NewsArticle }) {
  */
 function SupportingArticleCard({ article }: { article: NewsArticle }) {
   return (
-    <Link
-      href={`/news/${article.slug}`}
-      className="group flex flex-col sm:flex-row rounded-2xl bg-[#18251F] border border-white/10 overflow-hidden transition-all duration-300 hover:border-[#B9F66B]/40 hover:shadow-[0_12px_36px_rgba(0,0,0,0.5)] hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B9F66B]"
-      aria-label={`Read article: ${article.title}`}
+    <div
+      className="group flex flex-col sm:flex-row rounded-2xl bg-[#18251F] border border-white/10 overflow-hidden transition-all duration-300 hover:border-[#B9F66B]/40 hover:shadow-[0_12px_36px_rgba(0,0,0,0.5)] cursor-default"
+      aria-label={`Article: ${article.title}`}
     >
       {/* Article Thumbnail */}
       <div className="relative w-full sm:w-48 lg:w-52 aspect-[16/10] sm:aspect-auto sm:min-h-[220px] shrink-0 overflow-hidden bg-[#101A17]">
@@ -155,9 +151,8 @@ function SupportingArticleCard({ article }: { article: NewsArticle }) {
 
         {/* Read More Link */}
         <div className="pt-2 border-t border-white/[0.08] flex items-center justify-between">
-          <span className="inline-flex items-center gap-1.5 text-xs font-black tracking-[0.14em] uppercase text-[#B9F66B] group-hover:gap-2.5 transition-all">
-            <span>READ MORE</span>
-            <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+          <span className="inline-flex items-center gap-1.5 text-xs font-black tracking-[0.14em] uppercase text-[#B9F66B]">
+            <span>ACADEMY DISPATCH</span>
           </span>
 
           <span className="text-[10px] font-mono text-[#A4B0A8]/50 uppercase tracking-wider">
@@ -165,7 +160,7 @@ function SupportingArticleCard({ article }: { article: NewsArticle }) {
           </span>
         </div>
       </div>
-    </Link>
+    </div>
   );
 }
 
@@ -217,19 +212,6 @@ export default function NewsSection() {
             <p className="text-sm sm:text-base text-[#A4B0A8] max-w-2xl leading-relaxed">
               Stories, updates, and moments from our journey.
             </p>
-          </div>
-
-          {/* View All News CTA Link */}
-          <div>
-            <Link href="/news" className="group shrink-0 inline-block">
-              <Button
-                variant="primary"
-                className="w-full sm:w-auto bg-[#B9F66B] text-[#0A0A0A] font-black text-xs tracking-[0.16em] uppercase rounded-full px-6 py-3.5 hover:bg-[#cbfd82] active:scale-95 transition-all duration-300 shadow-[0_0_18px_rgba(185,246,107,0.25)] hover:shadow-[0_0_28px_rgba(185,246,107,0.45)] cursor-pointer flex items-center justify-center gap-2"
-              >
-                <span>VIEW ALL NEWS</span>
-                <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
-              </Button>
-            </Link>
           </div>
         </div>
 
