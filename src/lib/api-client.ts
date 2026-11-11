@@ -221,6 +221,7 @@ async function request<T>(
 
   try {
     const response = await fetch(url, {
+      cache: options.cache || "no-store",
       ...options,
       headers: {
         ...defaultHeaders,

@@ -24,6 +24,30 @@ const nextConfig: NextConfig = {
       },
     },
   },
+  async redirects() {
+    return [
+      {
+        source: "/players",
+        destination: "/squad",
+        permanent: true,
+      },
+      {
+        source: "/players/:slug*",
+        destination: "/squad/:slug*",
+        permanent: true,
+      },
+      {
+        source: "/fixtures",
+        destination: "/matches",
+        permanent: true,
+      },
+      {
+        source: "/fixtures/:id*",
+        destination: "/matches/:id*",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

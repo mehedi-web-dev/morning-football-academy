@@ -1,85 +1,61 @@
 "use client";
 
-import Image from "next/image";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
-import { DEMO_SQUAD_PLAYERS, Player } from "../../data/players";
+import { ArrowRight, RefreshCw, AlertCircle, Users } from "lucide-react";
+import { Button } from "@heroui/react";
+import { apiClient, PlayerDocument } from "../../lib/api-client";
+import PublicPlayerCard from "../squad/PublicPlayerCard";
 
 /**
- * Reusable Player Card Component
- * Sports editorial portrait card with jersey number watermark and position badges
+ * SquadSection Component
+ * Displays real active academy players fetched directly from MongoDB
  */
-function PlayerCard({ player }: { player: Player }) {
-  return (
-    <Link
-      href={player.profileHref}
-      className="group relative flex flex-col rounded-2xl bg-[#18181B] border border-white/10 overflow-hidden transition-all duration-300 hover:border-[#B9F66B]/50 hover:shadow-[0_20px_40px_rgba(0,0,0,0.6)] hover:-translate-y-1.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B9F66B]"
-      aria-label={`View profile for ${player.name}, #${player.number} ${player.position}`}
-    >
-      {/* 1. Portrait Container with 3:4 Aspect Ratio */}
-      <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#111111]">
-        {/* Real Player Image */}
-        <Image
-          src={player.image}
-          alt={`${player.name} - ${player.position} #${player.number} of Morning Football Academy`}
-          fill
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-          className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-108"
-        />
-
-        {/* Multi-Stop Cinematic Vignette Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/65 to-transparent" />
-
-        {/* Subtle Lime Atmospheric Tint on Hover */}
-        <div className="absolute inset-0 bg-[#B9F66B]/0 group-hover:bg-[#B9F66B]/5 transition-colors duration-300 pointer-events-none" />
-
-        {/* Top-Left: Position Badge */}
-        <div className="absolute top-3.5 left-3.5 z-10">
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#0A0A0A]/90 backdrop-blur-md border border-white/15 text-[10px] font-black tracking-wider text-[#B9F66B] uppercase shadow-sm">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B]" />
-            {player.shortPosition}
-          </span>
-        </div>
-
-        {/* Top-Right: Prominent Jersey Number Watermark */}
-        <div className="absolute top-2 right-3 z-10 select-none pointer-events-none">
-          <span className="text-4xl sm:text-5xl font-black font-mono tracking-tighter text-white/20 group-hover:text-[#B9F66B] group-hover:drop-shadow-[0_0_15px_rgba(185,246,107,0.4)] transition-all duration-300">
-            {player.number}
-          </span>
-        </div>
-
-        {/* Bottom Details Overlay */}
-        <div className="absolute bottom-0 inset-x-0 p-4 sm:p-5 z-10 flex flex-col justify-end">
-          {/* Position & Name */}
-          <div className="space-y-0.5">
-            <span className="text-[10px] sm:text-[11px] font-bold tracking-[0.2em] text-[#A4B0A8] uppercase block">
-              {player.position}
-            </span>
-            <h3 className="text-lg sm:text-xl font-black text-white uppercase tracking-tight group-hover:text-[#B9F66B] transition-colors duration-200">
-              {player.name}
-            </h3>
-          </div>
-
-          {/* Action Row */}
-          <div className="mt-3 pt-3 border-t border-white/10 flex items-center justify-between">
-            <span className="text-xs font-bold tracking-wider text-[#B9F66B] uppercase flex items-center gap-1.5 group-hover:gap-2.5 transition-all">
-              <span>View Profile</span>
-              <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
-            </span>
-
-            <span className="text-[11px] font-mono font-bold text-white/40 group-hover:text-white/70 transition-colors">
-              #{player.number}
-            </span>
-          </div>
-        </div>
-      </div>
-    </Link>
-  );
-}
-
 export default function SquadSection() {
+  const [players, setPlayers] = useState<PlayerDocument[]>([]);
+  const [totalCount, setTotalCount] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchActivePlayers = useCallback((abortSignal?: { aborted: boolean }) => {
+    apiClient.players
+      .getAll({
+        isActive: true,
+        limit: 8,
+      })
+      .then((res) => {
+        if (!abortSignal?.aborted) {
+          setPlayers(res.data || []);
+          setTotalCount(res.pagination?.total ?? res.data?.length ?? 0);
+          setError(null);
+          setIsLoading(false);
+        }
+      })
+      .catch(() => {
+        if (!abortSignal?.aborted) {
+          setError("Unable to load squad roster from database.");
+          setIsLoading(false);
+        }
+      });
+  }, []);
+
+  useEffect(() => {
+    const signal = { aborted: false };
+    fetchActivePlayers(signal);
+    return () => {
+      signal.aborted = true;
+    };
+  }, [fetchActivePlayers]);
+
+  const handleRetry = () => {
+    setIsLoading(true);
+    setError(null);
+    fetchActivePlayers();
+  };
+
   return (
     <section
+      id="players"
       className="relative w-full py-16 sm:py-20 lg:py-24 bg-[#0A0A0A] text-white border-t border-white/[0.08]"
       aria-labelledby="squad-section-heading"
     >
@@ -95,8 +71,10 @@ export default function SquadSection() {
 
               {/* Squad Count Label */}
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 text-xs font-mono text-[#A4B0A8] uppercase tracking-wider">
-                <strong className="text-[#B9F66B] font-bold">25+</strong> SQUAD
-                MEMBERS
+                <strong className="text-[#B9F66B] font-bold">
+                  {totalCount > 0 ? totalCount : "OFFICIAL"}
+                </strong>{" "}
+                SQUAD MEMBERS
               </span>
             </div>
 
@@ -116,8 +94,8 @@ export default function SquadSection() {
           {/* View Full Squad Button */}
           <div>
             <Link
-              href="/players"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#B9F66B] text-[#0A0A0A] font-black text-xs tracking-[0.16em] uppercase hover:bg-[#cbfd82] active:scale-95 transition-all duration-300 shadow-[0_0_15px_rgba(185,246,107,0.25)] hover:shadow-[0_0_24px_rgba(185,246,107,0.45)] group shrink-0"
+              href="/squad"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#B9F66B] text-[#0A0A0A] font-black text-xs tracking-[0.16em] uppercase hover:bg-[#cbfd82] active:scale-95 transition-all duration-300 shadow-[0_0_15px_rgba(185,246,107,0.25)] hover:shadow-[0_0_24px_rgba(185,246,107,0.45)] group shrink-0 cursor-pointer"
             >
               <span>VIEW FULL SQUAD</span>
               <ArrowRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" />
@@ -125,19 +103,75 @@ export default function SquadSection() {
           </div>
         </div>
 
-        {/* 2. Player Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
-          {DEMO_SQUAD_PLAYERS.map((player) => (
-            <PlayerCard key={player.id} player={player} />
-          ))}
-        </div>
+        {/* 2. Player Cards Grid / States */}
+        {error ? (
+          <div className="p-8 rounded-2xl bg-[#18251F] border border-red-500/20 text-center space-y-4">
+            <AlertCircle className="w-8 h-8 text-red-400 mx-auto" />
+            <p className="text-sm text-[#A4B0A8]">{error}</p>
+            <Button
+              onPress={handleRetry}
+              className="bg-[#202E27] border border-white/10 text-white font-mono text-xs uppercase tracking-wider px-4 py-2 rounded-xl hover:border-[#B9F66B]/50 transition-colors cursor-pointer inline-flex items-center gap-2"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span>Retry</span>
+            </Button>
+          </div>
+        ) : isLoading ? (
+          /* Loading Skeleton Grid */
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
+            {Array.from({ length: 4 }).map((_, idx) => (
+              <div
+                key={idx}
+                className="rounded-2xl bg-[#18181B] border border-white/5 aspect-[3/4] animate-pulse flex flex-col justify-end p-5 space-y-3"
+              >
+                <div className="h-4 w-20 bg-white/10 rounded-full" />
+                <div className="h-6 w-36 bg-white/10 rounded" />
+                <div className="h-4 w-28 bg-white/5 rounded" />
+              </div>
+            ))}
+          </div>
+        ) : players.length === 0 ? (
+          /* Empty Active Squad State */
+          <div className="p-12 rounded-2xl bg-[#18251F] border border-white/10 text-center space-y-4">
+            <div className="w-12 h-12 rounded-2xl bg-[#101A17] border border-white/10 flex items-center justify-center mx-auto text-[#B9F66B]">
+              <Users className="w-6 h-6" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-lg font-black text-white uppercase tracking-tight">
+                Squad Roster In Formation
+              </h3>
+              <p className="text-xs sm:text-sm text-[#A4B0A8] max-w-md mx-auto">
+                Official squad profiles are being registered for the upcoming competitive season.
+                Apply for upcoming academy trials to join the roster.
+              </p>
+            </div>
+            <Link href="/join">
+              <Button className="bg-[#B9F66B] text-[#101A17] font-black text-xs uppercase tracking-wider px-6 py-2.5 rounded-full hover:bg-[#a8ec56] transition-all cursor-pointer">
+                Join The Academy
+              </Button>
+            </Link>
+          </div>
+        ) : (
+          /* Real Active Player Cards */
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
+            {players.map((player) => (
+              <PublicPlayerCard key={player._id} player={player} />
+            ))}
+          </div>
+        )}
 
-        {/* 3. Demonstration Disclaimer Footer */}
-        <div className="pt-2 text-center border-t border-white/[0.06]">
-          <p className="text-[11px] text-[#A4B0A8]/60 uppercase tracking-widest font-mono">
-            * Demonstration player profiles for platform showcase. Official squad
-            registrations will appear here upon completion of academy enrollments.
-          </p>
+        {/* 3. Squad Roster Footer Link */}
+        <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-white/[0.06] text-[11px] font-mono text-[#A4B0A8]/70">
+          <span>
+            Morning Football Academy • Official Registered Player Roster
+          </span>
+          <Link
+            href="/squad"
+            className="text-[#B9F66B] hover:underline flex items-center gap-1.5 font-bold uppercase tracking-wider"
+          >
+            <span>Explore all positions</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
         </div>
       </div>
     </section>

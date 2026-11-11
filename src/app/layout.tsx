@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import type { ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import "./globals.css";
@@ -30,7 +30,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
       <body
         className="min-h-screen antialiased flex flex-col bg-[#0A0A0A] text-white"
       >
-        <Navbar />
+        <Suspense fallback={<header className="h-20 bg-[#0A0A0A]" />}>
+          <Navbar />
+        </Suspense>
         <main className="flex-1 flex flex-col">{children}</main>
         <Footer />
       </body>
