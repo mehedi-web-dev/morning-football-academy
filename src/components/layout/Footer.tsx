@@ -51,7 +51,7 @@ const QUICK_LINKS = [
 // Club Resources Data
 const CLUB_RESOURCES = [
   { label: "News", href: "/#news" },
-  { label: "Gallery", href: "/#gallery" },
+  { label: "Gallery", href: "/gallery" },
   { label: "Player Statistics", href: "/#players" },
   { label: "Join Our Academy", href: "/#join", badge: "Enroll" },
 ];

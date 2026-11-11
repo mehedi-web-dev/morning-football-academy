@@ -18,7 +18,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "FIXTURES", href: "/#fixtures" },
   { label: "RESULTS", href: "/#results" },
   { label: "NEWS", href: "/#news" },
-  { label: "GALLERY", href: "/#gallery" },
+  { label: "GALLERY", href: "/gallery" },
 ];
 
 /**
