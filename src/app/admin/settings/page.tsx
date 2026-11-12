@@ -136,13 +136,13 @@ export default function AdminSettingsPage() {
 
           <div className="p-4 rounded-xl bg-[#18251F] border border-white/5 space-y-1">
             <span className="text-[10px] font-mono text-[#A4B0A8] uppercase tracking-wider block">
-              AUTH BACKEND BASE URL
+              AUTH BACKEND PROXY DESTINATION
             </span>
             <span className="text-sm font-mono text-white block">
               {process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}
             </span>
             <span className="text-[10px] font-mono text-[#B9F66B] uppercase">
-              CROSS-ORIGIN CREDENTIALS ENABLED
+              SAME-ORIGIN PROXY (/api/*) ENABLED
             </span>
           </div>
         </div>

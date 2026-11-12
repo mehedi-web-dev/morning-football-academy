@@ -1,11 +1,19 @@
 /**
  * Morning Football Academy API Client
- * Connects to the Express backend API (/api/v1) with cross-origin credentials
+ * Browser requests route through the same-origin Next.js /api rewrites proxy.
+ * Server-side calls (SSR / prerender) fallback to direct backend connectivity.
  */
 
-const API_BASE_URL = (
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
-).replace(/\/+$/, "");
+const getApiBaseUrl = (): string => {
+  if (typeof window !== "undefined") {
+    // In the browser, use same-origin relative path to leverage Next.js rewrite proxy
+    return "";
+  }
+  // On the server (SSR / SSG), call the backend URL directly
+  return (
+    process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
+  ).replace(/\/+$/, "");
+};
 
 export interface PaginationMeta {
   total: number;
@@ -213,7 +221,8 @@ async function request<T>(
     ? cleanEndpoint
     : `/api/v1${cleanEndpoint}`;
 
-  const url = `${API_BASE_URL}${path}`;
+  const baseUrl = getApiBaseUrl();
+  const url = `${baseUrl}${path}`;
 
   const defaultHeaders: HeadersInit = {
     "Content-Type": "application/json",
