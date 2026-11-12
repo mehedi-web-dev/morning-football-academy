@@ -5,6 +5,10 @@ import Footer from "../components/layout/Footer";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    "https://morning-football-academy.vercel.app"
+  ),
   title: {
     default: "Morning Football Academy | Official Football Club",
     template: "%s | Morning Football Academy",
