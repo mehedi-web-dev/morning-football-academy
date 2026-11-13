@@ -17,6 +17,8 @@ import {
   Clock,
   Info,
   RotateCcw,
+  Users,
+  HeartPulse,
 } from "lucide-react";
 import { Button, Chip } from "@heroui/react";
 import {
@@ -24,6 +26,9 @@ import {
   CreateRegistrationInput,
   RegistrationDocument,
   ApiError,
+  Gender,
+  DominantFoot,
+  ExperienceLevel,
 } from "../../lib/api-client";
 import { toBnNum, getBnPosition } from "../../lib/bn-utils";
 
@@ -37,6 +42,53 @@ const POSITION_OPTIONS = [
   "Winger",
   "Striker / Centre Forward",
 ];
+
+const GENDER_OPTIONS = [
+  { value: "male", label: "পুরুষ" },
+  { value: "female", label: "মহিলা" },
+  { value: "other", label: "অন্যান্য" },
+];
+
+const DOMINANT_FOOT_OPTIONS = [
+  { value: "right", label: "ডান পা" },
+  { value: "left", label: "বাম পা" },
+  { value: "both", label: "দুই পা-ই" },
+];
+
+const EXPERIENCE_LEVEL_OPTIONS = [
+  { value: "beginner", label: "শিক্ষানবিশ (বিগিনার)" },
+  { value: "intermediate", label: "মধ্যম (ইন্টারমিডিয়েট)" },
+  { value: "advanced", label: "উন্নত (অ্যাডভান্সড)" },
+  { value: "professional", label: "পেশাদার" },
+];
+
+const fieldInputClass = (hasError: boolean) =>
+  `w-full bg-[#101A17] border rounded-xl px-4 py-3 text-xs sm:text-sm text-white placeholder-[#A4B0A8]/50 focus:outline-none transition-colors ${
+    hasError
+      ? "border-red-500 focus:border-red-500"
+      : "border-white/10 focus:border-[#B9F66B]/60"
+  }`;
+
+const fieldSelectClass = (hasError: boolean) =>
+  `${fieldInputClass(hasError)} cursor-pointer`;
+
+const fieldTextareaClass = (hasError: boolean) =>
+  `w-full bg-[#101A17] border rounded-xl p-3.5 text-xs sm:text-sm text-white placeholder-[#A4B0A8]/50 focus:outline-none transition-colors resize-none leading-relaxed ${
+    hasError
+      ? "border-red-500 focus:border-red-500"
+      : "border-white/10 focus:border-[#B9F66B]/60"
+  }`;
+
+function FieldError({ message }: { message?: string }) {
+  if (!message) return null;
+  return <p className="text-[11px] text-red-400 font-mono mt-1">{message}</p>;
+}
+
+function parseNumber(value: string): number | null {
+  if (!value.trim()) return null;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
 
 /**
  * Calculate age from date of birth string
@@ -75,6 +127,42 @@ export default function JoinPage() {
   const [experience, setExperience] = useState("");
   const [message, setMessage] = useState("");
 
+  // Personal Information
+  const [gender, setGender] = useState("");
+  const [nationality, setNationality] = useState("বাংলাদেশি");
+  const [presentAddress, setPresentAddress] = useState("");
+  const [district, setDistrict] = useState("");
+  const [upazila, setUpazila] = useState("");
+
+  // Guardian & Emergency Contact
+  const [guardianName, setGuardianName] = useState("");
+  const [guardianPhone, setGuardianPhone] = useState("");
+  const [emergencyContactName, setEmergencyContactName] = useState("");
+  const [emergencyContactPhone, setEmergencyContactPhone] = useState("");
+
+  // Football Profile
+  const [primaryPosition, setPrimaryPosition] = useState(POSITION_OPTIONS[4]);
+  const [secondaryPosition, setSecondaryPosition] = useState("");
+  const [preferredJerseyNumber, setPreferredJerseyNumber] = useState("");
+  const [dominantFoot, setDominantFoot] = useState("");
+  const [height, setHeight] = useState("");
+  const [weight, setWeight] = useState("");
+
+  // Football Experience
+  const [experienceLevel, setExperienceLevel] = useState("");
+  const [yearsOfExperience, setYearsOfExperience] = useState("");
+  const [previousClub, setPreviousClub] = useState("");
+  const [previousTournaments, setPreviousTournaments] = useState("");
+  const [achievements, setAchievements] = useState("");
+  const [currentInstitution, setCurrentInstitution] = useState("");
+
+  // Health & Additional Information
+  const [hasInjury, setHasInjury] = useState<boolean | null>(null);
+  const [injuryDetails, setInjuryDetails] = useState("");
+  const [allergies, setAllergies] = useState("");
+  const [motivation, setMotivation] = useState("");
+  const [additionalNotes, setAdditionalNotes] = useState("");
+
   // Submission & Validation State
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -84,6 +172,15 @@ export default function JoinPage() {
 
   // Derived live age preview
   const calculatedAge = calculateAge(dateOfBirth);
+
+  const clearFieldError = (field: string) => {
+    setFieldErrors((prev) => {
+      if (!prev[field]) return prev;
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
+  };
 
   // Validate Form against exact backend contracts
   const validateForm = (): boolean => {
@@ -154,7 +251,185 @@ export default function JoinPage() {
       errors.experience = "অভিজ্ঞতার বিবরণ ৫০০ অক্ষরের বেশি হতে পারবে না।";
     }
 
-    // 7. Message: max 1000 (optional)
+    // 7. Personal Information
+    if (!gender) {
+      errors.gender = "দয়া করে লিঙ্গ নির্বাচন করুন।";
+    }
+
+    const cleanNationality = nationality.trim();
+    if (!cleanNationality) {
+      errors.nationality = "দয়া করে আপনার জাতীয়তা লিখুন।";
+    } else if (cleanNationality.length < 2) {
+      errors.nationality = "জাতীয়তা অন্তত ২ অক্ষরের হতে হবে।";
+    } else if (cleanNationality.length > 50) {
+      errors.nationality = "জাতীয়তা ৫০ অক্ষরের বেশি হতে পারবে না।";
+    }
+
+    const cleanAddress = presentAddress.trim();
+    if (!cleanAddress) {
+      errors.presentAddress = "দয়া করে আপনার বর্তমান ঠিকানা লিখুন।";
+    } else if (cleanAddress.length < 5) {
+      errors.presentAddress = "বর্তমান ঠিকানা অন্তত ৫ অক্ষরের হতে হবে।";
+    } else if (cleanAddress.length > 300) {
+      errors.presentAddress = "বর্তমান ঠিকানা ৩০০ অক্ষরের বেশি হতে পারবে না।";
+    }
+
+    const cleanDistrict = district.trim();
+    if (!cleanDistrict) {
+      errors.district = "দয়া করে জেলা লিখুন।";
+    } else if (cleanDistrict.length < 2) {
+      errors.district = "জেলার নাম অন্তত ২ অক্ষরের হতে হবে।";
+    } else if (cleanDistrict.length > 50) {
+      errors.district = "জেলার নাম ৫০ অক্ষরের বেশি হতে পারবে না।";
+    }
+
+    const cleanUpazila = upazila.trim();
+    if (!cleanUpazila) {
+      errors.upazila = "দয়া করে উপজেলা লিখুন।";
+    } else if (cleanUpazila.length < 2) {
+      errors.upazila = "উপজেলার নাম অন্তত ২ অক্ষরের হতে হবে।";
+    } else if (cleanUpazila.length > 50) {
+      errors.upazila = "উপজেলার নাম ৫০ অক্ষরের বেশি হতে পারবে না।";
+    }
+
+    // 8. Guardian & Emergency Contact
+    const cleanGuardianName = guardianName.trim();
+    if (!cleanGuardianName) {
+      errors.guardianName = "দয়া করে অভিভাবকের পুরো নাম লিখুন।";
+    } else if (cleanGuardianName.length < 2) {
+      errors.guardianName = "অভিভাবকের নাম অন্তত ২ অক্ষরের হতে হবে।";
+    } else if (cleanGuardianName.length > 100) {
+      errors.guardianName = "অভিভাবকের নাম ১০০ অক্ষরের বেশি হতে পারবে না।";
+    }
+
+    const cleanGuardianPhone = guardianPhone.trim();
+    if (!cleanGuardianPhone) {
+      errors.guardianPhone = "দয়া করে অভিভাবকের ফোন নম্বর দিন।";
+    } else if (cleanGuardianPhone.length < 6) {
+      errors.guardianPhone = "অভিভাবকের ফোন নম্বর অন্তত ৬ ডিজিটের হতে হবে।";
+    } else if (cleanGuardianPhone.length > 20) {
+      errors.guardianPhone = "অভিভাবকের ফোন নম্বর ২০ অক্ষরের বেশি হতে পারবে না।";
+    }
+
+    const cleanEmergencyName = emergencyContactName.trim();
+    if (!cleanEmergencyName) {
+      errors.emergencyContactName = "দয়া করে জরুরি যোগাযোগের ব্যক্তির নাম লিখুন।";
+    } else if (cleanEmergencyName.length < 2) {
+      errors.emergencyContactName = "জরুরি যোগাযোগের নাম অন্তত ২ অক্ষরের হতে হবে।";
+    } else if (cleanEmergencyName.length > 100) {
+      errors.emergencyContactName =
+        "জরুরি যোগাযোগের নাম ১০০ অক্ষরের বেশি হতে পারবে না।";
+    }
+
+    const cleanEmergencyPhone = emergencyContactPhone.trim();
+    if (!cleanEmergencyPhone) {
+      errors.emergencyContactPhone = "দয়া করে জরুরি যোগাযোগের ফোন নম্বর দিন।";
+    } else if (cleanEmergencyPhone.length < 6) {
+      errors.emergencyContactPhone =
+        "জরুরি যোগাযোগের ফোন নম্বর অন্তত ৬ ডিজিটের হতে হবে।";
+    } else if (cleanEmergencyPhone.length > 20) {
+      errors.emergencyContactPhone =
+        "জরুরি যোগাযোগের ফোন নম্বর ২০ অক্ষরের বেশি হতে পারবে না।";
+    }
+
+    // 9. Football Profile
+    const cleanPrimaryPosition = primaryPosition.trim();
+    if (!cleanPrimaryPosition) {
+      errors.primaryPosition = "দয়া করে প্রধান খেলার পজিশন নির্বাচন করুন।";
+    } else if (cleanPrimaryPosition.length < 2) {
+      errors.primaryPosition = "প্রধান পজিশন অন্তত ২ অক্ষরের হতে হবে।";
+    } else if (cleanPrimaryPosition.length > 50) {
+      errors.primaryPosition = "প্রধান পজিশন ৫০ অক্ষরের বেশি হতে পারবে না।";
+    }
+
+    if (secondaryPosition.trim().length > 50) {
+      errors.secondaryPosition = "দ্বিতীয় পজিশন ৫০ অক্ষরের বেশি হতে পারবে না।";
+    }
+
+    const jerseyNumber = parseNumber(preferredJerseyNumber);
+    if (jerseyNumber === null) {
+      errors.preferredJerseyNumber = "দয়া করে পছন্দের জার্সি নম্বর দিন।";
+    } else if (!Number.isInteger(jerseyNumber) || jerseyNumber < 1 || jerseyNumber > 99) {
+      errors.preferredJerseyNumber =
+        "জার্সি নম্বর ১ থেকে ৯৯ এর মধ্যে পূর্ণসংখ্যা হতে হবে।";
+    }
+
+    if (!dominantFoot) {
+      errors.dominantFoot = "দয়া করে আপনার শক্তিশালী পা নির্বাচন করুন।";
+    }
+
+    const heightValue = parseNumber(height);
+    if (heightValue === null) {
+      errors.height = "দয়া করে আপনার উচ্চতা (সেন্টিমিটার) দিন।";
+    } else if (heightValue < 100 || heightValue > 250) {
+      errors.height = "উচ্চতা ১০০ থেকে ২৫০ সেন্টিমিটারের মধ্যে হতে হবে।";
+    }
+
+    const weightValue = parseNumber(weight);
+    if (weightValue === null) {
+      errors.weight = "দয়া করে আপনার ওজন (কেজি) দিন।";
+    } else if (weightValue < 25 || weightValue > 200) {
+      errors.weight = "ওজন ২৫ থেকে ২০০ কেজির মধ্যে হতে হবে।";
+    }
+
+    // 10. Football Experience Details
+    if (!experienceLevel) {
+      errors.experienceLevel = "দয়া করে আপনার অভিজ্ঞতার স্তর নির্বাচন করুন।";
+    }
+
+    const yearsValue = parseNumber(yearsOfExperience);
+    if (yearsValue === null) {
+      errors.yearsOfExperience = "দয়া করে খেলার অভিজ্ঞতার বছর লিখুন।";
+    } else if (!Number.isInteger(yearsValue) || yearsValue < 0 || yearsValue > 50) {
+      errors.yearsOfExperience =
+        "অভিজ্ঞতার বছর ০ থেকে ৫০ এর মধ্যে পূর্ণসংখ্যা হতে হবে।";
+    }
+
+    if (previousClub.trim().length > 200) {
+      errors.previousClub = "পূর্ববর্তী ক্লাব/একাডেমির নাম ২০০ অক্ষরের বেশি হতে পারবে না।";
+    }
+
+    if (previousTournaments.trim().length > 300) {
+      errors.previousTournaments =
+        "পূর্ববর্তী টুর্নামেন্টের বিবরণ ৩০০ অক্ষরের বেশি হতে পারবে না।";
+    }
+
+    if (achievements.trim().length > 300) {
+      errors.achievements = "অর্জন ও পুরস্কারের বিবরণ ৩০০ অক্ষরের বেশি হতে পারবে না।";
+    }
+
+    if (currentInstitution.trim().length > 200) {
+      errors.currentInstitution =
+        "বর্তমান স্কুল/কলেজের নাম ২০০ অক্ষরের বেশি হতে পারবে না।";
+    }
+
+    // 11. Health & Additional Information
+    if (hasInjury === null) {
+      errors.hasInjury = "দয়া করে জানান আপনার বর্তমানে কোনো আঘাত বা শারীরিক সীমাবদ্ধতা আছে কি না।";
+    } else if (hasInjury && !injuryDetails.trim()) {
+      errors.injuryDetails = "আঘাত বা শারীরিক সীমাবদ্ধতার বিবরণ লিখুন।";
+    } else if (injuryDetails.trim().length > 500) {
+      errors.injuryDetails = "আঘাতের বিবরণ ৫০০ অক্ষরের বেশি হতে পারবে না।";
+    }
+
+    if (allergies.trim().length > 500) {
+      errors.allergies = "অ্যালার্জি বা স্বাস্থ্য সংক্রান্ত তথ্য ৫০০ অক্ষরের বেশি হতে পারবে না।";
+    }
+
+    const cleanMotivation = motivation.trim();
+    if (!cleanMotivation) {
+      errors.motivation = "দয়া করে একাডেমিতে যোগ দেওয়ার কারণ লিখুন।";
+    } else if (cleanMotivation.length < 2) {
+      errors.motivation = "যোগ দেওয়ার কারণ অন্তত ২ অক্ষরের হতে হবে।";
+    } else if (cleanMotivation.length > 1000) {
+      errors.motivation = "যোগ দেওয়ার কারণ ১০০০ অক্ষরের বেশি হতে পারবে না।";
+    }
+
+    if (additionalNotes.trim().length > 1000) {
+      errors.additionalNotes = "অতিরিক্ত তথ্য ১০০০ অক্ষরের বেশি হতে পারবে না।";
+    }
+
+    // 12. Message: max 1000 (optional)
     if (message.trim().length > 1000) {
       errors.message = "ব্যক্তিগত বার্তা ১০০০ অক্ষরের বেশি হতে পারবে না।";
     }
@@ -182,6 +457,32 @@ export default function JoinPage() {
       position: finalPosition,
       experience: experience.trim(),
       message: message.trim() || undefined,
+      gender: gender as Gender,
+      nationality: nationality.trim(),
+      presentAddress: presentAddress.trim(),
+      district: district.trim(),
+      upazila: upazila.trim(),
+      guardianName: guardianName.trim(),
+      guardianPhone: guardianPhone.trim(),
+      emergencyContactName: emergencyContactName.trim(),
+      emergencyContactPhone: emergencyContactPhone.trim(),
+      primaryPosition: primaryPosition.trim(),
+      secondaryPosition: secondaryPosition.trim() || undefined,
+      preferredJerseyNumber: Number(preferredJerseyNumber),
+      dominantFoot: dominantFoot as DominantFoot,
+      height: Number(height),
+      weight: Number(weight),
+      experienceLevel: experienceLevel as ExperienceLevel,
+      yearsOfExperience: Number(yearsOfExperience),
+      previousClub: previousClub.trim() || undefined,
+      previousTournaments: previousTournaments.trim() || undefined,
+      achievements: achievements.trim() || undefined,
+      currentInstitution: currentInstitution.trim() || undefined,
+      hasInjury: hasInjury === true,
+      injuryDetails: hasInjury === true ? injuryDetails.trim() || undefined : undefined,
+      allergies: allergies.trim() || undefined,
+      motivation: motivation.trim(),
+      additionalNotes: additionalNotes.trim() || undefined,
     };
 
     try {
@@ -194,8 +495,20 @@ export default function JoinPage() {
     } catch (err: unknown) {
       if (err instanceof ApiError) {
         if (err.statusCode === 400 && typeof err.details === "object" && err.details) {
-          const det = err.details as Record<string, string>;
-          setFieldErrors(det);
+          if (Array.isArray(err.details)) {
+            const mappedErrors: Record<string, string> = {};
+            for (const detail of err.details as Array<{
+              field?: string;
+              message?: string;
+            }>) {
+              if (detail.field) {
+                mappedErrors[detail.field] = detail.message || "তথ্যটি যাচাই করুন।";
+              }
+            }
+            setFieldErrors(mappedErrors);
+          } else {
+            setFieldErrors(err.details as Record<string, string>);
+          }
           setSubmitError(err.message || "অনুগ্রহ করে নিচের ভুল তথ্য সংশোধন করুন।");
         } else {
           setSubmitError(err.message);
@@ -222,6 +535,32 @@ export default function JoinPage() {
     setIsCustomPosition(false);
     setExperience("");
     setMessage("");
+    setGender("");
+    setNationality("বাংলাদেশি");
+    setPresentAddress("");
+    setDistrict("");
+    setUpazila("");
+    setGuardianName("");
+    setGuardianPhone("");
+    setEmergencyContactName("");
+    setEmergencyContactPhone("");
+    setPrimaryPosition(POSITION_OPTIONS[4]);
+    setSecondaryPosition("");
+    setPreferredJerseyNumber("");
+    setDominantFoot("");
+    setHeight("");
+    setWeight("");
+    setExperienceLevel("");
+    setYearsOfExperience("");
+    setPreviousClub("");
+    setPreviousTournaments("");
+    setAchievements("");
+    setCurrentInstitution("");
+    setHasInjury(null);
+    setInjuryDetails("");
+    setAllergies("");
+    setMotivation("");
+    setAdditionalNotes("");
     setFieldErrors({});
     setSubmitError(null);
   };
@@ -502,6 +841,62 @@ export default function JoinPage() {
                   )}
                 </div>
 
+                {/* Gender & Nationality Row */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Gender */}
+                  <div>
+                    <label
+                      htmlFor="gender"
+                      className="text-xs font-mono text-[#A4B0A8] uppercase tracking-wider block mb-1.5"
+                    >
+                      লিঙ্গ <span className="text-[#B9F66B]">*</span>
+                    </label>
+                    <select
+                      id="gender"
+                      value={gender}
+                      onChange={(e) => {
+                        setGender(e.target.value);
+                        clearFieldError("gender");
+                      }}
+                      disabled={isSubmitting}
+                      className={fieldSelectClass(!!fieldErrors.gender)}
+                    >
+                      <option value="" disabled>
+                        লিঙ্গ নির্বাচন করুন
+                      </option>
+                      {GENDER_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                    <FieldError message={fieldErrors.gender} />
+                  </div>
+
+                  {/* Nationality */}
+                  <div>
+                    <label
+                      htmlFor="nationality"
+                      className="text-xs font-mono text-[#A4B0A8] uppercase tracking-wider block mb-1.5"
+                    >
+                      জাতীয়তা <span className="text-[#B9F66B]">*</span>
+                    </label>
+                    <input
+                      id="nationality"
+                      type="text"
+                      value={nationality}
+                      onChange={(e) => {
+                        setNationality(e.target.value);
+                        clearFieldError("nationality");
+                      }}
+                      disabled={isSubmitting}
+                      placeholder="যেমন: বাংলাদেশি"
+                      className={fieldInputClass(!!fieldErrors.nationality)}
+                    />
+                    <FieldError message={fieldErrors.nationality} />
+                  </div>
+                </div>
+
                 {/* 2. Email & Phone Row */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* Email */}
@@ -583,6 +978,35 @@ export default function JoinPage() {
                       </span>
                     )}
                   </div>
+                </div>
+
+                {/* Present Address */}
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label
+                      htmlFor="presentAddress"
+                      className="text-xs font-mono text-[#A4B0A8] uppercase tracking-wider block"
+                    >
+                      বর্তমান ঠিকানা <span className="text-[#B9F66B]">*</span>
+                    </label>
+                    <span className="text-[10px] font-mono text-[#A4B0A8]/60">
+                      {toBnNum(presentAddress.length)} / ৩০০ অক্ষর
+                    </span>
+                  </div>
+                  <textarea
+                    id="presentAddress"
+                    rows={2}
+                    value={presentAddress}
+                    onChange={(e) => {
+                      setPresentAddress(e.target.value);
+                      clearFieldError("presentAddress");
+                    }}
+                    disabled={isSubmitting}
+                    maxLength={300}
+                    placeholder="বাসা/রোড, এলাকা, শহর"
+                    className={fieldTextareaClass(!!fieldErrors.presentAddress)}
+                  />
+                  <FieldError message={fieldErrors.presentAddress} />
                 </div>
 
                 {/* 3. Date of Birth & Preferred Position Row */}
@@ -695,6 +1119,348 @@ export default function JoinPage() {
                   </div>
                 </div>
 
+                {/* District & Upazila Row */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* District */}
+                  <div>
+                    <label
+                      htmlFor="district"
+                      className="text-xs font-mono text-[#A4B0A8] uppercase tracking-wider block mb-1.5"
+                    >
+                      জেলা <span className="text-[#B9F66B]">*</span>
+                    </label>
+                    <input
+                      id="district"
+                      type="text"
+                      value={district}
+                      onChange={(e) => {
+                        setDistrict(e.target.value);
+                        clearFieldError("district");
+                      }}
+                      disabled={isSubmitting}
+                      placeholder="যেমন: ঢাকা"
+                      className={fieldInputClass(!!fieldErrors.district)}
+                    />
+                    <FieldError message={fieldErrors.district} />
+                  </div>
+
+                  {/* Upazila */}
+                  <div>
+                    <label
+                      htmlFor="upazila"
+                      className="text-xs font-mono text-[#A4B0A8] uppercase tracking-wider block mb-1.5"
+                    >
+                      উপজেলা <span className="text-[#B9F66B]">*</span>
+                    </label>
+                    <input
+                      id="upazila"
+                      type="text"
+                      value={upazila}
+                      onChange={(e) => {
+                        setUpazila(e.target.value);
+                        clearFieldError("upazila");
+                      }}
+                      disabled={isSubmitting}
+                      placeholder="যেমন: ধানমন্ডি"
+                      className={fieldInputClass(!!fieldErrors.upazila)}
+                    />
+                    <FieldError message={fieldErrors.upazila} />
+                  </div>
+                </div>
+
+                {/* Guardian & Emergency Contact Section */}
+                <div className="flex items-center gap-2 border-b border-white/10 pb-2 pt-2">
+                  <Users className="w-4 h-4 text-[#B9F66B]" />
+                  <h3 className="text-sm font-black text-white tracking-wide">
+                    অভিভাবক ও জরুরি যোগাযোগ
+                  </h3>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Guardian Name */}
+                  <div>
+                    <label
+                      htmlFor="guardianName"
+                      className="text-xs font-mono text-[#A4B0A8] uppercase tracking-wider block mb-1.5"
+                    >
+                      অভিভাবকের পুরো নাম <span className="text-[#B9F66B]">*</span>
+                    </label>
+                    <input
+                      id="guardianName"
+                      type="text"
+                      value={guardianName}
+                      onChange={(e) => {
+                        setGuardianName(e.target.value);
+                        clearFieldError("guardianName");
+                      }}
+                      disabled={isSubmitting}
+                      placeholder="যেমন: মোঃ রফিকুল ইসলাম"
+                      className={fieldInputClass(!!fieldErrors.guardianName)}
+                    />
+                    <FieldError message={fieldErrors.guardianName} />
+                  </div>
+
+                  {/* Guardian Phone */}
+                  <div>
+                    <label
+                      htmlFor="guardianPhone"
+                      className="text-xs font-mono text-[#A4B0A8] uppercase tracking-wider block mb-1.5"
+                    >
+                      অভিভাবকের ফোন নম্বর <span className="text-[#B9F66B]">*</span>
+                    </label>
+                    <input
+                      id="guardianPhone"
+                      type="tel"
+                      value={guardianPhone}
+                      onChange={(e) => {
+                        setGuardianPhone(e.target.value);
+                        clearFieldError("guardianPhone");
+                      }}
+                      disabled={isSubmitting}
+                      placeholder="যেমন: +৮৮০ ১৭XXXXXXXX"
+                      className={fieldInputClass(!!fieldErrors.guardianPhone)}
+                    />
+                    <FieldError message={fieldErrors.guardianPhone} />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Emergency Contact Name */}
+                  <div>
+                    <label
+                      htmlFor="emergencyContactName"
+                      className="text-xs font-mono text-[#A4B0A8] uppercase tracking-wider block mb-1.5"
+                    >
+                      জরুরি যোগাযোগের ব্যক্তির নাম <span className="text-[#B9F66B]">*</span>
+                    </label>
+                    <input
+                      id="emergencyContactName"
+                      type="text"
+                      value={emergencyContactName}
+                      onChange={(e) => {
+                        setEmergencyContactName(e.target.value);
+                        clearFieldError("emergencyContactName");
+                      }}
+                      disabled={isSubmitting}
+                      placeholder="যেমন: সাদিয়া আক্তার"
+                      className={fieldInputClass(!!fieldErrors.emergencyContactName)}
+                    />
+                    <FieldError message={fieldErrors.emergencyContactName} />
+                  </div>
+
+                  {/* Emergency Contact Phone */}
+                  <div>
+                    <label
+                      htmlFor="emergencyContactPhone"
+                      className="text-xs font-mono text-[#A4B0A8] uppercase tracking-wider block mb-1.5"
+                    >
+                      জরুরি যোগাযোগের ফোন নম্বর <span className="text-[#B9F66B]">*</span>
+                    </label>
+                    <input
+                      id="emergencyContactPhone"
+                      type="tel"
+                      value={emergencyContactPhone}
+                      onChange={(e) => {
+                        setEmergencyContactPhone(e.target.value);
+                        clearFieldError("emergencyContactPhone");
+                      }}
+                      disabled={isSubmitting}
+                      placeholder="যেমন: +৮৮০ ১৮XXXXXXXX"
+                      className={fieldInputClass(!!fieldErrors.emergencyContactPhone)}
+                    />
+                    <FieldError message={fieldErrors.emergencyContactPhone} />
+                  </div>
+                </div>
+
+                {/* Football Profile Section */}
+                <div className="flex items-center gap-2 border-b border-white/10 pb-2 pt-2">
+                  <Shield className="w-4 h-4 text-[#B9F66B]" />
+                  <h3 className="text-sm font-black text-white tracking-wide">
+                    ফুটবল প্রোফাইল
+                  </h3>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Primary Playing Position */}
+                  <div>
+                    <label
+                      htmlFor="primaryPosition"
+                      className="text-xs font-mono text-[#A4B0A8] uppercase tracking-wider block mb-1.5"
+                    >
+                      প্রধান খেলার পজিশন <span className="text-[#B9F66B]">*</span>
+                    </label>
+                    <select
+                      id="primaryPosition"
+                      value={primaryPosition}
+                      onChange={(e) => {
+                        setPrimaryPosition(e.target.value);
+                        clearFieldError("primaryPosition");
+                      }}
+                      disabled={isSubmitting}
+                      className={fieldSelectClass(!!fieldErrors.primaryPosition)}
+                    >
+                      {POSITION_OPTIONS.map((pos) => (
+                        <option key={pos} value={pos}>
+                          {getBnPosition(pos)}
+                        </option>
+                      ))}
+                    </select>
+                    <FieldError message={fieldErrors.primaryPosition} />
+                  </div>
+
+                  {/* Secondary Playing Position */}
+                  <div>
+                    <label
+                      htmlFor="secondaryPosition"
+                      className="text-xs font-mono text-[#A4B0A8] uppercase tracking-wider block mb-1.5"
+                    >
+                      দ্বিতীয় খেলার পজিশন{" "}
+                      <span className="text-[#A4B0A8]/60 font-normal">(ঐচ্ছিক)</span>
+                    </label>
+                    <select
+                      id="secondaryPosition"
+                      value={secondaryPosition}
+                      onChange={(e) => {
+                        setSecondaryPosition(e.target.value);
+                        clearFieldError("secondaryPosition");
+                      }}
+                      disabled={isSubmitting}
+                      className={fieldSelectClass(!!fieldErrors.secondaryPosition)}
+                    >
+                      <option value="">প্রযোজ্য নয়</option>
+                      {POSITION_OPTIONS.map((pos) => (
+                        <option key={pos} value={pos}>
+                          {getBnPosition(pos)}
+                        </option>
+                      ))}
+                    </select>
+                    <FieldError message={fieldErrors.secondaryPosition} />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Preferred Jersey Number */}
+                  <div>
+                    <label
+                      htmlFor="preferredJerseyNumber"
+                      className="text-xs font-mono text-[#A4B0A8] uppercase tracking-wider block mb-1.5"
+                    >
+                      পছন্দের জার্সি নম্বর <span className="text-[#B9F66B]">*</span>
+                    </label>
+                    <input
+                      id="preferredJerseyNumber"
+                      type="number"
+                      inputMode="numeric"
+                      min={1}
+                      max={99}
+                      step={1}
+                      value={preferredJerseyNumber}
+                      onChange={(e) => {
+                        setPreferredJerseyNumber(e.target.value);
+                        clearFieldError("preferredJerseyNumber");
+                      }}
+                      disabled={isSubmitting}
+                      placeholder="১ - ৯৯"
+                      className={fieldInputClass(!!fieldErrors.preferredJerseyNumber)}
+                    />
+                    <FieldError message={fieldErrors.preferredJerseyNumber} />
+                  </div>
+
+                  {/* Dominant Foot */}
+                  <div>
+                    <label
+                      htmlFor="dominantFoot"
+                      className="text-xs font-mono text-[#A4B0A8] uppercase tracking-wider block mb-1.5"
+                    >
+                      শক্তিশালী পা <span className="text-[#B9F66B]">*</span>
+                    </label>
+                    <select
+                      id="dominantFoot"
+                      value={dominantFoot}
+                      onChange={(e) => {
+                        setDominantFoot(e.target.value);
+                        clearFieldError("dominantFoot");
+                      }}
+                      disabled={isSubmitting}
+                      className={fieldSelectClass(!!fieldErrors.dominantFoot)}
+                    >
+                      <option value="" disabled>
+                        শক্তিশালী পা নির্বাচন করুন
+                      </option>
+                      {DOMINANT_FOOT_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                    <FieldError message={fieldErrors.dominantFoot} />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Height */}
+                  <div>
+                    <label
+                      htmlFor="height"
+                      className="text-xs font-mono text-[#A4B0A8] uppercase tracking-wider block mb-1.5"
+                    >
+                      উচ্চতা (সেন্টিমিটার) <span className="text-[#B9F66B]">*</span>
+                    </label>
+                    <input
+                      id="height"
+                      type="number"
+                      inputMode="numeric"
+                      min={100}
+                      max={250}
+                      step={1}
+                      value={height}
+                      onChange={(e) => {
+                        setHeight(e.target.value);
+                        clearFieldError("height");
+                      }}
+                      disabled={isSubmitting}
+                      placeholder="যেমন: ১৭৫"
+                      className={fieldInputClass(!!fieldErrors.height)}
+                    />
+                    <FieldError message={fieldErrors.height} />
+                  </div>
+
+                  {/* Weight */}
+                  <div>
+                    <label
+                      htmlFor="weight"
+                      className="text-xs font-mono text-[#A4B0A8] uppercase tracking-wider block mb-1.5"
+                    >
+                      ওজন (কেজি) <span className="text-[#B9F66B]">*</span>
+                    </label>
+                    <input
+                      id="weight"
+                      type="number"
+                      inputMode="numeric"
+                      min={25}
+                      max={200}
+                      step={1}
+                      value={weight}
+                      onChange={(e) => {
+                        setWeight(e.target.value);
+                        clearFieldError("weight");
+                      }}
+                      disabled={isSubmitting}
+                      placeholder="যেমন: ৬৫"
+                      className={fieldInputClass(!!fieldErrors.weight)}
+                    />
+                    <FieldError message={fieldErrors.weight} />
+                  </div>
+                </div>
+
+                {/* Football Experience Section */}
+                <div className="flex items-center gap-2 border-b border-white/10 pb-2 pt-2">
+                  <Trophy className="w-4 h-4 text-[#B9F66B]" />
+                  <h3 className="text-sm font-black text-white tracking-wide">
+                    ফুটবল অভিজ্ঞতা
+                  </h3>
+                </div>
+
                 {/* 4. Football Playing Experience */}
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
@@ -738,6 +1504,347 @@ export default function JoinPage() {
                   )}
                 </div>
 
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Experience Level */}
+                  <div>
+                    <label
+                      htmlFor="experienceLevel"
+                      className="text-xs font-mono text-[#A4B0A8] uppercase tracking-wider block mb-1.5"
+                    >
+                      অভিজ্ঞতার স্তর <span className="text-[#B9F66B]">*</span>
+                    </label>
+                    <select
+                      id="experienceLevel"
+                      value={experienceLevel}
+                      onChange={(e) => {
+                        setExperienceLevel(e.target.value);
+                        clearFieldError("experienceLevel");
+                      }}
+                      disabled={isSubmitting}
+                      className={fieldSelectClass(!!fieldErrors.experienceLevel)}
+                    >
+                      <option value="" disabled>
+                        অভিজ্ঞতার স্তর নির্বাচন করুন
+                      </option>
+                      {EXPERIENCE_LEVEL_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                    <FieldError message={fieldErrors.experienceLevel} />
+                  </div>
+
+                  {/* Years of Experience */}
+                  <div>
+                    <label
+                      htmlFor="yearsOfExperience"
+                      className="text-xs font-mono text-[#A4B0A8] uppercase tracking-wider block mb-1.5"
+                    >
+                      খেলার অভিজ্ঞতা (বছর) <span className="text-[#B9F66B]">*</span>
+                    </label>
+                    <input
+                      id="yearsOfExperience"
+                      type="number"
+                      inputMode="numeric"
+                      min={0}
+                      max={50}
+                      step={1}
+                      value={yearsOfExperience}
+                      onChange={(e) => {
+                        setYearsOfExperience(e.target.value);
+                        clearFieldError("yearsOfExperience");
+                      }}
+                      disabled={isSubmitting}
+                      placeholder="যেমন: ৩"
+                      className={fieldInputClass(!!fieldErrors.yearsOfExperience)}
+                    />
+                    <FieldError message={fieldErrors.yearsOfExperience} />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Previous Club / Academy */}
+                  <div>
+                    <label
+                      htmlFor="previousClub"
+                      className="text-xs font-mono text-[#A4B0A8] uppercase tracking-wider block mb-1.5"
+                    >
+                      পূর্ববর্তী ক্লাব বা একাডেমি{" "}
+                      <span className="text-[#A4B0A8]/60 font-normal">(ঐচ্ছিক)</span>
+                    </label>
+                    <input
+                      id="previousClub"
+                      type="text"
+                      value={previousClub}
+                      onChange={(e) => {
+                        setPreviousClub(e.target.value);
+                        clearFieldError("previousClub");
+                      }}
+                      disabled={isSubmitting}
+                      placeholder="না থাকলে খালি রাখুন"
+                      className={fieldInputClass(!!fieldErrors.previousClub)}
+                    />
+                    <FieldError message={fieldErrors.previousClub} />
+                  </div>
+
+                  {/* Current School / College */}
+                  <div>
+                    <label
+                      htmlFor="currentInstitution"
+                      className="text-xs font-mono text-[#A4B0A8] uppercase tracking-wider block mb-1.5"
+                    >
+                      বর্তমান স্কুল বা কলেজ{" "}
+                      <span className="text-[#A4B0A8]/60 font-normal">(ঐচ্ছিক)</span>
+                    </label>
+                    <input
+                      id="currentInstitution"
+                      type="text"
+                      value={currentInstitution}
+                      onChange={(e) => {
+                        setCurrentInstitution(e.target.value);
+                        clearFieldError("currentInstitution");
+                      }}
+                      disabled={isSubmitting}
+                      placeholder="প্রতিষ্ঠানের নাম"
+                      className={fieldInputClass(!!fieldErrors.currentInstitution)}
+                    />
+                    <FieldError message={fieldErrors.currentInstitution} />
+                  </div>
+                </div>
+
+                {/* Previous Tournaments */}
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label
+                      htmlFor="previousTournaments"
+                      className="text-xs font-mono text-[#A4B0A8] uppercase tracking-wider block"
+                    >
+                      পূর্ববর্তী টুর্নামেন্টে অংশগ্রহণ{" "}
+                      <span className="text-[#A4B0A8]/60 font-normal">(ঐচ্ছিক)</span>
+                    </label>
+                    <span className="text-[10px] font-mono text-[#A4B0A8]/60">
+                      {toBnNum(previousTournaments.length)} / ৩০০ অক্ষর
+                    </span>
+                  </div>
+                  <textarea
+                    id="previousTournaments"
+                    rows={2}
+                    value={previousTournaments}
+                    onChange={(e) => {
+                      setPreviousTournaments(e.target.value);
+                      clearFieldError("previousTournaments");
+                    }}
+                    disabled={isSubmitting}
+                    maxLength={300}
+                    placeholder="অংশগ্রহণ করা টুর্নামেন্টের নাম ও সাল লিখুন"
+                    className={fieldTextareaClass(!!fieldErrors.previousTournaments)}
+                  />
+                  <FieldError message={fieldErrors.previousTournaments} />
+                </div>
+
+                {/* Achievements */}
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label
+                      htmlFor="achievements"
+                      className="text-xs font-mono text-[#A4B0A8] uppercase tracking-wider block"
+                    >
+                      অর্জন ও পুরস্কার{" "}
+                      <span className="text-[#A4B0A8]/60 font-normal">(ঐচ্ছিক)</span>
+                    </label>
+                    <span className="text-[10px] font-mono text-[#A4B0A8]/60">
+                      {toBnNum(achievements.length)} / ৩০০ অক্ষর
+                    </span>
+                  </div>
+                  <textarea
+                    id="achievements"
+                    rows={2}
+                    value={achievements}
+                    onChange={(e) => {
+                      setAchievements(e.target.value);
+                      clearFieldError("achievements");
+                    }}
+                    disabled={isSubmitting}
+                    maxLength={300}
+                    placeholder="উল্লেখযোগ্য অর্জন বা পুরস্কারের বিবরণ"
+                    className={fieldTextareaClass(!!fieldErrors.achievements)}
+                  />
+                  <FieldError message={fieldErrors.achievements} />
+                </div>
+
+                {/* Health & Additional Information Section */}
+                <div className="flex items-center gap-2 border-b border-white/10 pb-2 pt-2">
+                  <HeartPulse className="w-4 h-4 text-[#B9F66B]" />
+                  <h3 className="text-sm font-black text-white tracking-wide">
+                    স্বাস্থ্য ও অতিরিক্ত তথ্য
+                  </h3>
+                </div>
+
+                {/* Current Injury or Physical Limitation */}
+                <div>
+                  <label className="text-xs font-mono text-[#A4B0A8] uppercase tracking-wider block mb-1.5">
+                    বর্তমানে কোনো আঘাত বা শারীরিক সীমাবদ্ধতা আছে?{" "}
+                    <span className="text-[#B9F66B]">*</span>
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <label
+                      className={`flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-xs sm:text-sm cursor-pointer transition-colors ${
+                        hasInjury === false
+                          ? "border-[#B9F66B] bg-[#B9F66B]/10 text-[#B9F66B]"
+                          : "border-white/10 bg-[#101A17] text-[#A4B0A8] hover:border-white/20"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="hasInjury"
+                        checked={hasInjury === false}
+                        onChange={() => {
+                          setHasInjury(false);
+                          setInjuryDetails("");
+                          clearFieldError("hasInjury");
+                          clearFieldError("injuryDetails");
+                        }}
+                        disabled={isSubmitting}
+                        className="sr-only"
+                      />
+                      <span
+                        className={`w-3.5 h-3.5 rounded-full border ${
+                          hasInjury === false
+                            ? "border-[#B9F66B] bg-[#B9F66B]"
+                            : "border-white/30"
+                        }`}
+                      />
+                      <span>না</span>
+                    </label>
+
+                    <label
+                      className={`flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-xs sm:text-sm cursor-pointer transition-colors ${
+                        hasInjury === true
+                          ? "border-[#B9F66B] bg-[#B9F66B]/10 text-[#B9F66B]"
+                          : "border-white/10 bg-[#101A17] text-[#A4B0A8] hover:border-white/20"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="hasInjury"
+                        checked={hasInjury === true}
+                        onChange={() => {
+                          setHasInjury(true);
+                          clearFieldError("hasInjury");
+                        }}
+                        disabled={isSubmitting}
+                        className="sr-only"
+                      />
+                      <span
+                        className={`w-3.5 h-3.5 rounded-full border ${
+                          hasInjury === true
+                            ? "border-[#B9F66B] bg-[#B9F66B]"
+                            : "border-white/30"
+                        }`}
+                      />
+                      <span>হ্যাঁ</span>
+                    </label>
+                  </div>
+                  <FieldError message={fieldErrors.hasInjury} />
+                </div>
+
+                {/* Injury Details (conditional) */}
+                {hasInjury === true && (
+                  <div className="animate-fade-in">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label
+                        htmlFor="injuryDetails"
+                        className="text-xs font-mono text-[#A4B0A8] uppercase tracking-wider block"
+                      >
+                        আঘাত বা শারীরিক সীমাবদ্ধতার বিবরণ{" "}
+                        <span className="text-[#B9F66B]">*</span>
+                      </label>
+                      <span className="text-[10px] font-mono text-[#A4B0A8]/60">
+                        {toBnNum(injuryDetails.length)} / ৫০০ অক্ষর
+                      </span>
+                    </div>
+                    <textarea
+                      id="injuryDetails"
+                      rows={3}
+                      value={injuryDetails}
+                      onChange={(e) => {
+                        setInjuryDetails(e.target.value);
+                        clearFieldError("injuryDetails");
+                      }}
+                      disabled={isSubmitting}
+                      maxLength={500}
+                      placeholder="আঘাতের ধরন, কখন হয়েছে এবং বর্তমান অবস্থা লিখুন"
+                      className={fieldTextareaClass(!!fieldErrors.injuryDetails)}
+                    />
+                    <FieldError message={fieldErrors.injuryDetails} />
+                  </div>
+                )}
+
+                {/* Allergies / Health Restrictions */}
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label
+                      htmlFor="allergies"
+                      className="text-xs font-mono text-[#A4B0A8] uppercase tracking-wider block"
+                    >
+                      অ্যালার্জি বা স্বাস্থ্য সংক্রান্ত নিষেধাজ্ঞা{" "}
+                      <span className="text-[#A4B0A8]/60 font-normal">(ঐচ্ছিক)</span>
+                    </label>
+                    <span className="text-[10px] font-mono text-[#A4B0A8]/60">
+                      {toBnNum(allergies.length)} / ৫০০ অক্ষর
+                    </span>
+                  </div>
+                  <textarea
+                    id="allergies"
+                    rows={2}
+                    value={allergies}
+                    onChange={(e) => {
+                      setAllergies(e.target.value);
+                      clearFieldError("allergies");
+                    }}
+                    disabled={isSubmitting}
+                    maxLength={500}
+                    placeholder="যেমন: ধুলা/পরাগে অ্যালার্জি, নির্দিষ্ট কোনো খাবারে সমস্যা"
+                    className={fieldTextareaClass(!!fieldErrors.allergies)}
+                  />
+                  <FieldError message={fieldErrors.allergies} />
+                </div>
+
+                {/* Motivation */}
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label
+                      htmlFor="motivation"
+                      className="text-xs font-mono text-[#A4B0A8] uppercase tracking-wider block"
+                    >
+                      কেন আপনি মর্নিং ফুটবল একাডেমিতে যোগ দিতে চান?{" "}
+                      <span className="text-[#B9F66B]">*</span>
+                    </label>
+                    <span
+                      className={`text-[10px] font-mono ${
+                        motivation.length > 900 ? "text-amber-300" : "text-[#A4B0A8]/60"
+                      }`}
+                    >
+                      {toBnNum(motivation.length)} / ১০০০ অক্ষর
+                    </span>
+                  </div>
+                  <textarea
+                    id="motivation"
+                    rows={3}
+                    value={motivation}
+                    onChange={(e) => {
+                      setMotivation(e.target.value);
+                      clearFieldError("motivation");
+                    }}
+                    disabled={isSubmitting}
+                    maxLength={1000}
+                    placeholder="আপনার ফুটবলীয় লক্ষ্য এবং একাডেমিতে যোগ দেওয়ার কারণ লিখুন"
+                    className={fieldTextareaClass(!!fieldErrors.motivation)}
+                  />
+                  <FieldError message={fieldErrors.motivation} />
+                </div>
+
                 {/* 5. Personal Statement / Message (Optional) */}
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
@@ -762,6 +1869,36 @@ export default function JoinPage() {
                     placeholder="আপনার ফুটবলীয় লক্ষ্য, স্বপ্ন এবং কেন আপনি মর্নিং ফুটবল একাডেমিতে যোগ দিতে চান তা আমাদের জানান..."
                     className="w-full bg-[#101A17] border border-white/10 rounded-xl p-3.5 text-xs sm:text-sm text-white placeholder-[#A4B0A8]/50 focus:outline-none focus:border-[#B9F66B]/60 transition-colors resize-none leading-relaxed"
                   />
+                </div>
+
+                {/* Additional Notes */}
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label
+                      htmlFor="additionalNotes"
+                      className="text-xs font-mono text-[#A4B0A8] uppercase tracking-wider block"
+                    >
+                      অতিরিক্ত তথ্য{" "}
+                      <span className="text-[#A4B0A8]/60 font-normal">(ঐচ্ছিক)</span>
+                    </label>
+                    <span className="text-[10px] font-mono text-[#A4B0A8]/60">
+                      {toBnNum(additionalNotes.length)} / ১০০০ অক্ষর
+                    </span>
+                  </div>
+                  <textarea
+                    id="additionalNotes"
+                    rows={2}
+                    value={additionalNotes}
+                    onChange={(e) => {
+                      setAdditionalNotes(e.target.value);
+                      clearFieldError("additionalNotes");
+                    }}
+                    disabled={isSubmitting}
+                    maxLength={1000}
+                    placeholder="অন্যান্য কোনো তথ্য যা আমাদের জানানো প্রয়োজন"
+                    className={fieldTextareaClass(!!fieldErrors.additionalNotes)}
+                  />
+                  <FieldError message={fieldErrors.additionalNotes} />
                 </div>
 
                 {/* 6. Terms Notice */}

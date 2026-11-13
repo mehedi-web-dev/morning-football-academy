@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@heroui/react";
@@ -20,45 +21,6 @@ const NAV_ITEMS: NavItem[] = [
   { label: "সংবাদ", href: "/#news" },
   { label: "গ্যালারি", href: "/gallery" },
 ];
-
-/**
- * Football Emblem Component
- * Crafted custom club crest with shield & football geometry
- */
-function ClubEmblem() {
-  return (
-    <div
-      className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-[#18181B] to-[#050505] border border-[#B9F66B]/30 shadow-[0_0_14px_rgba(185,246,107,0.18)] group-hover:border-[#B9F66B] group-hover:shadow-[0_0_20px_rgba(185,246,107,0.35)] transition-all duration-300"
-      aria-hidden="true"
-    >
-      {/* Background shield glow */}
-      <div className="absolute inset-0 rounded-xl bg-[#B9F66B]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-
-      {/* Modern European Club Soccer Ball Vector */}
-      <svg
-        className="w-5 h-5 text-[#B9F66B] transition-transform duration-500 ease-out group-hover:rotate-45"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <circle cx="12" cy="12" r="10" />
-        <polygon
-          points="12 7 8 10 9.5 15 14.5 15 16 10"
-          fill="currentColor"
-          fillOpacity="0.25"
-        />
-        <line x1="12" y1="2" x2="12" y2="7" />
-        <line x1="2.5" y1="9" x2="8" y2="10" />
-        <line x1="5" y1="19.5" x2="9.5" y2="15" />
-        <line x1="19" y1="19.5" x2="14.5" y2="15" />
-        <line x1="21.5" y1="9" x2="16" y2="10" />
-      </svg>
-    </div>
-  );
-}
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -176,23 +138,22 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
-          {/* Left: Custom Text-Based Club Logo */}
+          {/* Left: Official Academy Logo */}
           <Link
             href="/"
             onClick={() => handleLinkClick("/")}
-            className="flex items-center gap-3 group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B9F66B] rounded-lg transition-transform active:scale-98"
+            className="flex shrink-0 items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B9F66B] rounded-lg transition-transform active:scale-98"
             aria-label="Morning Football Academy - Home"
           >
-            <ClubEmblem />
-
-            <div className="flex flex-col">
-              <span className="text-base sm:text-lg font-black tracking-[0.2em] text-white leading-none group-hover:text-[#B9F66B] transition-colors duration-200">
-                MORNING
-              </span>
-              <span className="text-[9px] sm:text-[10px] font-bold tracking-[0.26em] text-[#B9F66B] uppercase leading-tight mt-1">
-                FOOTBALL ACADEMY
-              </span>
-            </div>
+            <Image
+              src="/images/logo.jpeg"
+              alt="Morning Football Academy Logo"
+              width={112}
+              height={112}
+              priority
+              sizes="(max-width: 639px) 48px, 56px"
+              className="h-12 w-auto object-contain sm:h-14"
+            />
           </Link>
 
           {/* Center: Desktop Navigation Links */}

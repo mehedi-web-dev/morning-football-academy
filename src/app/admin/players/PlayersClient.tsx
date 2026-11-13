@@ -128,7 +128,7 @@ export default function AdminPlayersPage() {
           : selectedStatus === "ACTIVE";
 
       apiClient.players
-        .getAll({
+        .getAllAdmin({
           page,
           limit,
           search: search.trim() || undefined,

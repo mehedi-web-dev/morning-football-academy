@@ -13,15 +13,40 @@ import {
   Target,
   Sparkles,
   User,
+  Clock,
+  Square,
+  Star,
+  Hand,
+  Award,
+  Footprints,
+  Ruler,
+  Weight,
+  Building2,
 } from "lucide-react";
 import { Button, Chip } from "@heroui/react";
 import { apiClient, PlayerDocument } from "../../../lib/api-client";
-import {
-  getShortPosition,
-  calculateAge,
-  formatDate,
-} from "../../../lib/player-utils";
+import { getShortPosition, calculateAge } from "../../../lib/player-utils";
 import { toBnNum, getBnPosition, formatBnDate } from "../../../lib/bn-utils";
+
+const DOMINANT_FOOT_LABELS: Record<string, string> = {
+  right: "ডান পা",
+  left: "বাম পা",
+  both: "দুই পা-ই",
+};
+
+const PLAYER_STATUS_LABELS: Record<string, string> = {
+  active: "সক্রিয়",
+  injured: "আহত",
+  inactive: "নিষ্ক্রিয়",
+};
+
+function hasText(value?: string | null): value is string {
+  return typeof value === "string" && value.trim().length > 0;
+}
+
+function hasNumber(value?: number | null): value is number {
+  return typeof value === "number" && Number.isFinite(value);
+}
 
 interface PlayerDetailPageProps {
   params: Promise<{ slug: string }>;
@@ -82,12 +107,141 @@ export default async function PlayerDetailPage({ params }: PlayerDetailPageProps
 
   const age = calculateAge(player.dateOfBirth);
   const shortPos = getShortPosition(player.position);
-  const stats = player.statistics || {
-    appearances: 0,
-    goals: 0,
-    assists: 0,
-    cleanSheets: 0,
-  };
+
+  const infoItems = [
+    {
+      label: "জন্মতারিখ / বয়স",
+      value: hasText(player.dateOfBirth)
+        ? `${formatBnDate(player.dateOfBirth)}${
+            age !== null ? ` (${toBnNum(age)} বছর)` : ""
+          }`
+        : null,
+      icon: Calendar,
+    },
+    {
+      label: "জাতীয়তা",
+      value: hasText(player.nationality)
+        ? player.nationality === "Bangladesh"
+          ? "বাংলাদেশ"
+          : player.nationality
+        : null,
+      icon: Globe,
+    },
+    {
+      label: "উচ্চতা",
+      value: hasText(player.height) ? toBnNum(player.height) : null,
+      icon: Ruler,
+    },
+    {
+      label: "ওজন",
+      value: hasText(player.weight) ? toBnNum(player.weight) : null,
+      icon: Weight,
+    },
+    {
+      label: "শক্তিশালী পা",
+      value: player.dominantFoot
+        ? DOMINANT_FOOT_LABELS[player.dominantFoot] ?? player.dominantFoot
+        : null,
+      icon: Footprints,
+    },
+    {
+      label: "খেলার অভিজ্ঞতা",
+      value: hasNumber(player.playingExperienceYears)
+        ? `${toBnNum(player.playingExperienceYears)} বছর`
+        : null,
+      icon: Clock,
+    },
+  ].filter((item) => item.value !== null);
+
+  const statItems = [
+    {
+      label: "ম্যাচ খেলা",
+      value: player.statistics?.appearances,
+      icon: Activity,
+      accent: "text-white",
+      sublabel: "অফিসিয়াল ম্যাচ",
+    },
+    {
+      label: "গোল",
+      value: player.statistics?.goals,
+      icon: Target,
+      accent: "text-[#B9F66B]",
+      sublabel: "মোট গোল",
+    },
+    {
+      label: "অ্যাসিস্ট",
+      value: player.statistics?.assists,
+      icon: Trophy,
+      accent: "text-cyan-300",
+      sublabel: "গোল করানো",
+    },
+    {
+      label: "খেলার মিনিট",
+      value: player.statistics?.minutesPlayed,
+      icon: Clock,
+      accent: "text-sky-300",
+      sublabel: "মাঠে ব্যয়িত সময়",
+    },
+    {
+      label: "হলুদ কার্ড",
+      value: player.statistics?.yellowCards,
+      icon: Square,
+      accent: "text-yellow-300",
+      sublabel: "সতর্কতা",
+    },
+    {
+      label: "লাল কার্ড",
+      value: player.statistics?.redCards,
+      icon: Square,
+      accent: "text-red-300",
+      sublabel: "বহিষ্কার",
+    },
+    {
+      label: "খেলোয়াড় রেটিং",
+      value: player.statistics?.rating,
+      icon: Star,
+      accent: "text-[#B9F66B]",
+      sublabel: "গড় রেটিং (১০-এ)",
+    },
+    {
+      label: "ক্লিন শিট",
+      value: player.statistics?.cleanSheets,
+      icon: Shield,
+      accent: "text-amber-300",
+      sublabel: "গোলহীন ম্যাচ",
+    },
+    ...(player.position === "Goalkeeper"
+      ? [
+          {
+            label: "মোট সেভ",
+            value: player.statistics?.saves,
+            icon: Hand,
+            accent: "text-sky-300",
+            sublabel: "গোলরক্ষক সেভ",
+          },
+        ]
+      : []),
+    {
+      label: "ম্যান অফ দ্য ম্যাচ",
+      value: player.statistics?.manOfTheMatch,
+      icon: Award,
+      accent: "text-[#B9F66B]",
+      sublabel: "সেরা খেলোয়াড়",
+    },
+  ].filter((item) => hasNumber(item.value));
+
+  const hasJourney =
+    hasText(player.previousClub) ||
+    hasText(player.previousTournaments) ||
+    hasText(player.achievements);
+
+  const hasAcademyInfo =
+    hasText(player.joiningDate) || hasText(player.trainingGroup);
+
+  const statusLabel =
+    player.playerStatus === "active" || player.playerStatus === "injured"
+      ? PLAYER_STATUS_LABELS[player.playerStatus]
+      : null;
 
   return (
     <div className="w-full bg-[#101A17] text-white min-h-screen">
@@ -186,24 +340,19 @@ export default async function PlayerDetailPage({ params }: PlayerDetailPageProps
                   <span className="text-[#B9F66B] font-bold text-base sm:text-lg uppercase">
                     {getBnPosition(player.position)}
                   </span>
-                  <span className="text-white/20">•</span>
-                  <div className="flex items-center gap-1.5 font-mono">
-                    <Globe className="w-4 h-4 text-[#B9F66B]" />
-                    <span>
-                      {player.nationality === "Bangladesh" ? "বাংলাদেশ" : player.nationality}
-                    </span>
-                  </div>
-                  {age !== null && (
+                  {hasText(player.secondaryPosition) && (
                     <>
                       <span className="text-white/20">•</span>
-                      <span className="font-mono">{toBnNum(age)} বছর বয়স</span>
+                      <span className="font-mono text-xs">
+                        দ্বিতীয় পজিশন: {getBnPosition(player.secondaryPosition)}
+                      </span>
                     </>
                   )}
                 </div>
               </div>
 
               {/* Vitals Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {/* Position */}
                 <div className="p-4 rounded-2xl bg-[#18251F] border border-white/10 space-y-1">
                   <span className="text-[10px] font-mono text-[#A4B0A8] uppercase tracking-wider block">
@@ -224,29 +373,27 @@ export default async function PlayerDetailPage({ params }: PlayerDetailPageProps
                   </span>
                 </div>
 
-                {/* Height */}
-                <div className="p-4 rounded-2xl bg-[#18251F] border border-white/10 space-y-1">
-                  <span className="text-[10px] font-mono text-[#A4B0A8] uppercase tracking-wider block">
-                    উচ্চতা
-                  </span>
-                  <span className="text-base font-black text-white block">
-                    {toBnNum(player.height) || "প্রযোজ্য নয়"}
-                  </span>
-                </div>
-
-                {/* Weight */}
-                <div className="p-4 rounded-2xl bg-[#18251F] border border-white/10 space-y-1">
-                  <span className="text-[10px] font-mono text-[#A4B0A8] uppercase tracking-wider block">
-                    ওজন
-                  </span>
-                  <span className="text-base font-black text-white block">
-                    {toBnNum(player.weight) || "প্রযোজ্য নয়"}
-                  </span>
-                </div>
+                {/* Player Status */}
+                {statusLabel && (
+                  <div className="p-4 rounded-2xl bg-[#18251F] border border-white/10 space-y-1">
+                    <span className="text-[10px] font-mono text-[#A4B0A8] uppercase tracking-wider block">
+                      স্ট্যাটাস
+                    </span>
+                    <span
+                      className={`text-base font-black block ${
+                        player.playerStatus === "injured"
+                          ? "text-amber-300"
+                          : "text-[#B9F66B]"
+                      }`}
+                    >
+                      {statusLabel}
+                    </span>
+                  </div>
+                )}
               </div>
 
               {/* Biography Section */}
-              {player.bio && (
+              {hasText(player.bio) && (
                 <div className="p-5 sm:p-6 rounded-2xl bg-[#18251F] border border-white/10 space-y-2">
                   <h3 className="text-xs font-mono font-black text-[#B9F66B] uppercase tracking-wider flex items-center gap-1.5">
                     <Sparkles className="w-3.5 h-3.5" />
@@ -257,102 +404,209 @@ export default async function PlayerDetailPage({ params }: PlayerDetailPageProps
                   </p>
                 </div>
               )}
-
-              {/* Date of Birth info */}
-              <div className="flex items-center gap-2 text-xs font-mono text-[#A4B0A8]">
-                <Calendar className="w-4 h-4 text-[#B9F66B]" />
-                <span>জন্মতারিখ: {player.dateOfBirth ? formatBnDate(player.dateOfBirth) : formatDate(player.dateOfBirth)}</span>
-                {age !== null && <span>({toBnNum(age)} বছর)</span>}
-              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 3. Official Season Statistics Section */}
-      <section className="py-12 sm:py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-        <div className="border-b border-white/[0.08] pb-4 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-          <div className="space-y-1">
+      {/* 2. Player Information */}
+      {infoItems.length > 0 && (
+        <section className="py-12 sm:py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="border-b border-white/[0.08] pb-4">
             <span className="text-xs font-mono text-[#B9F66B] uppercase tracking-wider block font-bold">
-              অফিসিয়াল পারফরম্যান্স মেট্রিক্স
+              প্লেয়ার ইনফরমেশন
             </span>
             <h2 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight">
-              মৌসুমের পরিসংখ্যান।
+              খেলোয়াড়ের তথ্য।
             </h2>
           </div>
-          <span className="text-xs font-mono text-[#A4B0A8]">
-            প্রতিযোগিতামূলক মৌসুম ২০২৬/২০২৭
-          </span>
-        </div>
 
-        {/* 4 Performance Metric Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-          {/* Appearances */}
-          <div className="p-6 rounded-2xl bg-[#18251F] border border-white/10 space-y-2 relative overflow-hidden group hover:border-[#B9F66B]/40 transition-colors">
-            <div className="flex items-center justify-between text-[#A4B0A8]">
-              <span className="text-xs font-mono uppercase tracking-wider">
-                ম্যাচ উপস্থিতি
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-8">
+            {infoItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <div
+                  key={item.label}
+                  className="p-5 rounded-2xl bg-[#18251F] border border-white/10 flex items-start gap-4"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-[#B9F66B]/10 border border-[#B9F66B]/20 flex items-center justify-center shrink-0">
+                    <Icon className="w-5 h-5 text-[#B9F66B]" />
+                  </div>
+                  <div className="space-y-1 min-w-0">
+                    <span className="text-[10px] font-mono text-[#A4B0A8] uppercase tracking-wider block">
+                      {item.label}
+                    </span>
+                    <span className="text-sm font-bold text-white block break-words">
+                      {item.value}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      {/* 3. Official Season Statistics */}
+      {statItems.length > 0 && (
+        <section className="py-12 sm:py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-white/[0.08]">
+          <div className="border-b border-white/[0.08] pb-4 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <div className="space-y-1">
+              <span className="text-xs font-mono text-[#B9F66B] uppercase tracking-wider block font-bold">
+                অফিসিয়াল পারফরম্যান্স মেট্রিক্স
               </span>
-              <Activity className="w-4 h-4 text-[#B9F66B]" />
+              <h2 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight">
+                মৌসুমের পরিসংখ্যান।
+              </h2>
             </div>
-            <span className="text-4xl sm:text-5xl font-black text-white font-mono block">
-              {toBnNum(stats.appearances)}
-            </span>
-            <span className="text-[10px] text-[#A4B0A8]/70 block font-mono">
-              অফিসিয়াল ম্যাচ ফিক্সচার
+            <span className="text-xs font-mono text-[#A4B0A8]">
+              প্রতিযোগিতামূলক মৌসুম ২০২৬/২০২৭
             </span>
           </div>
 
-          {/* Goals */}
-          <div className="p-6 rounded-2xl bg-[#18251F] border border-white/10 space-y-2 relative overflow-hidden group hover:border-[#B9F66B]/40 transition-colors">
-            <div className="flex items-center justify-between text-[#A4B0A8]">
-              <span className="text-xs font-mono uppercase tracking-wider text-[#B9F66B]">
-                গোল সংখ্যা
-              </span>
-              <Target className="w-4 h-4 text-[#B9F66B]" />
-            </div>
-            <span className="text-4xl sm:text-5xl font-black text-[#B9F66B] font-mono block">
-              {toBnNum(stats.goals)}
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-5 mt-8">
+            {statItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <div
+                  key={item.label}
+                  className="p-5 sm:p-6 rounded-2xl bg-[#18251F] border border-white/10 space-y-2 relative overflow-hidden group hover:border-[#B9F66B]/40 transition-colors"
+                >
+                  <div className="flex items-center justify-between gap-2 text-[#A4B0A8]">
+                    <span className="text-[10px] sm:text-xs font-mono uppercase tracking-wider">
+                      {item.label}
+                    </span>
+                    <Icon className={`w-4 h-4 shrink-0 ${item.accent}`} />
+                  </div>
+                  <span
+                    className={`text-3xl sm:text-4xl lg:text-5xl font-black font-mono block ${item.accent}`}
+                  >
+                    {toBnNum(item.value)}
+                  </span>
+                  <span className="text-[10px] text-[#A4B0A8]/70 block font-mono">
+                    {item.sublabel}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      {/* 4. Football Journey */}
+      {hasJourney && (
+        <section className="py-12 sm:py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-white/[0.08]">
+          <div className="border-b border-white/[0.08] pb-4">
+            <span className="text-xs font-mono text-[#B9F66B] uppercase tracking-wider block font-bold">
+              ক্যারিয়ার ও অর্জন
             </span>
-            <span className="text-[10px] text-[#B9F66B]/70 block font-mono">
-              মৌসুমের মোট গোল
-            </span>
+            <h2 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight">
+              ফুটবল জার্নি।
+            </h2>
           </div>
 
-          {/* Assists */}
-          <div className="p-6 rounded-2xl bg-[#18251F] border border-white/10 space-y-2 relative overflow-hidden group hover:border-cyan-400/40 transition-colors">
-            <div className="flex items-center justify-between text-[#A4B0A8]">
-              <span className="text-xs font-mono uppercase tracking-wider text-cyan-300">
-                অ্যাসিস্ট
-              </span>
-              <Trophy className="w-4 h-4 text-cyan-300" />
-            </div>
-            <span className="text-4xl sm:text-5xl font-black text-cyan-300 font-mono block">
-              {toBnNum(stats.assists)}
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mt-8">
+            {hasText(player.previousClub) && (
+              <div className="p-5 rounded-2xl bg-[#18251F] border border-white/10 space-y-3">
+                <div className="w-10 h-10 rounded-xl bg-[#B9F66B]/10 border border-[#B9F66B]/20 flex items-center justify-center">
+                  <Shield className="w-5 h-5 text-[#B9F66B]" />
+                </div>
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono text-[#A4B0A8] uppercase tracking-wider block">
+                    পূর্ববর্তী ক্লাব / একাডেমি
+                  </span>
+                  <p className="text-sm font-bold text-white leading-relaxed break-words">
+                    {player.previousClub}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {hasText(player.previousTournaments) && (
+              <div className="p-5 rounded-2xl bg-[#18251F] border border-white/10 space-y-3">
+                <div className="w-10 h-10 rounded-xl bg-[#B9F66B]/10 border border-[#B9F66B]/20 flex items-center justify-center">
+                  <Trophy className="w-5 h-5 text-[#B9F66B]" />
+                </div>
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono text-[#A4B0A8] uppercase tracking-wider block">
+                    টুর্নামেন্ট অংশগ্রহণ
+                  </span>
+                  <p className="text-sm text-white/90 leading-relaxed whitespace-pre-wrap break-words">
+                    {player.previousTournaments}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {hasText(player.achievements) && (
+              <div className="p-5 rounded-2xl bg-[#18251F] border border-white/10 space-y-3">
+                <div className="w-10 h-10 rounded-xl bg-[#B9F66B]/10 border border-[#B9F66B]/20 flex items-center justify-center">
+                  <Award className="w-5 h-5 text-[#B9F66B]" />
+                </div>
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono text-[#A4B0A8] uppercase tracking-wider block">
+                    অর্জন ও পুরস্কার
+                  </span>
+                  <p className="text-sm text-white/90 leading-relaxed whitespace-pre-wrap break-words">
+                    {player.achievements}
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* 5. Academy Information */}
+      {hasAcademyInfo && (
+        <section className="py-12 sm:py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-white/[0.08]">
+          <div className="border-b border-white/[0.08] pb-4">
+            <span className="text-xs font-mono text-[#B9F66B] uppercase tracking-wider block font-bold">
+              একাডেমি প্রোফাইল
             </span>
-            <span className="text-[10px] text-cyan-300/70 block font-mono">
-              গুরুত্বপূর্ণ গোল অবদান
-            </span>
+            <h2 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight">
+              একাডেমি তথ্য।
+            </h2>
           </div>
 
-          {/* Clean Sheets */}
-          <div className="p-6 rounded-2xl bg-[#18251F] border border-white/10 space-y-2 relative overflow-hidden group hover:border-amber-400/40 transition-colors">
-            <div className="flex items-center justify-between text-[#A4B0A8]">
-              <span className="text-xs font-mono uppercase tracking-wider text-amber-300">
-                ক্লিন শিট
-              </span>
-              <Shield className="w-4 h-4 text-amber-300" />
-            </div>
-            <span className="text-4xl sm:text-5xl font-black text-amber-300 font-mono block">
-              {toBnNum(stats.cleanSheets)}
-            </span>
-            <span className="text-[10px] text-amber-300/70 block font-mono">
-              প্রতিপক্ষকে গোলহীন রাখা
-            </span>
-          </div>
-        </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
+            {hasText(player.joiningDate) && (
+              <div className="p-5 rounded-2xl bg-[#18251F] border border-white/10 flex items-start gap-4">
+                <div className="w-10 h-10 rounded-xl bg-[#B9F66B]/10 border border-[#B9F66B]/20 flex items-center justify-center shrink-0">
+                  <Calendar className="w-5 h-5 text-[#B9F66B]" />
+                </div>
+                <div className="space-y-1 min-w-0">
+                  <span className="text-[10px] font-mono text-[#A4B0A8] uppercase tracking-wider block">
+                    যোগদানের তারিখ
+                  </span>
+                  <span className="text-sm font-bold text-white block break-words">
+                    {formatBnDate(player.joiningDate)}
+                  </span>
+                </div>
+              </div>
+            )}
 
-        {/* Bottom CTA to explore other squad members */}
+            {hasText(player.trainingGroup) && (
+              <div className="p-5 rounded-2xl bg-[#18251F] border border-white/10 flex items-start gap-4">
+                <div className="w-10 h-10 rounded-xl bg-[#B9F66B]/10 border border-[#B9F66B]/20 flex items-center justify-center shrink-0">
+                  <Building2 className="w-5 h-5 text-[#B9F66B]" />
+                </div>
+                <div className="space-y-1 min-w-0">
+                  <span className="text-[10px] font-mono text-[#A4B0A8] uppercase tracking-wider block">
+                    ট্রেনিং / বয়স গ্রুপ
+                  </span>
+                  <span className="text-sm font-bold text-white block break-words">
+                    {player.trainingGroup}
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Bottom CTA to explore other squad members */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-white/[0.08]">
           <Link href="/squad">
             <Button

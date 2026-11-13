@@ -72,9 +72,7 @@ export default function FootballPhilosophy() {
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 pb-2 border-b border-white/[0.06]">
           <div className="space-y-3">
             <div className="flex flex-wrap items-center gap-3">
-              <Chip
-                className="bg-[#18251F] text-[#B9F66B] border border-[#B9F66B]/30 font-black tracking-[0.24em] text-[11px] uppercase px-3.5 py-1"
-              >
+              <Chip className="bg-[#18251F] text-[#B9F66B] border border-[#B9F66B]/30 font-black tracking-[0.24em] text-[11px] uppercase px-3.5 py-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B] shadow-[0_0_8px_#B9F66B] mr-2 inline-block" />
                 আমাদের ফুটবল দর্শন
               </Chip>
@@ -96,7 +94,8 @@ export default function FootballPhilosophy() {
           </div>
 
           <p className="text-sm sm:text-base text-[#A4B0A8] max-w-md leading-relaxed">
-            আমাদের সমন্বিত প্রশিক্ষণ কার্যক্রম আধুনিক ফুটবল দর্শন ও গভীর মেন্টরশিপের সমন্বয়ে পূর্ণাঙ্গ ও বুদ্ধিদীপ্ত ক্রীড়াবিদ তৈরি করে।
+            আমাদের সমন্বিত প্রশিক্ষণ কার্যক্রম আধুনিক ফুটবল দর্শন ও গভীর
+            মেন্টরশিপের সমন্বয়ে পূর্ণাঙ্গ ও বুদ্ধিদীপ্ত ক্রীড়াবিদ তৈরি করে।
           </p>
         </div>
 
@@ -145,7 +144,7 @@ export default function FootballPhilosophy() {
             <div className="relative w-full h-full min-h-[440px] sm:min-h-[500px] rounded-3xl overflow-hidden bg-[#18251F] border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] flex flex-col justify-between p-6 sm:p-8 group">
               {/* Football Training Image */}
               <Image
-                src="/images/players/player-3.jpg"
+                src="/images/players/meheDi (2).png"
                 alt="Morning Football Academy player performing disciplined tactical training drills"
                 fill
                 sizes="(max-width: 1024px) 100vw, 42vw"
@@ -171,15 +170,15 @@ export default function FootballPhilosophy() {
               {/* Bottom Quote Overlay */}
               <div className="relative z-10 space-y-3 p-5 rounded-2xl bg-[#101A17]/90 backdrop-blur-md border border-white/10">
                 <p className="text-xs sm:text-sm text-white font-medium italic leading-relaxed">
-                  &ldquo;প্রতিভা সুযোগ তৈরি করে দেয়, কিন্তু শৃঙ্খলা, ট্যাকটিক্যাল বুদ্ধিমত্তা এবং নিঃস্বার্থ দলগত ঐক্যই একজন খেলোয়াড়কে সত্যিকারের চ্যাম্পিয়নে রূপান্তরিত করে।&rdquo;
+                  &ldquo;প্রতিভা সুযোগ তৈরি করে দেয়, কিন্তু শৃঙ্খলা,
+                  ট্যাকটিক্যাল বুদ্ধিমত্তা এবং নিঃস্বার্থ দলগত ঐক্যই একজন
+                  খেলোয়াড়কে সত্যিকারের চ্যাম্পিয়নে রূপান্তরিত করে।&rdquo;
                 </p>
                 <div className="flex items-center justify-between pt-2 border-t border-white/10 text-[11px] font-mono">
                   <span className="text-[#B9F66B] font-bold uppercase tracking-wider">
                     টেকনিক্যাল ডিরেক্টরেট
                   </span>
-                  <span className="text-[#A4B0A8]">
-                    কোচিং দর্শন
-                  </span>
+                  <span className="text-[#A4B0A8]">কোচিং দর্শন</span>
                 </div>
               </div>
             </div>

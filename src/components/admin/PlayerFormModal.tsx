@@ -14,6 +14,8 @@ import {
   apiClient,
   PlayerDocument,
   CreatePlayerInput,
+  PlayerStatus,
+  DominantFoot,
   ApiError,
 } from "../../lib/api-client";
 import { getBnPosition } from "../../lib/bn-utils";
@@ -33,6 +35,27 @@ const LOCAL_PHOTO_PRESETS = [
 ];
 
 const POSITIONS = ["Forward", "Midfielder", "Defender", "Goalkeeper"] as const;
+
+const PLAYER_STATUS_OPTIONS = [
+  { value: "active", label: "সক্রিয়" },
+  { value: "injured", label: "আহত" },
+  { value: "inactive", label: "নিষ্ক্রিয়" },
+] as const;
+
+const DOMINANT_FOOT_OPTIONS = [
+  { value: "right", label: "ডান পা" },
+  { value: "left", label: "বাম পা" },
+  { value: "both", label: "দুই পা-ই" },
+] as const;
+
+/**
+ * Format an ISO date value for a native date input.
+ */
+function toDateInputValue(value?: string | null): string {
+  if (!value) return "";
+  const parsed = new Date(value);
+  return isNaN(parsed.getTime()) ? "" : parsed.toISOString().split("T")[0];
+}
 
 /**
  * Generate a clean URL-safe slug from full name
@@ -80,6 +103,41 @@ function PlayerFormInner({
   const [photo, setPhoto] = useState(playerToEdit?.photo ?? "/images/players/mehedi.jpeg");
   const [isActive, setIsActive] = useState(playerToEdit?.isActive ?? true);
 
+  // Personal & Contact
+  const [phoneNumber, setPhoneNumber] = useState(playerToEdit?.phoneNumber ?? "");
+  const [email, setEmail] = useState(playerToEdit?.email ?? "");
+  const [currentAddress, setCurrentAddress] = useState(playerToEdit?.currentAddress ?? "");
+  const [guardianName, setGuardianName] = useState(playerToEdit?.guardianName ?? "");
+  const [guardianPhone, setGuardianPhone] = useState(playerToEdit?.guardianPhone ?? "");
+
+  // Football Profile
+  const [secondaryPosition, setSecondaryPosition] = useState(
+    playerToEdit?.secondaryPosition ?? ""
+  );
+  const [dominantFoot, setDominantFoot] = useState<DominantFoot | "">(
+    playerToEdit?.dominantFoot ?? ""
+  );
+  const [playingExperienceYears, setPlayingExperienceYears] = useState<number | "">(
+    playerToEdit?.playingExperienceYears ?? 0
+  );
+  const [previousClub, setPreviousClub] = useState(playerToEdit?.previousClub ?? "");
+  const [previousTournaments, setPreviousTournaments] = useState(
+    playerToEdit?.previousTournaments ?? ""
+  );
+  const [achievements, setAchievements] = useState(playerToEdit?.achievements ?? "");
+  const [playerStatus, setPlayerStatus] = useState<PlayerStatus>(
+    playerToEdit?.playerStatus ?? (playerToEdit?.isActive === false ? "inactive" : "active")
+  );
+
+  // Academy Management
+  const [joiningDate, setJoiningDate] = useState(
+    playerToEdit
+      ? toDateInputValue(playerToEdit.joiningDate)
+      : new Date().toISOString().split("T")[0]
+  );
+  const [trainingGroup, setTrainingGroup] = useState(playerToEdit?.trainingGroup ?? "");
+  const [coachNotes, setCoachNotes] = useState(playerToEdit?.coachNotes ?? "");
+
   // Statistics State
   const [appearances, setAppearances] = useState<number | "">(
     playerToEdit?.statistics?.appearances ?? 0
@@ -89,6 +147,22 @@ function PlayerFormInner({
   const [cleanSheets, setCleanSheets] = useState<number | "">(
     playerToEdit?.statistics?.cleanSheets ?? 0
   );
+  const [minutesPlayed, setMinutesPlayed] = useState<number | "">(
+    playerToEdit?.statistics?.minutesPlayed ?? 0
+  );
+  const [yellowCards, setYellowCards] = useState<number | "">(
+    playerToEdit?.statistics?.yellowCards ?? 0
+  );
+  const [redCards, setRedCards] = useState<number | "">(
+    playerToEdit?.statistics?.redCards ?? 0
+  );
+  const [rating, setRating] = useState<number | "">(
+    playerToEdit?.statistics?.rating ?? 0
+  );
+  const [manOfTheMatch, setManOfTheMatch] = useState<number | "">(
+    playerToEdit?.statistics?.manOfTheMatch ?? 0
+  );
+  const [saves, setSaves] = useState<number | "">(playerToEdit?.statistics?.saves ?? 0);
 
   // Submission & Validation State
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -144,6 +218,96 @@ function PlayerFormInner({
       errors.photo = "খেলোয়াড়ের ছবি বা ইমেজ পাথ প্রদান করা আবশ্যক।";
     }
 
+    const phonePattern = /^[0-9০-৯+\-\s()]{6,20}$/;
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (phoneNumber.trim() && !phonePattern.test(phoneNumber.trim())) {
+      errors.phoneNumber = "সঠিক ফোন নম্বর প্রদান করুন (৬-২০ অক্ষর)।";
+    }
+
+    if (email.trim() && !emailPattern.test(email.trim())) {
+      errors.email = "সঠিক ইমেইল ঠিকানা প্রদান করুন।";
+    }
+
+    if (currentAddress.trim().length > 300) {
+      errors.currentAddress = "বর্তমান ঠিকানা ৩০০ অক্ষরের বেশি হতে পারবে না।";
+    }
+
+    if (guardianName.trim().length > 100) {
+      errors.guardianName = "অভিভাবকের নাম ১০০ অক্ষরের বেশি হতে পারবে না।";
+    }
+
+    if (guardianPhone.trim() && !phonePattern.test(guardianPhone.trim())) {
+      errors.guardianPhone = "সঠিক অভিভাবক ফোন নম্বর প্রদান করুন (৬-২০ অক্ষর)।";
+    }
+
+    if (secondaryPosition.trim().length > 50) {
+      errors.secondaryPosition = "দ্বিতীয় পজিশন ৫০ অক্ষরের বেশি হতে পারবে না।";
+    }
+
+    if (playingExperienceYears !== "") {
+      if (
+        !Number.isInteger(playingExperienceYears) ||
+        playingExperienceYears < 0 ||
+        playingExperienceYears > 50
+      ) {
+        errors.playingExperienceYears =
+          "খেলার অভিজ্ঞতা ০ থেকে ৫০ বছরের মধ্যে পূর্ণসংখ্যা হতে হবে।";
+      }
+    }
+
+    if (previousClub.trim().length > 200) {
+      errors.previousClub = "পূর্ববর্তী ক্লাব/একাডেমির নাম ২০০ অক্ষরের বেশি হতে পারবে না।";
+    }
+
+    if (previousTournaments.trim().length > 300) {
+      errors.previousTournaments =
+        "টুর্নামেন্ট অংশগ্রহণের বিবরণ ৩০০ অক্ষরের বেশি হতে পারবে না।";
+    }
+
+    if (achievements.trim().length > 300) {
+      errors.achievements = "অর্জন ও পুরস্কারের বিবরণ ৩০০ অক্ষরের বেশি হতে পারবে না।";
+    }
+
+    if (joiningDate) {
+      const parsedJoiningDate = new Date(joiningDate);
+      if (isNaN(parsedJoiningDate.getTime())) {
+        errors.joiningDate = "অকার্যকর যোগদানের তারিখ।";
+      }
+    }
+
+    if (trainingGroup.trim().length > 100) {
+      errors.trainingGroup = "ট্রেনিং/বয়স গ্রুপের নাম ১০০ অক্ষরের বেশি হতে পারবে না।";
+    }
+
+    if (coachNotes.trim().length > 2000) {
+      errors.coachNotes = "কোচের নোট ২০০০ অক্ষরের বেশি হতে পারবে না।";
+    }
+
+    if (rating !== "" && (rating < 0 || rating > 10)) {
+      errors.rating = "খেলোয়াড় রেটিং ০ থেকে ১০ এর মধ্যে হতে হবে।";
+    }
+
+    if (minutesPlayed !== "" && minutesPlayed < 0) {
+      errors.minutesPlayed = "মিনিট ঋণাত্মক হতে পারবে না।";
+    }
+
+    if (yellowCards !== "" && yellowCards < 0) {
+      errors.yellowCards = "হলুদ কার্ড ঋণাত্মক হতে পারবে না।";
+    }
+
+    if (redCards !== "" && redCards < 0) {
+      errors.redCards = "লাল কার্ড ঋণাত্মক হতে পারবে না।";
+    }
+
+    if (manOfTheMatch !== "" && manOfTheMatch < 0) {
+      errors.manOfTheMatch = "ম্যান অফ দ্য ম্যাচ সংখ্যা ঋণাত্মক হতে পারবে না।";
+    }
+
+    if (position === "Goalkeeper" && saves !== "" && saves < 0) {
+      errors.saves = "সেভ সংখ্যা ঋণাত্মক হতে পারবে না।";
+    }
+
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -169,11 +333,33 @@ function PlayerFormInner({
       weight: weight.trim() || undefined,
       bio: bio.trim() || undefined,
       photo: photo.trim(),
+      phoneNumber: phoneNumber.trim() || undefined,
+      email: email.trim() || undefined,
+      currentAddress: currentAddress.trim() || undefined,
+      guardianName: guardianName.trim() || undefined,
+      guardianPhone: guardianPhone.trim() || undefined,
+      secondaryPosition: secondaryPosition.trim() || undefined,
+      dominantFoot: dominantFoot || undefined,
+      playingExperienceYears:
+        playingExperienceYears === "" ? undefined : Number(playingExperienceYears),
+      previousClub: previousClub.trim() || undefined,
+      previousTournaments: previousTournaments.trim() || undefined,
+      achievements: achievements.trim() || undefined,
+      playerStatus,
+      joiningDate: joiningDate || undefined,
+      trainingGroup: trainingGroup.trim() || undefined,
+      coachNotes: coachNotes.trim() || undefined,
       statistics: {
         appearances: Number(appearances) || 0,
         goals: Number(goals) || 0,
         assists: Number(assists) || 0,
         cleanSheets: Number(cleanSheets) || 0,
+        minutesPlayed: Number(minutesPlayed) || 0,
+        yellowCards: Number(yellowCards) || 0,
+        redCards: Number(redCards) || 0,
+        rating: Number(rating) || 0,
+        manOfTheMatch: Number(manOfTheMatch) || 0,
+        saves: Number(saves) || 0,
       },
       isActive,
     };
@@ -194,7 +380,8 @@ function PlayerFormInner({
           const serverErrors: Record<string, string> = {};
           err.details.forEach((item: { field: string; message: string }) => {
             if (item.field) {
-              serverErrors[item.field] = item.message;
+              const fieldKey = item.field.replace(/^statistics\./, "");
+              serverErrors[fieldKey] = item.message;
             }
           });
           setFieldErrors(serverErrors);
@@ -409,6 +596,122 @@ function PlayerFormInner({
                 </p>
               )}
             </div>
+
+            {/* Player Phone Number */}
+            <div className="space-y-1">
+              <label className="text-xs font-mono uppercase text-[#A4B0A8] tracking-wider block">
+                খেলোয়াড়ের ফোন নম্বর (ঐচ্ছিক)
+              </label>
+              <input
+                type="tel"
+                placeholder="যেমনঃ 0131835581"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                className={`w-full bg-[#101A17] border rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-white/20 focus:outline-none transition-colors ${
+                  fieldErrors.phoneNumber
+                    ? "border-red-500 focus:border-red-400"
+                    : "border-white/10 focus:border-[#B9F66B]/60"
+                }`}
+              />
+              {fieldErrors.phoneNumber && (
+                <p className="text-[11px] text-red-400 font-mono">
+                  {fieldErrors.phoneNumber}
+                </p>
+              )}
+            </div>
+
+            {/* Email Address */}
+            <div className="space-y-1">
+              <label className="text-xs font-mono uppercase text-[#A4B0A8] tracking-wider block">
+                ইমেইল ঠিকানা (ঐচ্ছিক)
+              </label>
+              <input
+                type="email"
+                placeholder="যেমনঃ player@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className={`w-full bg-[#101A17] border rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-white/20 focus:outline-none transition-colors ${
+                  fieldErrors.email
+                    ? "border-red-500 focus:border-red-400"
+                    : "border-white/10 focus:border-[#B9F66B]/60"
+                }`}
+              />
+              {fieldErrors.email && (
+                <p className="text-[11px] text-red-400 font-mono">
+                  {fieldErrors.email}
+                </p>
+              )}
+            </div>
+
+            {/* Current Address */}
+            <div className="space-y-1 sm:col-span-2">
+              <label className="text-xs font-mono uppercase text-[#A4B0A8] tracking-wider block">
+                বর্তমান ঠিকানা (ঐচ্ছিক)
+              </label>
+              <textarea
+                rows={2}
+                maxLength={300}
+                placeholder="বাসা/রোড, এলাকা, শহর..."
+                value={currentAddress}
+                onChange={(e) => setCurrentAddress(e.target.value)}
+                className={`w-full bg-[#101A17] border rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-white/20 focus:outline-none transition-colors resize-none ${
+                  fieldErrors.currentAddress
+                    ? "border-red-500 focus:border-red-400"
+                    : "border-white/10 focus:border-[#B9F66B]/60"
+                }`}
+              />
+              {fieldErrors.currentAddress && (
+                <p className="text-[11px] text-red-400 font-mono">
+                  {fieldErrors.currentAddress}
+                </p>
+              )}
+            </div>
+
+            {/* Guardian Name */}
+            <div className="space-y-1">
+              <label className="text-xs font-mono uppercase text-[#A4B0A8] tracking-wider block">
+                অভিভাবকের নাম (ঐচ্ছিক)
+              </label>
+              <input
+                type="text"
+                placeholder="যেমনঃ মোঃ রফিকুল ইসলাম"
+                value={guardianName}
+                onChange={(e) => setGuardianName(e.target.value)}
+                className={`w-full bg-[#101A17] border rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-white/20 focus:outline-none transition-colors ${
+                  fieldErrors.guardianName
+                    ? "border-red-500 focus:border-red-400"
+                    : "border-white/10 focus:border-[#B9F66B]/60"
+                }`}
+              />
+              {fieldErrors.guardianName && (
+                <p className="text-[11px] text-red-400 font-mono">
+                  {fieldErrors.guardianName}
+                </p>
+              )}
+            </div>
+
+            {/* Guardian Phone Number */}
+            <div className="space-y-1">
+              <label className="text-xs font-mono uppercase text-[#A4B0A8] tracking-wider block">
+                অভিভাবকের ফোন নম্বর (ঐচ্ছিক)
+              </label>
+              <input
+                type="tel"
+                placeholder="যেমনঃ 018XXXXXXXX"
+                value={guardianPhone}
+                onChange={(e) => setGuardianPhone(e.target.value)}
+                className={`w-full bg-[#101A17] border rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-white/20 focus:outline-none transition-colors ${
+                  fieldErrors.guardianPhone
+                    ? "border-red-500 focus:border-red-400"
+                    : "border-white/10 focus:border-[#B9F66B]/60"
+                }`}
+              />
+              {fieldErrors.guardianPhone && (
+                <p className="text-[11px] text-red-400 font-mono">
+                  {fieldErrors.guardianPhone}
+                </p>
+              )}
+            </div>
           </div>
         </div>
 
@@ -462,11 +765,269 @@ function PlayerFormInner({
           </div>
         </div>
 
-        {/* Section 3: Photo Selection */}
+        {/* Section 3: Football Profile & Academy Management */}
+        <div className="space-y-4 pt-2 border-t border-white/10">
+          <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-[#B9F66B] flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B]" />
+            ৩. ফুটবল প্রোফাইল ও একাডেমি ব্যবস্থাপনা
+          </h3>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Secondary Playing Position */}
+            <div className="space-y-1">
+              <label className="text-xs font-mono uppercase text-[#A4B0A8] tracking-wider block">
+                দ্বিতীয় পজিশন (ঐচ্ছিক)
+              </label>
+              <select
+                value={secondaryPosition}
+                onChange={(e) => setSecondaryPosition(e.target.value)}
+                className={`w-full bg-[#101A17] border rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none transition-colors ${
+                  fieldErrors.secondaryPosition
+                    ? "border-red-500 focus:border-red-400"
+                    : "border-white/10 focus:border-[#B9F66B]/60"
+                }`}
+              >
+                <option value="" className="bg-[#18251F] text-white">
+                  প্রযোজ্য নয়
+                </option>
+                {POSITIONS.map((pos) => (
+                  <option key={pos} value={pos} className="bg-[#18251F] text-white">
+                    {getBnPosition(pos)}
+                  </option>
+                ))}
+              </select>
+              {fieldErrors.secondaryPosition && (
+                <p className="text-[11px] text-red-400 font-mono">
+                  {fieldErrors.secondaryPosition}
+                </p>
+              )}
+            </div>
+
+            {/* Dominant Foot */}
+            <div className="space-y-1">
+              <label className="text-xs font-mono uppercase text-[#A4B0A8] tracking-wider block">
+                শক্তিশালী পা (ঐচ্ছিক)
+              </label>
+              <select
+                value={dominantFoot}
+                onChange={(e) =>
+                  setDominantFoot(e.target.value as DominantFoot | "")
+                }
+                className="w-full bg-[#101A17] border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-[#B9F66B]/60 transition-colors"
+              >
+                <option value="" className="bg-[#18251F] text-white">
+                  নির্বাচন করুন
+                </option>
+                {DOMINANT_FOOT_OPTIONS.map((option) => (
+                  <option
+                    key={option.value}
+                    value={option.value}
+                    className="bg-[#18251F] text-white"
+                  >
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Playing Experience */}
+            <div className="space-y-1">
+              <label className="text-xs font-mono uppercase text-[#A4B0A8] tracking-wider block">
+                খেলার অভিজ্ঞতা (বছর)
+              </label>
+              <input
+                type="number"
+                min={0}
+                max={50}
+                step={1}
+                value={playingExperienceYears}
+                onChange={(e) =>
+                  setPlayingExperienceYears(
+                    e.target.value === "" ? "" : parseInt(e.target.value, 10)
+                  )
+                }
+                className={`w-full bg-[#101A17] border rounded-xl px-3.5 py-2.5 text-xs font-mono text-white focus:outline-none transition-colors ${
+                  fieldErrors.playingExperienceYears
+                    ? "border-red-500 focus:border-red-400"
+                    : "border-white/10 focus:border-[#B9F66B]/60"
+                }`}
+              />
+              {fieldErrors.playingExperienceYears && (
+                <p className="text-[11px] text-red-400 font-mono">
+                  {fieldErrors.playingExperienceYears}
+                </p>
+              )}
+            </div>
+
+            {/* Previous Club / Academy */}
+            <div className="space-y-1">
+              <label className="text-xs font-mono uppercase text-[#A4B0A8] tracking-wider block">
+                পূর্ববর্তী ক্লাব / একাডেমি (ঐচ্ছিক)
+              </label>
+              <input
+                type="text"
+                placeholder="যেমনঃ ঢাকা ওয়ান্ডারার্স"
+                value={previousClub}
+                onChange={(e) => setPreviousClub(e.target.value)}
+                className={`w-full bg-[#101A17] border rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-white/20 focus:outline-none transition-colors ${
+                  fieldErrors.previousClub
+                    ? "border-red-500 focus:border-red-400"
+                    : "border-white/10 focus:border-[#B9F66B]/60"
+                }`}
+              />
+              {fieldErrors.previousClub && (
+                <p className="text-[11px] text-red-400 font-mono">
+                  {fieldErrors.previousClub}
+                </p>
+              )}
+            </div>
+
+            {/* Tournament Participation */}
+            <div className="space-y-1 sm:col-span-2">
+              <label className="text-xs font-mono uppercase text-[#A4B0A8] tracking-wider block">
+                টুর্নামেন্ট অংশগ্রহণ (ঐচ্ছিক)
+              </label>
+              <textarea
+                rows={2}
+                maxLength={300}
+                placeholder="অংশগ্রহণকৃত টুর্নামেন্ট, লিগ বা প্রতিযোগিতার বিবরণ..."
+                value={previousTournaments}
+                onChange={(e) => setPreviousTournaments(e.target.value)}
+                className={`w-full bg-[#101A17] border rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-white/20 focus:outline-none transition-colors resize-none ${
+                  fieldErrors.previousTournaments
+                    ? "border-red-500 focus:border-red-400"
+                    : "border-white/10 focus:border-[#B9F66B]/60"
+                }`}
+              />
+              {fieldErrors.previousTournaments && (
+                <p className="text-[11px] text-red-400 font-mono">
+                  {fieldErrors.previousTournaments}
+                </p>
+              )}
+            </div>
+
+            {/* Achievements and Awards */}
+            <div className="space-y-1 sm:col-span-2">
+              <label className="text-xs font-mono uppercase text-[#A4B0A8] tracking-wider block">
+                অর্জন ও পুরস্কার (ঐচ্ছিক)
+              </label>
+              <textarea
+                rows={2}
+                maxLength={300}
+                placeholder="অর্জন, পুরস্কার বা উল্লেখযোগ্য সাফল্য..."
+                value={achievements}
+                onChange={(e) => setAchievements(e.target.value)}
+                className={`w-full bg-[#101A17] border rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-white/20 focus:outline-none transition-colors resize-none ${
+                  fieldErrors.achievements
+                    ? "border-red-500 focus:border-red-400"
+                    : "border-white/10 focus:border-[#B9F66B]/60"
+                }`}
+              />
+              {fieldErrors.achievements && (
+                <p className="text-[11px] text-red-400 font-mono">
+                  {fieldErrors.achievements}
+                </p>
+              )}
+            </div>
+
+            {/* Player Status */}
+            <div className="space-y-1">
+              <label className="text-xs font-mono uppercase text-[#A4B0A8] tracking-wider block">
+                খেলোয়াড়ের স্ট্যাটাস <span className="text-red-400">*</span>
+              </label>
+              <select
+                value={playerStatus}
+                onChange={(e) => setPlayerStatus(e.target.value as PlayerStatus)}
+                className="w-full bg-[#101A17] border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-[#B9F66B]/60 transition-colors"
+              >
+                {PLAYER_STATUS_OPTIONS.map((option) => (
+                  <option
+                    key={option.value}
+                    value={option.value}
+                    className="bg-[#18251F] text-white"
+                  >
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Joining Date */}
+            <div className="space-y-1">
+              <label className="text-xs font-mono uppercase text-[#A4B0A8] tracking-wider block">
+                যোগদানের তারিখ (ঐচ্ছিক)
+              </label>
+              <input
+                type="date"
+                value={joiningDate}
+                onChange={(e) => setJoiningDate(e.target.value)}
+                className={`w-full bg-[#101A17] border rounded-xl px-3.5 py-2.5 text-xs text-white font-mono focus:outline-none transition-colors ${
+                  fieldErrors.joiningDate
+                    ? "border-red-500 focus:border-red-400"
+                    : "border-white/10 focus:border-[#B9F66B]/60"
+                }`}
+              />
+              {fieldErrors.joiningDate && (
+                <p className="text-[11px] text-red-400 font-mono">
+                  {fieldErrors.joiningDate}
+                </p>
+              )}
+            </div>
+
+            {/* Training Group / Age Group */}
+            <div className="space-y-1 sm:col-span-2">
+              <label className="text-xs font-mono uppercase text-[#A4B0A8] tracking-wider block">
+                ট্রেনিং গ্রুপ / বয়স গ্রুপ (ঐচ্ছিক)
+              </label>
+              <input
+                type="text"
+                placeholder="যেমনঃ অনূর্ধ্ব-১৬ / সিনিয়র স্কোয়াড"
+                value={trainingGroup}
+                onChange={(e) => setTrainingGroup(e.target.value)}
+                className={`w-full bg-[#101A17] border rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-white/20 focus:outline-none transition-colors ${
+                  fieldErrors.trainingGroup
+                    ? "border-red-500 focus:border-red-400"
+                    : "border-white/10 focus:border-[#B9F66B]/60"
+                }`}
+              />
+              {fieldErrors.trainingGroup && (
+                <p className="text-[11px] text-red-400 font-mono">
+                  {fieldErrors.trainingGroup}
+                </p>
+              )}
+            </div>
+
+            {/* Coach's Notes */}
+            <div className="space-y-1 sm:col-span-2">
+              <label className="text-xs font-mono uppercase text-[#A4B0A8] tracking-wider block">
+                কোচের নোট (ঐচ্ছিক)
+              </label>
+              <textarea
+                rows={3}
+                maxLength={2000}
+                placeholder="প্রশিক্ষণ, ফিটনেস বা উন্নয়ন সংক্রান্ত কোচের পর্যবেক্ষণ লিখুন..."
+                value={coachNotes}
+                onChange={(e) => setCoachNotes(e.target.value)}
+                className={`w-full bg-[#101A17] border rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-white/20 focus:outline-none transition-colors resize-none ${
+                  fieldErrors.coachNotes
+                    ? "border-red-500 focus:border-red-400"
+                    : "border-white/10 focus:border-[#B9F66B]/60"
+                }`}
+              />
+              {fieldErrors.coachNotes && (
+                <p className="text-[11px] text-red-400 font-mono">
+                  {fieldErrors.coachNotes}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Section 4: Photo Selection */}
         <div className="space-y-3 pt-2 border-t border-white/10">
           <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-[#B9F66B] flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B]" />
-            ৩. খেলোয়াড়ের ছবি
+            ৪. খেলোয়াড়ের ছবি
           </h3>
 
           <div className="space-y-2">
@@ -519,11 +1080,11 @@ function PlayerFormInner({
           </div>
         </div>
 
-        {/* Section 4: Statistics */}
+        {/* Section 5: Statistics */}
         <div className="space-y-4 pt-2 border-t border-white/10">
           <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-[#B9F66B] flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B]" />
-            ৪. প্রতিযোগিতার পরিসংখ্যান (ক্যারিয়ার / সিজন)
+            ৫. প্রতিযোগিতার পরিসংখ্যান (ক্যারিয়ার / সিজন)
           </h3>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -594,10 +1155,170 @@ function PlayerFormInner({
                 className="w-full bg-[#101A17] border border-white/10 rounded-xl px-3 py-2 text-xs font-mono text-white text-center focus:outline-none focus:border-[#B9F66B]/60"
               />
             </div>
+
+            <div className="space-y-1">
+              <label className="text-[10px] font-mono uppercase text-[#A4B0A8] block">
+                খেলার মিনিট
+              </label>
+              <input
+                type="number"
+                min={0}
+                value={minutesPlayed}
+                onChange={(e) =>
+                  setMinutesPlayed(
+                    e.target.value === "" ? "" : parseInt(e.target.value, 10)
+                  )
+                }
+                className={`w-full bg-[#101A17] border rounded-xl px-3 py-2 text-xs font-mono text-white text-center focus:outline-none transition-colors ${
+                  fieldErrors.minutesPlayed
+                    ? "border-red-500 focus:border-red-400"
+                    : "border-white/10 focus:border-[#B9F66B]/60"
+                }`}
+              />
+              {fieldErrors.minutesPlayed && (
+                <p className="text-[10px] text-red-400 font-mono text-center">
+                  {fieldErrors.minutesPlayed}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[10px] font-mono uppercase text-[#A4B0A8] block">
+                হলুদ কার্ড
+              </label>
+              <input
+                type="number"
+                min={0}
+                value={yellowCards}
+                onChange={(e) =>
+                  setYellowCards(
+                    e.target.value === "" ? "" : parseInt(e.target.value, 10)
+                  )
+                }
+                className={`w-full bg-[#101A17] border rounded-xl px-3 py-2 text-xs font-mono text-white text-center focus:outline-none transition-colors ${
+                  fieldErrors.yellowCards
+                    ? "border-red-500 focus:border-red-400"
+                    : "border-white/10 focus:border-[#B9F66B]/60"
+                }`}
+              />
+              {fieldErrors.yellowCards && (
+                <p className="text-[10px] text-red-400 font-mono text-center">
+                  {fieldErrors.yellowCards}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[10px] font-mono uppercase text-[#A4B0A8] block">
+                লাল কার্ড
+              </label>
+              <input
+                type="number"
+                min={0}
+                value={redCards}
+                onChange={(e) =>
+                  setRedCards(
+                    e.target.value === "" ? "" : parseInt(e.target.value, 10)
+                  )
+                }
+                className={`w-full bg-[#101A17] border rounded-xl px-3 py-2 text-xs font-mono text-white text-center focus:outline-none transition-colors ${
+                  fieldErrors.redCards
+                    ? "border-red-500 focus:border-red-400"
+                    : "border-white/10 focus:border-[#B9F66B]/60"
+                }`}
+              />
+              {fieldErrors.redCards && (
+                <p className="text-[10px] text-red-400 font-mono text-center">
+                  {fieldErrors.redCards}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[10px] font-mono uppercase text-[#A4B0A8] block">
+                খেলোয়াড় রেটিং (০-১০)
+              </label>
+              <input
+                type="number"
+                min={0}
+                max={10}
+                step={0.1}
+                value={rating}
+                onChange={(e) =>
+                  setRating(
+                    e.target.value === "" ? "" : parseFloat(e.target.value)
+                  )
+                }
+                className={`w-full bg-[#101A17] border rounded-xl px-3 py-2 text-xs font-mono text-white text-center focus:outline-none transition-colors ${
+                  fieldErrors.rating
+                    ? "border-red-500 focus:border-red-400"
+                    : "border-white/10 focus:border-[#B9F66B]/60"
+                }`}
+              />
+              {fieldErrors.rating && (
+                <p className="text-[10px] text-red-400 font-mono text-center">
+                  {fieldErrors.rating}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[10px] font-mono uppercase text-[#A4B0A8] block">
+                ম্যান অফ দ্য ম্যাচ
+              </label>
+              <input
+                type="number"
+                min={0}
+                value={manOfTheMatch}
+                onChange={(e) =>
+                  setManOfTheMatch(
+                    e.target.value === "" ? "" : parseInt(e.target.value, 10)
+                  )
+                }
+                className={`w-full bg-[#101A17] border rounded-xl px-3 py-2 text-xs font-mono text-white text-center focus:outline-none transition-colors ${
+                  fieldErrors.manOfTheMatch
+                    ? "border-red-500 focus:border-red-400"
+                    : "border-white/10 focus:border-[#B9F66B]/60"
+                }`}
+              />
+              {fieldErrors.manOfTheMatch && (
+                <p className="text-[10px] text-red-400 font-mono text-center">
+                  {fieldErrors.manOfTheMatch}
+                </p>
+              )}
+            </div>
+
+            {position === "Goalkeeper" && (
+              <div className="space-y-1">
+                <label className="text-[10px] font-mono uppercase text-[#A4B0A8] block">
+                  মোট সেভ
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  value={saves}
+                  onChange={(e) =>
+                    setSaves(
+                      e.target.value === "" ? "" : parseInt(e.target.value, 10)
+                    )
+                  }
+                  className={`w-full bg-[#101A17] border rounded-xl px-3 py-2 text-xs font-mono text-white text-center focus:outline-none transition-colors ${
+                    fieldErrors.saves
+                      ? "border-red-500 focus:border-red-400"
+                      : "border-white/10 focus:border-[#B9F66B]/60"
+                  }`}
+                />
+                {fieldErrors.saves && (
+                  <p className="text-[10px] text-red-400 font-mono text-center">
+                    {fieldErrors.saves}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Section 5: Active Status */}
+        {/* Section 6: Active Status */}
         <div className="pt-2 border-t border-white/10 flex items-center justify-between">
           <div>
             <span className="text-xs font-mono font-bold uppercase text-white block">

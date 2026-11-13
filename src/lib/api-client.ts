@@ -47,11 +47,19 @@ export class ApiError extends Error {
 
 // Data models matching the backend contracts exactly
 
+export type PlayerStatus = "active" | "injured" | "inactive";
+
 export interface PlayerStatistics {
   appearances: number;
   goals: number;
   assists: number;
   cleanSheets: number;
+  minutesPlayed?: number;
+  yellowCards?: number;
+  redCards?: number;
+  rating?: number;
+  manOfTheMatch?: number;
+  saves?: number;
 }
 
 export interface PlayerDocument {
@@ -66,6 +74,21 @@ export interface PlayerDocument {
   weight?: string;
   bio?: string;
   photo: string;
+  phoneNumber?: string;
+  email?: string;
+  currentAddress?: string;
+  guardianName?: string;
+  guardianPhone?: string;
+  secondaryPosition?: string;
+  dominantFoot?: DominantFoot;
+  playingExperienceYears?: number;
+  previousClub?: string;
+  previousTournaments?: string;
+  achievements?: string;
+  playerStatus?: PlayerStatus;
+  joiningDate?: string;
+  trainingGroup?: string;
+  coachNotes?: string;
   statistics: PlayerStatistics;
   isActive: boolean;
   createdAt: string;
@@ -83,6 +106,21 @@ export interface CreatePlayerInput {
   weight?: string;
   bio?: string;
   photo: string;
+  phoneNumber?: string;
+  email?: string;
+  currentAddress?: string;
+  guardianName?: string;
+  guardianPhone?: string;
+  secondaryPosition?: string;
+  dominantFoot?: DominantFoot;
+  playingExperienceYears?: number;
+  previousClub?: string;
+  previousTournaments?: string;
+  achievements?: string;
+  playerStatus?: PlayerStatus;
+  joiningDate?: string;
+  trainingGroup?: string;
+  coachNotes?: string;
   statistics?: PlayerStatistics;
   isActive?: boolean;
 }
@@ -172,6 +210,13 @@ export interface CreateGalleryInput {
 export type UpdateGalleryInput = Partial<CreateGalleryInput>;
 
 export type RegistrationStatus = "pending" | "approved" | "rejected";
+export type Gender = "male" | "female" | "other";
+export type DominantFoot = "right" | "left" | "both";
+export type ExperienceLevel =
+  | "beginner"
+  | "intermediate"
+  | "advanced"
+  | "professional";
 
 export interface RegistrationDocument {
   _id: string;
@@ -182,6 +227,32 @@ export interface RegistrationDocument {
   position: string;
   experience: string;
   message?: string;
+  gender: Gender;
+  nationality: string;
+  presentAddress: string;
+  district: string;
+  upazila: string;
+  guardianName: string;
+  guardianPhone: string;
+  emergencyContactName: string;
+  emergencyContactPhone: string;
+  primaryPosition: string;
+  secondaryPosition?: string;
+  preferredJerseyNumber: number;
+  dominantFoot: DominantFoot;
+  height: number;
+  weight: number;
+  experienceLevel: ExperienceLevel;
+  yearsOfExperience: number;
+  previousClub?: string;
+  previousTournaments?: string;
+  achievements?: string;
+  currentInstitution?: string;
+  hasInjury: boolean;
+  injuryDetails?: string;
+  allergies?: string;
+  motivation: string;
+  additionalNotes?: string;
   status: RegistrationStatus;
   createdAt: string;
   updatedAt: string;
@@ -195,6 +266,32 @@ export interface CreateRegistrationInput {
   position: string;
   experience: string;
   message?: string;
+  gender: Gender;
+  nationality: string;
+  presentAddress: string;
+  district: string;
+  upazila: string;
+  guardianName: string;
+  guardianPhone: string;
+  emergencyContactName: string;
+  emergencyContactPhone: string;
+  primaryPosition: string;
+  secondaryPosition?: string;
+  preferredJerseyNumber: number;
+  dominantFoot: DominantFoot;
+  height: number;
+  weight: number;
+  experienceLevel: ExperienceLevel;
+  yearsOfExperience: number;
+  previousClub?: string;
+  previousTournaments?: string;
+  achievements?: string;
+  currentInstitution?: string;
+  hasInjury: boolean;
+  injuryDetails?: string;
+  allergies?: string;
+  motivation: string;
+  additionalNotes?: string;
 }
 
 export type UpdateRegistrationInput = Partial<CreateRegistrationInput> & {
@@ -305,6 +402,27 @@ export const apiClient = {
 
       const qs = query.toString();
       return request<PlayerDocument[]>(`/players${qs ? `?${qs}` : ""}`);
+    },
+
+    // Get all players with private admin fields (Protected Admin Endpoint)
+    getAllAdmin: (params?: {
+      page?: number;
+      limit?: number;
+      isActive?: boolean;
+      search?: string;
+      position?: string;
+    }) => {
+      const query = new URLSearchParams();
+      if (params?.page) query.set("page", String(params.page));
+      if (params?.limit) query.set("limit", String(params.limit));
+      if (typeof params?.isActive === "boolean") {
+        query.set("isActive", String(params.isActive));
+      }
+      if (params?.search) query.set("search", params.search);
+      if (params?.position) query.set("position", params.position);
+
+      const qs = query.toString();
+      return request<PlayerDocument[]>(`/players/admin${qs ? `?${qs}` : ""}`);
     },
 
     // Count active players (uses limit=1 to read pagination.total accurately)

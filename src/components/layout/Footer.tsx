@@ -1,43 +1,6 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Mail, Phone, MapPin, ChevronRight } from "lucide-react";
-
-/**
- * Football Emblem Component
- * Harmonized with the club crest used in the Navbar
- */
-function ClubEmblem() {
-  return (
-    <div
-      className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-[#18181B] to-[#050505] border border-[#B9F66B]/30 shadow-[0_0_14px_rgba(185,246,107,0.18)] group-hover:border-[#B9F66B] group-hover:shadow-[0_0_20px_rgba(185,246,107,0.35)] transition-all duration-300 shrink-0"
-      aria-hidden="true"
-    >
-      <div className="absolute inset-0 rounded-xl bg-[#B9F66B]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-
-      {/* European Club Football Vector */}
-      <svg
-        className="w-5 h-5 text-[#B9F66B] transition-transform duration-500 ease-out group-hover:rotate-45"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <circle cx="12" cy="12" r="10" />
-        <polygon
-          points="12 7 8 10 9.5 15 14.5 15 16 10"
-          fill="currentColor"
-          fillOpacity="0.25"
-        />
-        <line x1="12" y1="2" x2="12" y2="7" />
-        <line x1="2.5" y1="9" x2="8" y2="10" />
-        <line x1="5" y1="19.5" x2="9.5" y2="15" />
-        <line x1="19" y1="19.5" x2="14.5" y2="15" />
-        <line x1="21.5" y1="9" x2="16" y2="10" />
-      </svg>
-    </div>
-  );
-}
 
 // Quick Links Data
 const QUICK_LINKS = [
@@ -134,7 +97,16 @@ export default function Footer() {
               className="inline-flex items-center gap-3 group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B9F66B] rounded-lg"
               aria-label="Morning Football Academy - Home"
             >
-              <ClubEmblem />
+              <div className="relative flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-[#050505] border border-[#B9F66B]/30 shadow-[0_0_14px_rgba(185,246,107,0.18)] group-hover:border-[#B9F66B] group-hover:shadow-[0_0_20px_rgba(185,246,107,0.35)] transition-all duration-300 shrink-0">
+                <Image
+                  src="/images/logo.jpeg"
+                  alt="Morning Football Academy logo"
+                  width={1254}
+                  height={1254}
+                  sizes="(max-width: 640px) 64px, 80px"
+                  className="w-full h-full object-contain"
+                />
+              </div>
               <div className="flex flex-col">
                 <span className="text-base sm:text-lg font-black tracking-[0.2em] text-white leading-none group-hover:text-[#B9F66B] transition-colors duration-200">
                   MORNING
@@ -263,10 +235,10 @@ export default function Footer() {
                     ফোন
                   </span>
                   <a
-                    href="tel:+8801XXXXXXXXX"
+                    href="tel:0131835581"
                     className="text-[#A4B0A8] hover:text-[#B9F66B] transition-colors"
                   >
-                    +৮৮০ ১XXXXXXXXX
+                    0131835581
                   </a>
                 </div>
               </div>
@@ -289,9 +261,21 @@ export default function Footer() {
 
         {/* Bottom Footer Divider & Legal Row */}
         <div className="mt-12 lg:mt-16 pt-8 border-t border-white/10">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#A4B0A8]">
+          <div className="flex flex-col items-center justify-between gap-4 text-xs text-[#A4B0A8] sm:flex-row sm:flex-wrap sm:justify-center lg:flex-nowrap lg:justify-between">
             <p className="text-center sm:text-left">
               &copy; ২০২৬ Morning Football Academy. সর্বস্বত্ব সংরক্ষিত।
+            </p>
+
+            <p className="text-center">
+              Developed by{" "}
+              <a
+                href="https://developerjoy.me/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-[#B9F66B] hover:text-white hover:underline underline-offset-2 transition-colors duration-200"
+              >
+                Mehedi Hasan
+              </a>
             </p>
 
             <div className="flex items-center gap-6">
