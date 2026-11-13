@@ -42,11 +42,11 @@ export default function AboutHero() {
             href="/"
             className="text-[#A4B0A8] hover:text-[#B9F66B] transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-[#B9F66B]"
           >
-            HOME
+            হোম
           </Link>
           <ChevronRight className="w-3.5 h-3.5 text-white/30" />
           <span className="text-[#B9F66B] font-bold" aria-current="page">
-            ABOUT
+            আমাদের সম্পর্কে
           </span>
         </nav>
 
@@ -56,26 +56,26 @@ export default function AboutHero() {
             className="bg-[#18251F]/90 backdrop-blur-md text-[#B9F66B] border border-[#B9F66B]/40 font-black tracking-[0.24em] text-[11px] uppercase px-3.5 py-1 shadow-[0_0_15px_rgba(185,246,107,0.15)]"
           >
             <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B] shadow-[0_0_8px_#B9F66B] mr-2 inline-block animate-pulse" />
-            OUR STORY
+            আমাদের গল্প
           </Chip>
 
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 text-xs font-mono text-[#A4B0A8] uppercase tracking-wider">
             <span className="text-[#B9F66B] font-bold">MFA</span>
-            <span>OFFICIAL PROFILE</span>
+            <span>অফিসিয়াল একাডেমি প্রোফাইল</span>
           </div>
         </div>
 
         {/* Heading */}
         <div className="max-w-4xl space-y-4">
           <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-white uppercase leading-[1.08]">
-            MORE THAN A CLUB.{" "}
+            কেবল একটি ক্লাব নয়।{" "}
             <span className="text-[#B9F66B] drop-shadow-[0_0_30px_rgba(185,246,107,0.4)] block sm:inline">
-              A FAMILY.
+              একটি পরিবার।
             </span>
           </h1>
 
           <p className="text-base sm:text-lg lg:text-xl text-[#A4B0A8] max-w-2xl leading-relaxed">
-            Discover the passion, commitment, and teamwork that define Morning Football Academy.
+            Morning Football Academy-র মূল চালিকাশক্তি হলো গভীর ভালোবাসা, নিরন্তর অঙ্গীকার এবং পারস্পরিক দলগত সংহতি।
           </p>
         </div>
 
@@ -86,7 +86,7 @@ export default function AboutHero() {
               variant="primary"
               className="bg-[#B9F66B] text-[#0A0A0A] font-black text-xs sm:text-sm tracking-[0.16em] uppercase rounded-full px-7 py-3.5 hover:bg-[#cbfd82] active:scale-95 transition-all duration-300 shadow-[0_0_20px_rgba(185,246,107,0.3)] hover:shadow-[0_0_30px_rgba(185,246,107,0.5)] cursor-pointer flex items-center gap-2"
             >
-              <span>EXPLORE OUR CLUB</span>
+              <span>আমাদের ইতিহাস ও গল্প</span>
               <ArrowDown className="w-4 h-4" />
             </Button>
           </Link>
@@ -96,7 +96,7 @@ export default function AboutHero() {
               variant="outline"
               className="bg-white/[0.04] border border-white/20 hover:border-[#B9F66B]/50 hover:bg-[#B9F66B]/10 text-white hover:text-[#B9F66B] font-black text-xs sm:text-sm tracking-[0.16em] uppercase rounded-full px-7 py-3.5 active:scale-95 transition-all cursor-pointer"
             >
-              OUR CORE VALUES
+              মূল মূল্যবোধ
             </Button>
           </Link>
         </div>

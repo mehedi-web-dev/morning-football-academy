@@ -7,15 +7,15 @@ import FootballPhilosophy from "../../components/about/FootballPhilosophy";
 import AboutCTA from "../../components/about/AboutCTA";
 
 export const metadata: Metadata = {
-  title: "About Us | Morning Football Academy",
+  title: "আমাদের সম্পর্কে | Morning Football Academy",
   description:
-    "Discover Morning Football Academy. Built on passion, united by football. Explore our mission, vision, core values, and holistic player development philosophy.",
+    "Morning Football Academy সম্পর্কে বিস্তারিত জানুন। গভীর নিষ্ঠা, ফুটবলের প্রতি ভালোবাসা এবং দলগত ঐক্য নিয়ে গঠিত। আমাদের লক্ষ্য, ভিশন, মূল মূল্যবোধ এবং সার্বিক খেলোয়াড় বিকাশ দর্শন জানুন।",
   keywords: [
-    "About Morning Football Academy",
-    "Football Club Values",
-    "Youth Football Development",
-    "Football Academy Philosophy",
-    "Football Coaching",
+    "আমাদের সম্পর্কে",
+    "Morning Football Academy",
+    "ফুটবল একাডেমি",
+    "ফুটবল প্রশিক্ষণ দর্শন",
+    "তরুণ ফুটবল বিকাশ",
   ],
 };
 

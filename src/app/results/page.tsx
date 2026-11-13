@@ -21,13 +21,14 @@ import {
   PaginationMeta,
 } from "../../lib/api-client";
 import { calculateOutcome, ResultOutcome } from "../../lib/result-utils";
+import { toBnNum } from "../../lib/bn-utils";
 import PublicResultCard from "../../components/results/PublicResultCard";
 
 const OUTCOME_TABS: { label: string; value: string }[] = [
-  { label: "ALL RESULTS", value: "ALL" },
-  { label: "WINS ONLY", value: "WIN" },
-  { label: "DRAWS", value: "DRAW" },
-  { label: "LOSSES", value: "LOSS" },
+  { label: "সকল ফলাফল", value: "ALL" },
+  { label: "কেবল জয়", value: "WIN" },
+  { label: "ড্র", value: "DRAW" },
+  { label: "পরাজয়", value: "LOSS" },
 ];
 
 export default function ResultsPage() {
@@ -64,7 +65,7 @@ export default function ResultsPage() {
       })
       .catch(() => {
         if (!abortSignal?.aborted) {
-          setError("Failed to load match results from database.");
+          setError("ডাটাবেজ থেকে খেলার ফলাফল লোড করতে ব্যর্থ হয়েছে।");
           setIsLoading(false);
         }
       });
@@ -153,15 +154,15 @@ export default function ResultsPage() {
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#18251F] border border-[#B9F66B]/30 text-xs font-mono font-bold tracking-[0.24em] text-[#B9F66B] uppercase shadow-[0_0_15px_rgba(185,246,107,0.15)]">
             <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B] shadow-[0_0_8px_#B9F66B]" />
-            OFFICIAL RESULTS ARCHIVE
+            অফিসিয়াল ফলাফল আর্কাইভ
           </div>
 
           <div className="space-y-4 max-w-3xl">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black uppercase tracking-tight text-white leading-none">
-              MATCH <span className="text-[#B9F66B]">RESULTS.</span>
+              ম্যাচের <span className="text-[#B9F66B]">ফলাফল।</span>
             </h1>
             <p className="text-sm sm:text-base text-[#A4B0A8] leading-relaxed">
-              Audited match reports, final scorelines, and performance outcomes for Morning Football Academy sanctioned tournament games and friendly encounters.
+              মর্নিং ফুটবল একাডেমির অনুমোদিত টুর্নামেন্ট ও প্রীতি ম্যাচসমূহের চূড়ান্ত স্কোরলাইন, ম্যাচ রিপোর্ট ও পারফরম্যান্স ফলাফল।
             </p>
           </div>
 
@@ -170,29 +171,29 @@ export default function ResultsPage() {
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#18251F] border border-white/10 text-xs font-mono text-[#A4B0A8]">
               <Trophy className="w-4 h-4 text-[#B9F66B]" />
               <span>
-                Total Played:{" "}
-                <strong className="text-white font-bold">{totalCount}</strong>
+                মোট ম্যাচ:{" "}
+                <strong className="text-white font-bold">{toBnNum(totalCount)}টি</strong>
               </span>
             </div>
 
             <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#18251F] border border-white/10 text-xs font-mono text-[#B9F66B]">
               <span className="w-2 h-2 rounded-full bg-[#B9F66B]" />
               <span>
-                Wins: <strong className="font-bold">{stats.wins}</strong>
+                জয়: <strong className="font-bold">{toBnNum(stats.wins)}টি</strong>
               </span>
             </div>
 
             <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#18251F] border border-white/10 text-xs font-mono text-amber-400">
               <span className="w-2 h-2 rounded-full bg-amber-400" />
               <span>
-                Draws: <strong className="font-bold">{stats.draws}</strong>
+                ড্র: <strong className="font-bold">{toBnNum(stats.draws)}টি</strong>
               </span>
             </div>
 
             <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#18251F] border border-white/10 text-xs font-mono text-red-400">
               <span className="w-2 h-2 rounded-full bg-red-400" />
               <span>
-                Losses: <strong className="font-bold">{stats.losses}</strong>
+                পরাজয়: <strong className="font-bold">{toBnNum(stats.losses)}টি</strong>
               </span>
             </div>
 
@@ -202,7 +203,7 @@ export default function ResultsPage() {
               className="bg-[#18251F] border border-white/10 text-white font-mono text-xs uppercase tracking-wider px-4 py-2 rounded-xl hover:border-[#B9F66B]/50 transition-colors cursor-pointer inline-flex items-center gap-2 ml-auto"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin text-[#B9F66B]" : ""}`} />
-              <span>Refresh Results</span>
+              <span>ফলাফল রিফ্রেশ</span>
             </Button>
           </div>
         </div>
@@ -216,7 +217,7 @@ export default function ResultsPage() {
           <div className="flex flex-wrap items-center gap-2 pb-4 border-b border-white/[0.08]">
             <span className="text-xs font-mono text-[#A4B0A8] uppercase tracking-wider mr-2 hidden sm:inline-flex items-center gap-1.5">
               <Filter className="w-3.5 h-3.5 text-[#B9F66B]" />
-              OUTCOME:
+              ফলাফল:
             </span>
 
             {OUTCOME_TABS.map((tab) => {
@@ -244,7 +245,7 @@ export default function ResultsPage() {
               <Search className="w-4 h-4 text-[#A4B0A8] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="text"
-                placeholder="Search opponent..."
+                placeholder="প্রতিপক্ষ দল খুঁজুন..."
                 value={searchOpponent}
                 onChange={(e) => setSearchOpponent(e.target.value)}
                 className="w-full pl-9 pr-3 py-2 rounded-xl bg-[#202E27] border border-white/10 text-xs text-white placeholder-[#A4B0A8]/60 focus:outline-none focus:border-[#B9F66B]/50 transition-colors"
@@ -256,7 +257,7 @@ export default function ResultsPage() {
               <Shield className="w-4 h-4 text-[#A4B0A8] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="text"
-                placeholder="Filter competition..."
+                placeholder="প্রতিযোগিতা ফিল্টার..."
                 value={competitionFilter}
                 onChange={(e) => {
                   setCompetitionFilter(e.target.value);
@@ -274,10 +275,10 @@ export default function ResultsPage() {
               >
                 <span className="flex items-center gap-2">
                   <ArrowUpDown className="w-3.5 h-3.5 text-[#B9F66B]" />
-                  <span>Date: {sortOrder === "desc" ? "Latest First" : "Oldest First"}</span>
+                  <span>তারিখ: {sortOrder === "desc" ? "সাম্প্রতিক আগে" : "পুরাতন আগে"}</span>
                 </span>
                 <span className="text-[10px] text-[#A4B0A8] uppercase font-bold">
-                  {sortOrder.toUpperCase()}
+                  {sortOrder === "desc" ? "অবরোহী" : "আরোহী"}
                 </span>
               </button>
             </div>
@@ -288,7 +289,7 @@ export default function ResultsPage() {
                 onClick={handleResetFilters}
                 className="w-full px-3.5 py-2 rounded-xl bg-white/[0.04] border border-white/10 text-xs font-mono text-[#A4B0A8] hover:text-white hover:border-white/20 transition-colors cursor-pointer"
               >
-                Reset Filters
+                ফিল্টার রিসেট করুন
               </button>
             </div>
           </div>
@@ -304,7 +305,7 @@ export default function ResultsPage() {
               className="bg-[#202E27] border border-white/10 text-white font-mono text-xs uppercase tracking-wider px-5 py-2 rounded-xl hover:border-[#B9F66B]/50 transition-colors cursor-pointer inline-flex items-center gap-2"
             >
               <RefreshCw className="w-3.5 h-3.5" />
-              <span>Retry</span>
+              <span>পুনরায় চেষ্টা করুন</span>
             </Button>
           </div>
         ) : isLoading ? (
@@ -337,8 +338,8 @@ export default function ResultsPage() {
             {totalPages > 1 && (
               <div className="flex items-center justify-between pt-6 border-t border-white/[0.08]">
                 <p className="text-xs font-mono text-[#A4B0A8]">
-                  Showing page <strong className="text-white">{page}</strong> of{" "}
-                  <strong className="text-white">{totalPages}</strong> ({totalCount} total results)
+                  পৃষ্ঠা <strong className="text-white">{toBnNum(page)}</strong> /{" "}
+                  <strong className="text-white">{toBnNum(totalPages)}</strong> (মোট {toBnNum(totalCount)}টি ফলাফল)
                 </p>
 
                 <div className="flex items-center gap-2">
@@ -348,7 +349,7 @@ export default function ResultsPage() {
                     className="bg-[#18251F] border border-white/10 text-white text-xs px-3 py-1.5 rounded-xl hover:border-[#B9F66B]/50 disabled:opacity-30 cursor-pointer"
                   >
                     <ChevronLeft className="w-4 h-4" />
-                    <span>Prev</span>
+                    <span>পূর্ববর্তী</span>
                   </Button>
 
                   <Button
@@ -356,7 +357,7 @@ export default function ResultsPage() {
                     isDisabled={page >= totalPages}
                     className="bg-[#18251F] border border-white/10 text-white text-xs px-3 py-1.5 rounded-xl hover:border-[#B9F66B]/50 disabled:opacity-30 cursor-pointer"
                   >
-                    <span>Next</span>
+                    <span>পরবর্তী</span>
                     <ChevronRight className="w-4 h-4" />
                   </Button>
                 </div>
@@ -370,17 +371,17 @@ export default function ResultsPage() {
               <Activity className="w-7 h-7" />
             </div>
             <h3 className="text-lg font-black text-white uppercase tracking-tight">
-              No Results Found
+              কোনো ফলাফল পাওয়া যায়নি
             </h3>
             <p className="text-xs sm:text-sm text-[#A4B0A8] max-w-md mx-auto">
-              No match results match your current filter criteria. Try resetting your search filters or check back later.
+              আপনার ফিল্টারের সাথে মিলে এমন কোনো ফলাফল পাওয়া যায়নি। অনুসন্ধান ফিল্টার পরিবর্তন করে পুনরায় চেষ্টা করুন।
             </p>
             <div className="pt-2">
               <Button
                 onPress={handleResetFilters}
                 className="bg-[#B9F66B] text-[#0A0A0A] font-black text-xs uppercase tracking-wider px-6 py-2.5 rounded-full hover:bg-[#cbfd82] transition-colors cursor-pointer"
               >
-                Reset All Filters
+                সকল ফিল্টার রিসেট করুন
               </Button>
             </div>
           </div>

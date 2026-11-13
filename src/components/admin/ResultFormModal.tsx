@@ -17,6 +17,7 @@ import {
   MatchDocument,
   ApiError,
 } from "../../lib/api-client";
+import { formatBnDate } from "../../lib/bn-utils";
 
 interface ResultFormModalProps {
   isOpen: boolean;
@@ -30,12 +31,7 @@ interface ResultFormModalProps {
  */
 function formatShortDate(dateStr: string): string {
   try {
-    const d = new Date(dateStr);
-    return d.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
+    return formatBnDate(dateStr);
   } catch {
     return dateStr;
   }
@@ -137,38 +133,38 @@ function ResultFormInner({
     const errors: Record<string, string> = {};
 
     if (!matchId.trim()) {
-      errors.matchId = "Please select or provide a valid referenced Match ID.";
+      errors.matchId = "অনুগ্রহ করে একটি বৈধ রেফারেন্সড ম্যাচ আইডি নির্বাচন করুন বা প্রদান করুন।";
     } else if (!/^[0-9a-fA-F]{24}$/.test(matchId.trim())) {
-      errors.matchId = "Match ID must be a valid 24-character hexadecimal ObjectId.";
+      errors.matchId = "ম্যাচ আইডি অবশ্যই একটি বৈধ ২৪-অক্ষরের হেক্সাডেসিমেল ObjectId হতে হবে।";
     }
 
     if (!opponent.trim() || opponent.trim().length < 2) {
-      errors.opponent = "Opponent name must be at least 2 characters long.";
+      errors.opponent = "প্রতিপক্ষ ক্লাবের নাম কমপক্ষে ২ অক্ষরের হতে হবে।";
     }
 
     if (!competition.trim() || competition.trim().length < 2) {
-      errors.competition = "Competition name must be at least 2 characters long.";
+      errors.competition = "প্রতিযোগিতার নাম কমপক্ষে ২ অক্ষরের হতে হবে।";
     }
 
     if (!venue.trim() || venue.trim().length < 2) {
-      errors.venue = "Match venue must be at least 2 characters long.";
+      errors.venue = "ম্যাচ ভেন্যু কমপক্ষে ২ অক্ষরের হতে হবে।";
     }
 
     if (!matchDate) {
-      errors.matchDate = "Match date is required.";
+      errors.matchDate = "ম্যাচের তারিখ আবশ্যক।";
     } else {
       const parsedDate = new Date(matchDate);
       if (isNaN(parsedDate.getTime())) {
-        errors.matchDate = "Invalid date format.";
+        errors.matchDate = "অকার্যকর তারিখ ফরম্যাট।";
       }
     }
 
     if (homeScore === "" || isNaN(numericHome) || numericHome < 0 || !Number.isInteger(numericHome)) {
-      errors.homeScore = "Home score must be a non-negative integer (0 or greater).";
+      errors.homeScore = "হোম স্কোর অবশ্যই একটি অঋণাত্মক পূর্ণসংখ্যা হতে হবে (০ বা তার বেশি)।";
     }
 
     if (awayScore === "" || isNaN(numericAway) || numericAway < 0 || !Number.isInteger(numericAway)) {
-      errors.awayScore = "Away score must be a non-negative integer (0 or greater).";
+      errors.awayScore = "অ্যাওয়ে স্কোর অবশ্যই একটি অঋণাত্মক পূর্ণসংখ্যা হতে হবে (০ বা তার বেশি)।";
     }
 
     setFieldErrors(errors);
@@ -217,7 +213,7 @@ function ResultFormInner({
           setFieldErrors(serverErrors);
         }
       } else {
-        setFormError("Failed to save match result. Please check server connection.");
+        setFormError("ম্যাচ ফলাফল সংরক্ষণ করতে ব্যর্থ হয়েছে। অনুগ্রহ করে সার্ভার সংযোগ পরীক্ষা করুন।");
       }
     } finally {
       setIsSubmitting(false);
@@ -237,12 +233,12 @@ function ResultFormInner({
               id="result-form-title"
               className="text-base sm:text-xl font-black text-white uppercase tracking-tight"
             >
-              {isEdit ? "Edit Match Result" : "Record Match Result"}
+              {isEdit ? "ম্যাচ ফলাফল সম্পাদনা" : "ম্যাচ ফলাফল রেকর্ড করুন"}
             </h2>
             <span className="text-[11px] font-mono text-[#A4B0A8] block">
               {isEdit
-                ? `Updating scoreline for match vs ${resultToEdit?.opponent}`
-                : "Submit final scoreline, verify goals, and update season records"}
+                ? `${resultToEdit?.opponent}-এর বিরুদ্ধে ম্যাচের স্কোরলাইন আপডেট করা হচ্ছে`
+                : "চূড়ান্ত স্কোরলাইন জমা দিন, গোল যাচাই করুন এবং সিজন রেকর্ড আপডেট করুন"}
             </span>
           </div>
         </div>
@@ -272,24 +268,24 @@ function ResultFormInner({
         <div className="space-y-3">
           <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-[#B9F66B] flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B]" />
-            1. LINKED FIXTURE SELECTION
+            ১. সংযুক্ত ফিক্সচার নির্বাচন
           </h3>
 
           {!isEdit && (
             <div className="space-y-1.5">
               <label className="text-xs font-mono uppercase text-[#A4B0A8] tracking-wider block">
-                Select Academy Fixture <span className="text-red-400">*</span>
+                একাডেমি ফিক্সচার নির্বাচন করুন <span className="text-red-400">*</span>
               </label>
 
               {isLoadingMatches ? (
                 <div className="p-2.5 rounded-xl bg-[#101A17] border border-white/10 text-xs text-[#A4B0A8] font-mono animate-pulse">
-                  Loading scheduled fixtures from database...
+                  ডাটাবেস থেকে নির্ধারিত ফিক্সচার লোড হচ্ছে...
                 </div>
               ) : availableMatches.length === 0 ? (
                 <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-200 space-y-1">
-                  <p className="font-bold">No match fixtures found in database.</p>
+                  <p className="font-bold">ডাটাবেসে কোনো ম্যাচ ফিক্সচার পাওয়া যায়নি।</p>
                   <p className="text-[11px] text-amber-300/80">
-                    You can schedule a fixture first under <span className="font-mono text-white">Matches</span> or enter a valid 24-character Match ID manually below.
+                    আপনি প্রথমে ম্যাচ মেনু থেকে ফিক্সচার শিডিউল করতে পারেন অথবা নিচে ম্যানুয়ালি ২৪ অক্ষরের ম্যাচ আইডি দিতে পারেন।
                   </p>
                 </div>
               ) : (
@@ -298,10 +294,10 @@ function ResultFormInner({
                   onChange={(e) => handleSelectMatch(e.target.value)}
                   className="w-full bg-[#101A17] border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-[#B9F66B]/60 transition-colors"
                 >
-                  <option value="">-- Choose a scheduled fixture --</option>
+                  <option value="">-- নির্ধারিত একটি ফিক্সচার বেছে নিন --</option>
                   {availableMatches.map((m) => (
                     <option key={m._id} value={m._id} className="bg-[#18251F] text-white">
-                      vs {m.opponent} ({formatShortDate(m.matchDate)}) - {m.competition} [{m.status.toUpperCase()}]
+                      বনাম {m.opponent} ({formatShortDate(m.matchDate)}) - {m.competition}
                     </option>
                   ))}
                 </select>
@@ -312,9 +308,9 @@ function ResultFormInner({
           {/* Match ID Field */}
           <div className="space-y-1">
             <label className="text-xs font-mono uppercase text-[#A4B0A8] tracking-wider block flex items-center justify-between">
-              <span>Referenced Match ObjectId <span className="text-red-400">*</span></span>
+              <span>রেফারেন্সড ম্যাচ ObjectId <span className="text-red-400">*</span></span>
               {isEdit && (
-                <span className="text-[10px] text-[#A4B0A8]">Permanent association</span>
+                <span className="text-[10px] text-[#A4B0A8]">স্থায়ী সংযোগ</span>
               )}
             </label>
             <div className="relative">
@@ -323,7 +319,7 @@ function ResultFormInner({
                 type="text"
                 required
                 readOnly={isEdit}
-                placeholder="24-character hexadecimal MongoDB ObjectId (e.g. 6af293f0...)"
+                placeholder="২৪ অক্ষরের হেক্সাডেসিমেল MongoDB ObjectId (যেমনঃ 6af293f0...)"
                 value={matchId}
                 onChange={(e) => setMatchId(e.target.value)}
                 className={`w-full bg-[#101A17] border rounded-xl pl-9 pr-3.5 py-2.5 text-xs text-white font-mono placeholder-white/20 focus:outline-none transition-colors ${
@@ -347,14 +343,14 @@ function ResultFormInner({
         <div className="space-y-4 pt-2 border-t border-white/10">
           <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-[#B9F66B] flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B]" />
-            2. OFFICIAL SCORELINE & OUTCOME
+            ২. অফিসিয়াল স্কোরলাইন ও ফলাফল
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* MFA Home Score */}
             <div className="p-4 rounded-xl bg-[#101A17] border border-white/10 space-y-2">
               <label className="text-xs font-mono uppercase text-[#B9F66B] font-bold tracking-wider block">
-                Morning Football Academy (Home) <span className="text-red-400">*</span>
+                Morning Football Academy (হোম) <span className="text-red-400">*</span>
               </label>
               <input
                 type="number"
@@ -382,7 +378,7 @@ function ResultFormInner({
             {/* Opponent Away Score */}
             <div className="p-4 rounded-xl bg-[#101A17] border border-white/10 space-y-2">
               <label className="text-xs font-mono uppercase text-white font-bold tracking-wider block truncate">
-                {opponent || "Opponent Team"} (Away) <span className="text-red-400">*</span>
+                {opponent || "প্রতিপক্ষ দল"} (অ্যাওয়ে) <span className="text-red-400">*</span>
               </label>
               <input
                 type="number"
@@ -411,7 +407,7 @@ function ResultFormInner({
           {/* Live Outcome Badge Preview */}
           <div className="p-3 rounded-xl bg-[#101A17] border border-white/5 flex items-center justify-between">
             <span className="text-xs font-mono text-[#A4B0A8] uppercase">
-              Calculated Outcome:
+              হিসাবকৃত ফলাফল:
             </span>
             <div className="flex items-center gap-2">
               <span
@@ -423,14 +419,14 @@ function ResultFormInner({
                     : "bg-red-500/20 text-red-300 border border-red-500/40"
                 }`}
               >
-                {liveOutcome}
+                {liveOutcome === "WIN" ? "জয়" : liveOutcome === "DRAW" ? "ড্র" : "পরাজয়"}
               </span>
               <span className="text-[11px] font-mono text-[#A4B0A8]">
                 {liveOutcome === "WIN"
-                  ? "(Academy Victory)"
+                  ? "(একাডেমি বিজয়)"
                   : liveOutcome === "DRAW"
-                  ? "(Level Scoreline)"
-                  : "(Academy Defeat)"}
+                  ? "(সমতা)"
+                  : "(একাডেমি পরাজয়)"}
               </span>
             </div>
           </div>
@@ -440,19 +436,19 @@ function ResultFormInner({
         <div className="space-y-4 pt-2 border-t border-white/10">
           <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-[#B9F66B] flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B]" />
-            3. FIXTURE METADATA
+            ৩. ফিক্সচার মেটাডাটা
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Opponent */}
             <div className="space-y-1">
               <label className="text-xs font-mono uppercase text-[#A4B0A8] tracking-wider block">
-                Opponent Club Name <span className="text-red-400">*</span>
+                প্রতিপক্ষ ক্লাবের নাম <span className="text-red-400">*</span>
               </label>
               <input
                 type="text"
                 required
-                placeholder="e.g. Green Valley FC"
+                placeholder="যেমনঃ Green Valley FC"
                 value={opponent}
                 onChange={(e) => setOpponent(e.target.value)}
                 className={`w-full bg-[#101A17] border rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-white/20 focus:outline-none transition-colors ${
@@ -471,12 +467,12 @@ function ResultFormInner({
             {/* Competition */}
             <div className="space-y-1">
               <label className="text-xs font-mono uppercase text-[#A4B0A8] tracking-wider block">
-                Competition / Tournament <span className="text-red-400">*</span>
+                প্রতিযোগিতা / টুর্নামেন্ট <span className="text-red-400">*</span>
               </label>
               <input
                 type="text"
                 required
-                placeholder="e.g. Youth Premier Cup"
+                placeholder="যেমনঃ Youth Premier Cup"
                 value={competition}
                 onChange={(e) => setCompetition(e.target.value)}
                 className={`w-full bg-[#101A17] border rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-white/20 focus:outline-none transition-colors ${
@@ -495,7 +491,7 @@ function ResultFormInner({
             {/* Match Date */}
             <div className="space-y-1">
               <label className="text-xs font-mono uppercase text-[#A4B0A8] tracking-wider block">
-                Match Date <span className="text-red-400">*</span>
+                ম্যাচের তারিখ <span className="text-red-400">*</span>
               </label>
               <input
                 type="date"
@@ -518,12 +514,12 @@ function ResultFormInner({
             {/* Venue */}
             <div className="space-y-1">
               <label className="text-xs font-mono uppercase text-[#A4B0A8] tracking-wider block">
-                Match Venue <span className="text-red-400">*</span>
+                ম্যাচ ভেন্যু <span className="text-red-400">*</span>
               </label>
               <input
                 type="text"
                 required
-                placeholder="e.g. Academy Main Arena"
+                placeholder="যেমনঃ Academy Main Arena"
                 value={venue}
                 onChange={(e) => setVenue(e.target.value)}
                 className={`w-full bg-[#101A17] border rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-white/20 focus:outline-none transition-colors ${
@@ -550,7 +546,7 @@ function ResultFormInner({
             isDisabled={isSubmitting}
             className="px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-xs font-mono text-white hover:bg-white/[0.08] transition-colors cursor-pointer"
           >
-            CANCEL
+            বাতিল
           </Button>
 
           <Button
@@ -559,16 +555,16 @@ function ResultFormInner({
             className="px-5 py-2.5 rounded-xl bg-[#B9F66B] hover:bg-[#a8ec56] text-[#101A17] font-black text-xs uppercase tracking-wider transition-all shadow-md cursor-pointer flex items-center gap-2"
           >
             {isSubmitting ? (
-              <span>SAVING...</span>
+              <span>সংরক্ষণ করা হচ্ছে...</span>
             ) : isEdit ? (
               <>
                 <CheckCircle2 className="w-4 h-4" />
-                <span>UPDATE RESULT</span>
+                <span>ফলাফল আপডেট করুন</span>
               </>
             ) : (
               <>
                 <Sparkles className="w-4 h-4" />
-                <span>RECORD SCORE</span>
+                <span>স্কোর রেকর্ড করুন</span>
               </>
             )}
           </Button>

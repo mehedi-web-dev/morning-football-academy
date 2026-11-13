@@ -16,6 +16,7 @@ import {
   CreatePlayerInput,
   ApiError,
 } from "../../lib/api-client";
+import { getBnPosition } from "../../lib/bn-utils";
 
 interface PlayerFormModalProps {
   isOpen: boolean;
@@ -25,10 +26,10 @@ interface PlayerFormModalProps {
 }
 
 const LOCAL_PHOTO_PRESETS = [
-  { label: "Preset 1", path: "/images/players/mehedi.jpeg" },
-  { label: "Preset 2", path: "/images/players/player-1.jpg" },
-  { label: "Preset 3", path: "/images/players/player-3.jpg" },
-  { label: "Preset 4", path: "/images/players/player-4.jpg" },
+  { label: "প্রিসেট ১", path: "/images/players/mehedi.jpeg" },
+  { label: "প্রিসেট ২", path: "/images/players/player-1.jpg" },
+  { label: "প্রিসেট ৩", path: "/images/players/player-3.jpg" },
+  { label: "প্রিসেট ৪", path: "/images/players/player-4.jpg" },
 ];
 
 const POSITIONS = ["Forward", "Midfielder", "Defender", "Goalkeeper"] as const;
@@ -112,35 +113,35 @@ function PlayerFormInner({
     const errors: Record<string, string> = {};
 
     if (!fullName.trim() || fullName.trim().length < 2) {
-      errors.fullName = "Full name must be at least 2 characters long.";
+      errors.fullName = "পুরো নাম কমপক্ষে ২ অক্ষরের হতে হবে।";
     }
 
     if (!slug.trim() || slug.trim().length < 2) {
-      errors.slug = "Slug must be at least 2 characters long.";
+      errors.slug = "স্লাগ কমপক্ষে ২ অক্ষরের হতে হবে।";
     } else if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug.trim())) {
-      errors.slug = "Slug must contain only lowercase letters, numbers, and hyphens.";
+      errors.slug = "স্লাগে শুধুমাত্র ছোট হাতের ইংরেজি অক্ষর, সংখ্যা এবং হাইফেন ব্যবহার করা যাবে।";
     }
 
     const num = Number(jerseyNumber);
     if (jerseyNumber === "" || isNaN(num) || num < 1 || num > 99) {
-      errors.jerseyNumber = "Jersey number must be an integer between 1 and 99.";
+      errors.jerseyNumber = "জার্সি নম্বর ১ থেকে ৯৯ এর মধ্যে একটি পূর্ণসংখ্যা হতে হবে।";
     }
 
     if (!nationality.trim() || nationality.trim().length < 2) {
-      errors.nationality = "Nationality is required (at least 2 characters).";
+      errors.nationality = "জাতীয়তা প্রদান করা বাধ্যতামূলক (কমপক্ষে ২ অক্ষর)।";
     }
 
     if (!dateOfBirth) {
-      errors.dateOfBirth = "Date of birth is required.";
+      errors.dateOfBirth = "জন্মতারিখ নির্বাচন করা আবশ্যক।";
     } else {
       const parsedDate = new Date(dateOfBirth);
       if (isNaN(parsedDate.getTime())) {
-        errors.dateOfBirth = "Invalid date format.";
+        errors.dateOfBirth = "অকার্যকর তারিখ ফরম্যাট।";
       }
     }
 
     if (!photo.trim()) {
-      errors.photo = "Photo path or image URL is required.";
+      errors.photo = "খেলোয়াড়ের ছবি বা ইমেজ পাথ প্রদান করা আবশ্যক।";
     }
 
     setFieldErrors(errors);
@@ -199,7 +200,7 @@ function PlayerFormInner({
           setFieldErrors(serverErrors);
         }
       } else {
-        setFormError("Failed to save player profile. Please try again.");
+        setFormError("খেলোয়াড়ের প্রোফাইল সংরক্ষণ করতে ব্যর্থ হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।");
       }
     } finally {
       setIsSubmitting(false);
@@ -219,12 +220,12 @@ function PlayerFormInner({
               id="player-form-title"
               className="text-base sm:text-xl font-black text-white uppercase tracking-tight"
             >
-              {isEdit ? "Edit Player Profile" : "Register New Player"}
+              {isEdit ? "খেলোয়াড় প্রোফাইল সম্পাদনা" : "নতুন খেলোয়াড় নিবন্ধন"}
             </h2>
             <span className="text-[11px] font-mono text-[#A4B0A8] block">
               {isEdit
-                ? `Updating roster details for ${playerToEdit?.fullName}`
-                : "Add verified squad talent to Morning Football Academy database"}
+                ? `${playerToEdit?.fullName}-এর রোস্টার তথ্য আপডেট করা হচ্ছে`
+                : "Morning Football Academy ডাটাবেসে নতুন স্কোয়াড প্রতিভা যোগ করুন"}
             </span>
           </div>
         </div>
@@ -254,19 +255,19 @@ function PlayerFormInner({
         <div className="space-y-4">
           <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-[#B9F66B] flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B]" />
-            1. SQUAD IDENTITY & BIO
+            ১. স্কোয়াড পরিচিতি ও বায়ো
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Full Name */}
             <div className="space-y-1">
               <label className="text-xs font-mono uppercase text-[#A4B0A8] tracking-wider block">
-                Full Name <span className="text-red-400">*</span>
+                পুরো নাম <span className="text-red-400">*</span>
               </label>
               <input
                 type="text"
                 required
-                placeholder="e.g. Liam Sterling"
+                placeholder="যেমনঃ Liam Sterling"
                 value={fullName}
                 onChange={(e) => handleNameChange(e.target.value)}
                 className={`w-full bg-[#101A17] border rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-white/20 focus:outline-none transition-colors ${
@@ -285,12 +286,12 @@ function PlayerFormInner({
             {/* URL Slug */}
             <div className="space-y-1">
               <label className="text-xs font-mono uppercase text-[#A4B0A8] tracking-wider block">
-                URL Slug <span className="text-red-400">*</span>
+                ইউআরএল স্লাগ <span className="text-red-400">*</span>
               </label>
               <input
                 type="text"
                 required
-                placeholder="e.g. liam-sterling"
+                placeholder="যেমনঃ liam-sterling"
                 value={slug}
                 onChange={(e) => handleSlugChange(e.target.value)}
                 className={`w-full bg-[#101A17] border rounded-xl px-3.5 py-2.5 text-xs text-white font-mono placeholder-white/20 focus:outline-none transition-colors ${
@@ -309,7 +310,7 @@ function PlayerFormInner({
             {/* Jersey Number */}
             <div className="space-y-1">
               <label className="text-xs font-mono uppercase text-[#A4B0A8] tracking-wider block">
-                Jersey Number (1-99) <span className="text-red-400">*</span>
+                জার্সি নম্বর (১-৯৯) <span className="text-red-400">*</span>
               </label>
               <input
                 type="number"
@@ -339,7 +340,7 @@ function PlayerFormInner({
             {/* Position */}
             <div className="space-y-1">
               <label className="text-xs font-mono uppercase text-[#A4B0A8] tracking-wider block">
-                Position <span className="text-red-400">*</span>
+                পজিশন <span className="text-red-400">*</span>
               </label>
               <select
                 value={position}
@@ -356,7 +357,7 @@ function PlayerFormInner({
               >
                 {POSITIONS.map((pos) => (
                   <option key={pos} value={pos} className="bg-[#18251F] text-white">
-                    {pos}
+                    {getBnPosition(pos)}
                   </option>
                 ))}
               </select>
@@ -365,12 +366,12 @@ function PlayerFormInner({
             {/* Nationality */}
             <div className="space-y-1">
               <label className="text-xs font-mono uppercase text-[#A4B0A8] tracking-wider block">
-                Nationality <span className="text-red-400">*</span>
+                জাতীয়তা <span className="text-red-400">*</span>
               </label>
               <input
                 type="text"
                 required
-                placeholder="e.g. Bangladesh"
+                placeholder="যেমনঃ বাংলাদেশ"
                 value={nationality}
                 onChange={(e) => setNationality(e.target.value)}
                 className={`w-full bg-[#101A17] border rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-white/20 focus:outline-none transition-colors ${
@@ -389,7 +390,7 @@ function PlayerFormInner({
             {/* Date of Birth */}
             <div className="space-y-1">
               <label className="text-xs font-mono uppercase text-[#A4B0A8] tracking-wider block">
-                Date of Birth <span className="text-red-400">*</span>
+                জন্মতারিখ <span className="text-red-400">*</span>
               </label>
               <input
                 type="date"
@@ -415,17 +416,17 @@ function PlayerFormInner({
         <div className="space-y-4 pt-2 border-t border-white/10">
           <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-[#B9F66B] flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B]" />
-            2. PHYSICAL ATTRIBUTES & BIOGRAPHY
+            ২. শারীরিক গঠন ও বায়োগ্রাফি
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="text-xs font-mono uppercase text-[#A4B0A8] tracking-wider block">
-                Height (Optional)
+                উচ্চতা (ঐচ্ছিক)
               </label>
               <input
                 type="text"
-                placeholder="e.g. 182 cm"
+                placeholder="যেমনঃ 182 cm"
                 value={height}
                 onChange={(e) => setHeight(e.target.value)}
                 className="w-full bg-[#101A17] border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-white/20 focus:outline-none focus:border-[#B9F66B]/60 transition-colors"
@@ -434,11 +435,11 @@ function PlayerFormInner({
 
             <div className="space-y-1">
               <label className="text-xs font-mono uppercase text-[#A4B0A8] tracking-wider block">
-                Weight (Optional)
+                ওজন (ঐচ্ছিক)
               </label>
               <input
                 type="text"
-                placeholder="e.g. 74 kg"
+                placeholder="যেমনঃ 74 kg"
                 value={weight}
                 onChange={(e) => setWeight(e.target.value)}
                 className="w-full bg-[#101A17] border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-white/20 focus:outline-none focus:border-[#B9F66B]/60 transition-colors"
@@ -447,12 +448,12 @@ function PlayerFormInner({
 
             <div className="space-y-1 sm:col-span-2">
               <label className="text-xs font-mono uppercase text-[#A4B0A8] tracking-wider block">
-                Player Biography & Tactical Role (Optional)
+                খেলোয়াড়ের বায়োগ্রাফি ও ভূমিকা (ঐচ্ছিক)
               </label>
               <textarea
                 rows={2}
                 maxLength={2000}
-                placeholder="Enter background, athletic strengths, or scouting notes..."
+                placeholder="খেলোয়াড়ের পটভূমি, ফুটবল প্রতিভা বা স্কাউটিং নোট লিখুন..."
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
                 className="w-full bg-[#101A17] border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-white/20 focus:outline-none focus:border-[#B9F66B]/60 transition-colors resize-none"
@@ -465,12 +466,12 @@ function PlayerFormInner({
         <div className="space-y-3 pt-2 border-t border-white/10">
           <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-[#B9F66B] flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B]" />
-            3. PLAYER PHOTOGRAPH
+            ৩. খেলোয়াড়ের ছবি
           </h3>
 
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[11px] font-mono text-[#A4B0A8]">Quick Presets:</span>
+              <span className="text-[11px] font-mono text-[#A4B0A8]">কুইক প্রিসেট:</span>
               {LOCAL_PHOTO_PRESETS.map((p) => (
                 <button
                   key={p.path}
@@ -500,7 +501,7 @@ function PlayerFormInner({
               <input
                 type="text"
                 required
-                placeholder="Enter image asset path or URL..."
+                placeholder="ইমেজ ফাইল পাথ বা ইউআরএল লিখুন..."
                 value={photo}
                 onChange={(e) => setPhoto(e.target.value)}
                 className={`flex-1 bg-[#101A17] border rounded-xl px-3.5 py-2.5 text-xs text-white font-mono placeholder-white/20 focus:outline-none transition-colors ${
@@ -522,13 +523,13 @@ function PlayerFormInner({
         <div className="space-y-4 pt-2 border-t border-white/10">
           <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-[#B9F66B] flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B]" />
-            4. COMPETITION STATISTICS (CAREER / SEASON)
+            ৪. প্রতিযোগিতার পরিসংখ্যান (ক্যারিয়ার / সিজন)
           </h3>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div className="space-y-1">
               <label className="text-[10px] font-mono uppercase text-[#A4B0A8] block">
-                Appearances
+                ম্যাচ সংখ্যা
               </label>
               <input
                 type="number"
@@ -545,7 +546,7 @@ function PlayerFormInner({
 
             <div className="space-y-1">
               <label className="text-[10px] font-mono uppercase text-[#A4B0A8] block">
-                Goals
+                গোল
               </label>
               <input
                 type="number"
@@ -562,7 +563,7 @@ function PlayerFormInner({
 
             <div className="space-y-1">
               <label className="text-[10px] font-mono uppercase text-[#A4B0A8] block">
-                Assists
+                অ্যাসিস্ট
               </label>
               <input
                 type="number"
@@ -579,7 +580,7 @@ function PlayerFormInner({
 
             <div className="space-y-1">
               <label className="text-[10px] font-mono uppercase text-[#A4B0A8] block">
-                Clean Sheets
+                ক্লিন শিট
               </label>
               <input
                 type="number"
@@ -600,10 +601,10 @@ function PlayerFormInner({
         <div className="pt-2 border-t border-white/10 flex items-center justify-between">
           <div>
             <span className="text-xs font-mono font-bold uppercase text-white block">
-              ACTIVE SQUAD ROSTER
+              সক্রিয় স্কোয়াড রোস্টার
             </span>
             <span className="text-[11px] text-[#A4B0A8]">
-              Inactive players remain in the database but are excluded from active squad lineups.
+              নিষ্ক্রিয় খেলোয়াড়রা ডাটাবেসে সংরক্ষিত থাকবেন কিন্তু সক্রিয় স্কোয়াড লাইনআপ থেকে বাদ থাকবেন।
             </span>
           </div>
 
@@ -627,7 +628,7 @@ function PlayerFormInner({
             isDisabled={isSubmitting}
             className="px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-xs font-mono text-white hover:bg-white/[0.08] transition-colors cursor-pointer"
           >
-            CANCEL
+            বাতিল
           </Button>
 
           <Button
@@ -636,16 +637,16 @@ function PlayerFormInner({
             className="px-5 py-2.5 rounded-xl bg-[#B9F66B] hover:bg-[#a8ec56] text-[#101A17] font-black text-xs uppercase tracking-wider transition-all shadow-md cursor-pointer flex items-center gap-2"
           >
             {isSubmitting ? (
-              <span>SAVING...</span>
+              <span>সংরক্ষণ করা হচ্ছে...</span>
             ) : isEdit ? (
               <>
                 <CheckCircle2 className="w-4 h-4" />
-                <span>UPDATE PLAYER</span>
+                <span>আপডেট সংরক্ষণ করুন</span>
               </>
             ) : (
               <>
                 <Sparkles className="w-4 h-4" />
-                <span>SAVE PLAYER</span>
+                <span>খেলোয়াড় সংরক্ষণ করুন</span>
               </>
             )}
           </Button>

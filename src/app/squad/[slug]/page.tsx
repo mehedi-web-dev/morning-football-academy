@@ -21,6 +21,7 @@ import {
   calculateAge,
   formatDate,
 } from "../../../lib/player-utils";
+import { toBnNum, getBnPosition, formatBnDate } from "../../../lib/bn-utils";
 
 interface PlayerDetailPageProps {
   params: Promise<{ slug: string }>;
@@ -42,19 +43,19 @@ export async function generateMetadata({
 
     if (!player || !player.isActive) {
       return {
-        title: "Player Not Found | Morning Football Academy",
+        title: "খেলোয়াড় পাওয়া যায়নি | Morning Football Academy",
       };
     }
 
     return {
-      title: `${player.fullName} (#${player.jerseyNumber}) | Morning Football Academy`,
+      title: `${player.fullName} (জার্সি #${toBnNum(player.jerseyNumber)}) | Morning Football Academy`,
       description:
         player.bio ||
-        `Official player profile for ${player.fullName}, #${player.jerseyNumber} ${player.position} at Morning Football Academy.`,
+        `মর্নিং ফুটবল একাডেমির অফিসিয়াল খেলোয়াড় ${player.fullName}-এর প্রোফাইল। জার্সি #${toBnNum(player.jerseyNumber)}, পজিশন: ${getBnPosition(player.position)}।`,
     };
   } catch {
     return {
-      title: "Player Not Found | Morning Football Academy",
+      title: "খেলোয়াড় পাওয়া যায়নি | Morning Football Academy",
     };
   }
 }
@@ -98,11 +99,11 @@ export default async function PlayerDetailPage({ params }: PlayerDetailPageProps
             className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-[#A4B0A8] hover:text-[#B9F66B] transition-colors group"
           >
             <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-            <span>BACK TO FULL SQUAD</span>
+            <span>সম্পূর্ণ স্কোয়াডে ফিরে যান</span>
           </Link>
 
           <div className="flex items-center gap-2 text-[11px] font-mono text-[#A4B0A8]">
-            <span>ROSTER</span>
+            <span>স্কোয়াড</span>
             <span className="text-white/20">/</span>
             <span className="text-white font-bold uppercase">{player.fullName}</span>
           </div>
@@ -125,7 +126,7 @@ export default async function PlayerDetailPage({ params }: PlayerDetailPageProps
                 {player.photo ? (
                   <Image
                     src={player.photo}
-                    alt={`${player.fullName} - #${player.jerseyNumber} of Morning Football Academy`}
+                    alt={`${player.fullName} - #${toBnNum(player.jerseyNumber)}, Morning Football Academy`}
                     fill
                     priority
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 40vw"
@@ -135,7 +136,7 @@ export default async function PlayerDetailPage({ params }: PlayerDetailPageProps
                   <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#18251F] to-[#101A17] p-8 text-center">
                     <User className="w-24 h-24 text-[#B9F66B]/60 mb-4" />
                     <span className="text-4xl font-black font-mono text-white/30">
-                      #{player.jerseyNumber}
+                      #{toBnNum(player.jerseyNumber)}
                     </span>
                   </div>
                 )}
@@ -146,7 +147,7 @@ export default async function PlayerDetailPage({ params }: PlayerDetailPageProps
                 {/* Jersey Number Watermark on Image */}
                 <div className="absolute top-4 right-4 z-10 select-none pointer-events-none">
                   <span className="text-6xl sm:text-7xl font-black font-mono tracking-tighter text-white/20">
-                    {player.jerseyNumber}
+                    {toBnNum(player.jerseyNumber)}
                   </span>
                 </div>
 
@@ -154,10 +155,10 @@ export default async function PlayerDetailPage({ params }: PlayerDetailPageProps
                 <div className="absolute bottom-5 inset-x-5 z-10">
                   <div className="flex items-center gap-2">
                     <span className="px-3 py-1 rounded-full bg-[#101A17]/90 backdrop-blur-md border border-white/15 text-[11px] font-mono font-black text-[#B9F66B] uppercase">
-                      {shortPos} • #{player.jerseyNumber}
+                      {shortPos} • #{toBnNum(player.jerseyNumber)}
                     </span>
                     <span className="px-3 py-1 rounded-full bg-[#B9F66B]/20 text-[#B9F66B] border border-[#B9F66B]/40 text-[11px] font-mono font-black uppercase">
-                      FIRST TEAM
+                      মূল দল
                     </span>
                   </div>
                 </div>
@@ -170,10 +171,10 @@ export default async function PlayerDetailPage({ params }: PlayerDetailPageProps
                 <div className="flex items-center gap-2.5">
                   <Chip className="bg-[#18251F] text-[#B9F66B] border border-[#B9F66B]/30 font-black tracking-[0.2em] text-[10px] uppercase px-3 py-0.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B] shadow-[0_0_8px_#B9F66B] mr-2 inline-block" />
-                    OFFICIAL SQUAD MEMBER
+                    অফিসিয়াল স্কোয়াড সদস্য
                   </Chip>
                   <span className="text-xs font-mono text-[#A4B0A8]">
-                    JERSEY #{player.jerseyNumber}
+                    জার্সি #{toBnNum(player.jerseyNumber)}
                   </span>
                 </div>
 
@@ -183,17 +184,19 @@ export default async function PlayerDetailPage({ params }: PlayerDetailPageProps
 
                 <div className="flex flex-wrap items-center gap-3 text-sm text-[#A4B0A8]">
                   <span className="text-[#B9F66B] font-bold text-base sm:text-lg uppercase">
-                    {player.position}
+                    {getBnPosition(player.position)}
                   </span>
                   <span className="text-white/20">•</span>
                   <div className="flex items-center gap-1.5 font-mono">
                     <Globe className="w-4 h-4 text-[#B9F66B]" />
-                    <span>{player.nationality}</span>
+                    <span>
+                      {player.nationality === "Bangladesh" ? "বাংলাদেশ" : player.nationality}
+                    </span>
                   </div>
                   {age !== null && (
                     <>
                       <span className="text-white/20">•</span>
-                      <span className="font-mono">{age} Years Old</span>
+                      <span className="font-mono">{toBnNum(age)} বছর বয়স</span>
                     </>
                   )}
                 </div>
@@ -204,40 +207,40 @@ export default async function PlayerDetailPage({ params }: PlayerDetailPageProps
                 {/* Position */}
                 <div className="p-4 rounded-2xl bg-[#18251F] border border-white/10 space-y-1">
                   <span className="text-[10px] font-mono text-[#A4B0A8] uppercase tracking-wider block">
-                    POSITION
+                    পজিশন
                   </span>
                   <span className="text-base font-black text-white uppercase block">
-                    {player.position}
+                    {getBnPosition(player.position)}
                   </span>
                 </div>
 
                 {/* Jersey */}
                 <div className="p-4 rounded-2xl bg-[#18251F] border border-white/10 space-y-1">
                   <span className="text-[10px] font-mono text-[#A4B0A8] uppercase tracking-wider block">
-                    SQUAD NUMBER
+                    জার্সি নম্বর
                   </span>
                   <span className="text-base font-black text-[#B9F66B] font-mono block">
-                    #{player.jerseyNumber}
+                    #{toBnNum(player.jerseyNumber)}
                   </span>
                 </div>
 
                 {/* Height */}
                 <div className="p-4 rounded-2xl bg-[#18251F] border border-white/10 space-y-1">
                   <span className="text-[10px] font-mono text-[#A4B0A8] uppercase tracking-wider block">
-                    HEIGHT
+                    উচ্চতা
                   </span>
                   <span className="text-base font-black text-white block">
-                    {player.height || "N/A"}
+                    {toBnNum(player.height) || "প্রযোজ্য নয়"}
                   </span>
                 </div>
 
                 {/* Weight */}
                 <div className="p-4 rounded-2xl bg-[#18251F] border border-white/10 space-y-1">
                   <span className="text-[10px] font-mono text-[#A4B0A8] uppercase tracking-wider block">
-                    WEIGHT
+                    ওজন
                   </span>
                   <span className="text-base font-black text-white block">
-                    {player.weight || "N/A"}
+                    {toBnNum(player.weight) || "প্রযোজ্য নয়"}
                   </span>
                 </div>
               </div>
@@ -247,7 +250,7 @@ export default async function PlayerDetailPage({ params }: PlayerDetailPageProps
                 <div className="p-5 sm:p-6 rounded-2xl bg-[#18251F] border border-white/10 space-y-2">
                   <h3 className="text-xs font-mono font-black text-[#B9F66B] uppercase tracking-wider flex items-center gap-1.5">
                     <Sparkles className="w-3.5 h-3.5" />
-                    <span>PLAYER BIOGRAPHY & SCOUTING REPORT</span>
+                    <span>খেলোয়াড়ের জীবনবৃত্তান্ত ও স্কাউটিং রিপোর্ট</span>
                   </h3>
                   <p className="text-xs sm:text-sm text-white/90 leading-relaxed whitespace-pre-wrap">
                     {player.bio}
@@ -258,8 +261,8 @@ export default async function PlayerDetailPage({ params }: PlayerDetailPageProps
               {/* Date of Birth info */}
               <div className="flex items-center gap-2 text-xs font-mono text-[#A4B0A8]">
                 <Calendar className="w-4 h-4 text-[#B9F66B]" />
-                <span>Born: {formatDate(player.dateOfBirth)}</span>
-                {age !== null && <span>({age} years old)</span>}
+                <span>জন্মতারিখ: {player.dateOfBirth ? formatBnDate(player.dateOfBirth) : formatDate(player.dateOfBirth)}</span>
+                {age !== null && <span>({toBnNum(age)} বছর)</span>}
               </div>
             </div>
           </div>
@@ -271,14 +274,14 @@ export default async function PlayerDetailPage({ params }: PlayerDetailPageProps
         <div className="border-b border-white/[0.08] pb-4 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div className="space-y-1">
             <span className="text-xs font-mono text-[#B9F66B] uppercase tracking-wider block font-bold">
-              OFFICIAL PERFORMANCE METRICS
+              অফিসিয়াল পারফরম্যান্স মেট্রিক্স
             </span>
             <h2 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight">
-              SEASON STATISTICS.
+              মৌসুমের পরিসংখ্যান।
             </h2>
           </div>
           <span className="text-xs font-mono text-[#A4B0A8]">
-            COMPETITIVE CAMPAIGN 2026/2027
+            প্রতিযোগিতামূলক মৌসুম ২০২৬/২০২৭
           </span>
         </div>
 
@@ -288,15 +291,15 @@ export default async function PlayerDetailPage({ params }: PlayerDetailPageProps
           <div className="p-6 rounded-2xl bg-[#18251F] border border-white/10 space-y-2 relative overflow-hidden group hover:border-[#B9F66B]/40 transition-colors">
             <div className="flex items-center justify-between text-[#A4B0A8]">
               <span className="text-xs font-mono uppercase tracking-wider">
-                APPEARANCES
+                ম্যাচ উপস্থিতি
               </span>
               <Activity className="w-4 h-4 text-[#B9F66B]" />
             </div>
             <span className="text-4xl sm:text-5xl font-black text-white font-mono block">
-              {stats.appearances}
+              {toBnNum(stats.appearances)}
             </span>
             <span className="text-[10px] text-[#A4B0A8]/70 block font-mono">
-              Official match fixtures
+              অফিসিয়াল ম্যাচ ফিক্সচার
             </span>
           </div>
 
@@ -304,15 +307,15 @@ export default async function PlayerDetailPage({ params }: PlayerDetailPageProps
           <div className="p-6 rounded-2xl bg-[#18251F] border border-white/10 space-y-2 relative overflow-hidden group hover:border-[#B9F66B]/40 transition-colors">
             <div className="flex items-center justify-between text-[#A4B0A8]">
               <span className="text-xs font-mono uppercase tracking-wider text-[#B9F66B]">
-                GOALS SCORED
+                গোল সংখ্যা
               </span>
               <Target className="w-4 h-4 text-[#B9F66B]" />
             </div>
             <span className="text-4xl sm:text-5xl font-black text-[#B9F66B] font-mono block">
-              {stats.goals}
+              {toBnNum(stats.goals)}
             </span>
             <span className="text-[10px] text-[#B9F66B]/70 block font-mono">
-              Official season goals
+              মৌসুমের মোট গোল
             </span>
           </div>
 
@@ -320,15 +323,15 @@ export default async function PlayerDetailPage({ params }: PlayerDetailPageProps
           <div className="p-6 rounded-2xl bg-[#18251F] border border-white/10 space-y-2 relative overflow-hidden group hover:border-cyan-400/40 transition-colors">
             <div className="flex items-center justify-between text-[#A4B0A8]">
               <span className="text-xs font-mono uppercase tracking-wider text-cyan-300">
-                ASSISTS
+                অ্যাসিস্ট
               </span>
               <Trophy className="w-4 h-4 text-cyan-300" />
             </div>
             <span className="text-4xl sm:text-5xl font-black text-cyan-300 font-mono block">
-              {stats.assists}
+              {toBnNum(stats.assists)}
             </span>
             <span className="text-[10px] text-cyan-300/70 block font-mono">
-              Key goal contributions
+              গুরুত্বপূর্ণ গোল অবদান
             </span>
           </div>
 
@@ -336,15 +339,15 @@ export default async function PlayerDetailPage({ params }: PlayerDetailPageProps
           <div className="p-6 rounded-2xl bg-[#18251F] border border-white/10 space-y-2 relative overflow-hidden group hover:border-amber-400/40 transition-colors">
             <div className="flex items-center justify-between text-[#A4B0A8]">
               <span className="text-xs font-mono uppercase tracking-wider text-amber-300">
-                CLEAN SHEETS
+                ক্লিন শিট
               </span>
               <Shield className="w-4 h-4 text-amber-300" />
             </div>
             <span className="text-4xl sm:text-5xl font-black text-amber-300 font-mono block">
-              {stats.cleanSheets}
+              {toBnNum(stats.cleanSheets)}
             </span>
             <span className="text-[10px] text-amber-300/70 block font-mono">
-              Defensive shutouts
+              প্রতিপক্ষকে গোলহীন রাখা
             </span>
           </div>
         </div>
@@ -356,13 +359,13 @@ export default async function PlayerDetailPage({ params }: PlayerDetailPageProps
               variant="outline"
               className="bg-transparent border border-white/20 text-white hover:border-[#B9F66B]/50 hover:text-[#B9F66B] font-mono text-xs uppercase tracking-wider px-6 py-3 rounded-full transition-colors cursor-pointer"
             >
-              ← RETURN TO SQUAD ROSTER
+              ← স্কোয়াড তালিকায় ফিরে যান
             </Button>
           </Link>
 
           <Link href="/join">
             <Button className="bg-[#B9F66B] text-[#101A17] font-black text-xs uppercase tracking-wider px-6 py-3 rounded-full hover:bg-[#a8ec56] transition-all cursor-pointer">
-              APPLY FOR ACADEMY TRIALS
+              একাডেমি ট্রায়ালে আবেদন করুন
             </Button>
           </Link>
         </div>

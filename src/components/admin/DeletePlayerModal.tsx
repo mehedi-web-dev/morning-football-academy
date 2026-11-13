@@ -3,6 +3,7 @@
 import { AlertTriangle, Trash2, X } from "lucide-react";
 import { Button } from "@heroui/react";
 import { PlayerDocument } from "../../lib/api-client";
+import { toBnNum, getBnPosition } from "../../lib/bn-utils";
 
 interface DeletePlayerModalProps {
   isOpen: boolean;
@@ -54,10 +55,10 @@ export default function DeletePlayerModal({
               id="delete-dialog-title"
               className="text-base sm:text-lg font-black text-white uppercase tracking-tight"
             >
-              Delete Player Record?
+              খেলোয়াড়ের রেকর্ড মুছে ফেলবেন?
             </h3>
             <span className="text-[11px] font-mono text-red-300 block uppercase">
-              Permanent Database Deletion
+              স্থায়ী ডাটাবেস অপসারণ
             </span>
           </div>
         </div>
@@ -65,18 +66,18 @@ export default function DeletePlayerModal({
         {/* Body Text */}
         <div className="p-4 rounded-xl bg-[#101A17] border border-white/5 space-y-1.5 text-xs text-[#A4B0A8]">
           <p>
-            Are you sure you want to remove{" "}
+            আপনি কি নিশ্চিত যে আপনি একাডেমি স্কোয়াড রোস্টার থেকে{" "}
             <span className="font-bold text-white uppercase">
               {player.fullName}
             </span>{" "}
-            (Jersey{" "}
+            (জার্সি{" "}
             <span className="text-[#B9F66B] font-mono font-bold">
-              #{player.jerseyNumber}
+              #{toBnNum(player.jerseyNumber)}
             </span>
-            , {player.position}) from the academy squad roster?
+            , {getBnPosition(player.position)})-কে মুছে ফেলতে চান?
           </p>
           <p className="text-[11px] text-[#A4B0A8]/80 font-mono">
-            This action deletes the player profile, contract status, and all linked biometric records.
+            এই পদক্ষেপটি খেলোয়াড় প্রোফাইল, চুক্তির স্ট্যাটাস এবং সমস্ত সংযুক্ত বায়োমেট্রিক রেকর্ড স্থায়ীভাবে মুছে ফেলবে।
           </p>
         </div>
 
@@ -88,7 +89,7 @@ export default function DeletePlayerModal({
             isDisabled={isDeleting}
             className="px-4 py-2 rounded-xl bg-white/[0.04] border border-white/10 text-xs font-mono text-white hover:bg-white/[0.08] transition-colors cursor-pointer"
           >
-            CANCEL
+            বাতিল
           </Button>
 
           <Button
@@ -97,7 +98,7 @@ export default function DeletePlayerModal({
             className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer flex items-center gap-2 shadow-lg shadow-red-950/50"
           >
             <Trash2 className="w-4 h-4" />
-            <span>{isDeleting ? "DELETING..." : "DELETE PLAYER"}</span>
+            <span>{isDeleting ? "মুছে ফেলা হচ্ছে..." : "খেলোয়াড় মুছুন"}</span>
           </Button>
         </div>
       </div>

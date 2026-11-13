@@ -1,3 +1,5 @@
+import { formatBnDate, getBnPosition } from "./bn-utils";
+
 /**
  * Pure utility functions for player data handling (isomorphic, safe for Server & Client)
  */
@@ -23,6 +25,13 @@ export function getShortPosition(position?: string): ShortPosition {
 }
 
 /**
+ * Get Bengali name for position
+ */
+export function getPositionNameBn(position?: string): string {
+  return getBnPosition(position);
+}
+
+/**
  * Calculate age accurately from date of birth
  */
 export function calculateAge(dobStr?: string): number | null {
@@ -44,18 +53,9 @@ export function calculateAge(dobStr?: string): number | null {
 }
 
 /**
- * Format date for display
+ * Format date for display in Bengali
  */
 export function formatDate(dateStr?: string): string {
-  if (!dateStr) return "N/A";
-  try {
-    const d = new Date(dateStr);
-    return d.toLocaleDateString("en-US", {
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-    });
-  } catch {
-    return dateStr;
-  }
+  if (!dateStr) return "উপলব্ধ নয়";
+  return formatBnDate(dateStr);
 }

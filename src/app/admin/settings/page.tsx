@@ -29,18 +29,18 @@ export default function AdminSettingsPage() {
           <div className="flex items-center gap-2">
             <Chip className="bg-[#18251F] text-[#B9F66B] border border-[#B9F66B]/30 font-black tracking-[0.2em] text-[10px] uppercase px-2.5 py-0.5">
               <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B] shadow-[0_0_8px_#B9F66B] mr-1.5 inline-block" />
-              SYSTEM CONFIGURATION
+              সিস্টেম কনফিগারেশন
             </Chip>
             <span className="text-[11px] font-mono text-[#A4B0A8]">
-              SECURITY AUDIT: VERIFIED
+              নিরাপত্তা অডিট: যাচাইকৃত
             </span>
           </div>
 
           <h2 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight mt-1">
-            ADMIN SETTINGS.
+            অ্যাডমিন সেটিংস.
           </h2>
           <p className="text-xs sm:text-sm text-[#A4B0A8]">
-            Manage academy configuration, administrative security, API endpoints, and system alerts.
+            একাডেমি কনফিগারেশন, প্রশাসনিক নিরাপত্তা, এপিআই এন্ডপয়েন্ট এবং সিস্টেম সতর্কতা পরিচালনা করুন।
           </p>
         </div>
 
@@ -49,7 +49,7 @@ export default function AdminSettingsPage() {
             className="bg-[#B9F66B] hover:bg-[#a8ec56] text-[#101A17] font-black text-xs uppercase tracking-wider px-4 py-2.5 rounded-xl transition-all shadow-md cursor-pointer flex items-center gap-2"
           >
             <Save className="w-4 h-4" />
-            <span>SAVE CHANGES</span>
+            <span>পরিবর্তন সংরক্ষণ করুন</span>
           </Button>
         </div>
       </div>
@@ -60,10 +60,10 @@ export default function AdminSettingsPage() {
           <Globe className="w-5 h-5 text-[#B9F66B]" />
           <div>
             <h3 className="font-black text-white uppercase tracking-tight text-base">
-              ACADEMY PROFILE & IDENTITY
+              একাডেমি প্রোফাইল ও পরিচিতি
             </h3>
             <p className="text-xs text-[#A4B0A8]">
-              Official club identity displayed on public pages and applicant emails.
+              পাবলিক পেজ ও আবেদনকারী ইমেইলে প্রদর্শিত ক্লাবের অফিসিয়াল পরিচিতি।
             </p>
           </div>
         </div>
@@ -71,7 +71,7 @@ export default function AdminSettingsPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1.5">
             <label className="text-xs font-mono uppercase text-[#A4B0A8] tracking-wider block">
-              Club Official Name
+              ক্লাবের অফিসিয়াল নাম
             </label>
             <input
               type="text"
@@ -83,7 +83,7 @@ export default function AdminSettingsPage() {
 
           <div className="space-y-1.5">
             <label className="text-xs font-mono uppercase text-[#A4B0A8] tracking-wider block">
-              Club Public Tagline
+              ক্লাবের পাবলিক ট্যাগলাইন
             </label>
             <input
               type="text"
@@ -95,7 +95,7 @@ export default function AdminSettingsPage() {
 
           <div className="space-y-1.5 sm:col-span-2">
             <label className="text-xs font-mono uppercase text-[#A4B0A8] tracking-wider block">
-              Official Administration Contact Email
+              অফিসিয়াল প্রশাসনিক যোগাযোগের ইমেইল
             </label>
             <input
               type="email"
@@ -113,10 +113,10 @@ export default function AdminSettingsPage() {
           <ShieldCheck className="w-5 h-5 text-[#B9F66B]" />
           <div>
             <h3 className="font-black text-white uppercase tracking-tight text-base">
-              SECURITY & BETTER AUTH GATEWAY
+              নিরাপত্তা ও অথেনটিকেশন গেটওয়ে
             </h3>
             <p className="text-xs text-[#A4B0A8]">
-              Authentication state managed via Express server backend and Better Auth session cookies.
+              Express সার্ভার ব্যাকএন্ড এবং Better Auth সেশন কুকির মাধ্যমে পরিচালিত প্রমাণীকরণ ব্যবস্থা।
             </p>
           </div>
         </div>
@@ -124,38 +124,38 @@ export default function AdminSettingsPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="p-4 rounded-xl bg-[#18251F] border border-white/5 space-y-1">
             <span className="text-[10px] font-mono text-[#A4B0A8] uppercase tracking-wider block">
-              AUTHENTICATED SUPER ADMIN
+              লগইনকৃত সুপার অ্যাডমিন
             </span>
             <span className="text-sm font-bold text-white block">
               {user?.email || "admin@morningfootball.com"}
             </span>
             <span className="text-[10px] font-mono text-[#B9F66B] uppercase">
-              STATUS: SECURE ACTIVE SESSION
+              স্ট্যাটাস: সক্রিয় নিরাপদ সেশন
             </span>
           </div>
 
           <div className="p-4 rounded-xl bg-[#18251F] border border-white/5 space-y-1">
             <span className="text-[10px] font-mono text-[#A4B0A8] uppercase tracking-wider block">
-              AUTH BACKEND PROXY DESTINATION
+              অথেনটিকেশন ব্যাকএন্ড প্রক্সি গন্তব্য
             </span>
             <span className="text-sm font-mono text-white block">
               {process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}
             </span>
             <span className="text-[10px] font-mono text-[#B9F66B] uppercase">
-              SAME-ORIGIN PROXY (/api/*) ENABLED
+              সেইম-অরিজিন প্রক্সি (/api/*) সক্রিয়
             </span>
           </div>
         </div>
 
         <div className="pt-2 flex items-center justify-between">
           <span className="text-xs text-[#A4B0A8]">
-            Need to rotate admin credentials or update session policies?
+            অ্যাডমিন পাসওয়ার্ড পরিবর্তন বা সেশন পলিসি আপডেট করতে চান?
           </span>
           <Button
             variant="outline"
             className="px-3.5 py-1.5 rounded-xl bg-white/[0.04] border border-white/10 text-xs font-mono text-white hover:text-[#B9F66B] transition-colors cursor-pointer"
           >
-            CHANGE PASSWORD
+            পাসওয়ার্ড পরিবর্তন
           </Button>
         </div>
       </div>
@@ -166,29 +166,29 @@ export default function AdminSettingsPage() {
           <Server className="w-5 h-5 text-[#B9F66B]" />
           <div>
             <h3 className="font-black text-white uppercase tracking-tight text-base">
-              SYSTEM ENVIRONMENT & DEPENDENCIES
+              সিস্টেম পরিবেশ ও ডিপেন্ডেন্সি
             </h3>
             <p className="text-xs text-[#A4B0A8]">
-              Frontend runtime and framework versions.
+              ফ্রন্টএন্ড রানটাইম ও ফ্রেমওয়ার্ক সংস্করণ।
             </p>
           </div>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
           <div className="p-3 rounded-xl bg-[#101A17] border border-white/5">
-            <span className="text-[10px] text-[#A4B0A8] block">FRAMEWORK</span>
+            <span className="text-[10px] text-[#A4B0A8] block">ফ্রেমওয়ার্ক</span>
             <span className="font-bold text-white">Next.js 16 (App Router)</span>
           </div>
           <div className="p-3 rounded-xl bg-[#101A17] border border-white/5">
-            <span className="text-[10px] text-[#A4B0A8] block">COMPONENT SUITE</span>
+            <span className="text-[10px] text-[#A4B0A8] block">কম্পোনেন্ট স্যুট</span>
             <span className="font-bold text-white">HeroUI v3</span>
           </div>
           <div className="p-3 rounded-xl bg-[#101A17] border border-white/5">
-            <span className="text-[10px] text-[#A4B0A8] block">STYLING ENGINE</span>
+            <span className="text-[10px] text-[#A4B0A8] block">স্টাইলিং ইঞ্জিন</span>
             <span className="font-bold text-white">Tailwind CSS</span>
           </div>
           <div className="p-3 rounded-xl bg-[#101A17] border border-white/5">
-            <span className="text-[10px] text-[#A4B0A8] block">AUTH ADAPTER</span>
+            <span className="text-[10px] text-[#A4B0A8] block">অথ অ্যাডাপ্টার</span>
             <span className="font-bold text-white">Better Auth React</span>
           </div>
         </div>
@@ -199,7 +199,7 @@ export default function AdminSettingsPage() {
         <p className="text-[11px] font-mono text-[#A4B0A8]/70 uppercase tracking-widest flex items-center justify-center gap-2">
           <Sparkles className="w-3.5 h-3.5 text-[#B9F66B]" />
           <span>
-            Demonstration settings foundation. Database persistence and webhook integrations will be hooked up in subsequent development phases.
+            অ্যাডমিন সেটিংস ডেমোনস্ট্রেশন ইন্টারফেস। পরবর্তী ধাপে ডেটাবেজ পারসিসট্যান্স এবং ওয়েবহুক সংযুক্ত করা হবে।
           </span>
         </p>
       </div>

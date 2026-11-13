@@ -3,6 +3,11 @@
 import { AlertTriangle, Trash2, X, Calendar, User } from "lucide-react";
 import { Button } from "@heroui/react";
 import { RegistrationDocument } from "../../lib/api-client";
+import {
+  formatBnDate,
+  getBnPosition,
+  getBnRegistrationStatus,
+} from "../../lib/bn-utils";
 
 interface DeleteRegistrationModalProps {
   isOpen: boolean;
@@ -18,12 +23,7 @@ interface DeleteRegistrationModalProps {
 function formatDate(dateStr?: string): string {
   if (!dateStr) return "";
   try {
-    const d = new Date(dateStr);
-    return d.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
+    return formatBnDate(dateStr);
   } catch {
     return dateStr;
   }
@@ -49,10 +49,10 @@ export default function DeleteRegistrationModal({
             </div>
             <div>
               <h2 className="text-base font-black text-white uppercase tracking-tight">
-                DELETE APPLICATION?
+                আবেদন মুছে ফেলবেন?
               </h2>
               <p className="text-[11px] text-[#A4B0A8] font-mono">
-                Permanent deletion confirmation
+                স্থায়ীভাবে মুছে ফেলার নিশ্চয়তা
               </p>
             </div>
           </div>
@@ -71,8 +71,8 @@ export default function DeleteRegistrationModal({
         {/* Modal Body */}
         <div className="p-5 sm:p-6 space-y-4">
           <p className="text-xs sm:text-sm text-[#A4B0A8] leading-relaxed">
-            Are you sure you want to permanently delete the academy enrollment application for{" "}
-            <strong className="text-white uppercase">{registration.fullName}</strong>?
+            আপনি কি নিশ্চিত যে আপনি{" "}
+            <strong className="text-white uppercase">{registration.fullName}</strong>-এর একাডেমি ভর্তি আবেদনটি স্থায়ীভাবে মুছে ফেলতে চান?
           </p>
 
           {/* Applicant Info Summary Card */}
@@ -83,27 +83,27 @@ export default function DeleteRegistrationModal({
                 <span>{registration.fullName}</span>
               </span>
               <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#202E27] text-[#B9F66B] uppercase border border-[#B9F66B]/20">
-                {registration.position}
+                {getBnPosition(registration.position)}
               </span>
             </div>
 
             <div className="text-xs text-[#A4B0A8] font-mono space-y-0.5">
-              <p>Email: {registration.email}</p>
-              <p>Phone: {registration.phone}</p>
+              <p>ইমেইল: {registration.email}</p>
+              <p>ফোন: {registration.phone}</p>
             </div>
 
             <div className="flex items-center gap-1.5 text-[10px] font-mono text-[#A4B0A8]/60 pt-1 border-t border-white/5">
               <Calendar className="w-3 h-3" />
-              <span>Applied: {formatDate(registration.createdAt)}</span>
+              <span>আবেদনের তারিখ: {formatDate(registration.createdAt)}</span>
               <span className="text-white/20">•</span>
               <span className="uppercase text-amber-300">
-                Status: {registration.status}
+                স্ট্যাটাস: {getBnRegistrationStatus(registration.status)}
               </span>
             </div>
           </div>
 
           <div className="p-3 rounded-lg bg-red-950/20 border border-red-500/20 text-[11px] text-red-300">
-            ⚠️ This action cannot be undone. The applicant&apos;s record, trial evaluation, and contact details will be permanently removed from MongoDB.
+            ⚠️ এই পদক্ষেপটি পরিবর্তনযোগ্য নয়। আবেদনকারীর রেকর্ড, মূল্যায়ন এবং যোগাযোগের তথ্য ডেটাবেজ থেকে স্থায়ীভাবে মুছে যাবে।
           </div>
         </div>
 
@@ -115,7 +115,7 @@ export default function DeleteRegistrationModal({
             isDisabled={isDeleting}
             className="bg-transparent border border-white/10 text-[#A4B0A8] hover:text-white hover:border-white/20 text-xs font-mono uppercase tracking-wider px-4 py-2.5 rounded-xl transition-colors cursor-pointer"
           >
-            Cancel
+            বাতিল
           </Button>
 
           <Button
@@ -127,12 +127,12 @@ export default function DeleteRegistrationModal({
             {isDeleting ? (
               <>
                 <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                <span>DELETING...</span>
+                <span>মুছে ফেলা হচ্ছে...</span>
               </>
             ) : (
               <>
                 <Trash2 className="w-4 h-4" />
-                <span>CONFIRM DELETE</span>
+                <span>মুছে ফেলার নিশ্চিতকরণ</span>
               </>
             )}
           </Button>

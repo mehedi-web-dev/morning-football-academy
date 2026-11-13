@@ -17,22 +17,7 @@ import {
   ResultDocument,
   ApiError,
 } from "../../lib/api-client";
-
-/**
- * Format match result date into clean display string
- */
-function formatResultDate(dateStr: string): string {
-  try {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  } catch {
-    return dateStr;
-  }
-}
+import { toBnNum, formatBnDate } from "../../lib/bn-utils";
 
 /**
  * RecentResults Component
@@ -61,7 +46,7 @@ export default function RecentResults() {
             setError(err.message);
             setIsAuthError(err.isAuthError);
           } else {
-            setError("Failed to fetch recent results from backend API.");
+            setError("ব্যাকএন্ড এপিআই থেকে সাম্প্রতিক ফলাফল লোড করতে ব্যর্থ হয়েছে।");
           }
           setIsLoading(false);
         }
@@ -87,20 +72,20 @@ export default function RecentResults() {
     if (homeScore > awayScore) {
       return (
         <span className="px-2 py-0.5 rounded-md bg-[#B9F66B]/15 text-[#B9F66B] border border-[#B9F66B]/30 text-[10px] font-mono font-black uppercase tracking-wider">
-          WIN
+          জয়
         </span>
       );
     }
     if (homeScore === awayScore) {
       return (
         <span className="px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-300 border border-amber-500/30 text-[10px] font-mono font-black uppercase tracking-wider">
-          DRAW
+          ড্র
         </span>
       );
     }
     return (
       <span className="px-2 py-0.5 rounded-md bg-red-500/15 text-red-300 border border-red-500/30 text-[10px] font-mono font-black uppercase tracking-wider">
-        LOSS
+        পরাজয়
       </span>
     );
   };
@@ -115,10 +100,10 @@ export default function RecentResults() {
           </div>
           <div>
             <h2 className="text-sm sm:text-base font-black text-white uppercase tracking-tight">
-              RECENT RESULTS
+              সাম্প্রতিক ফলাফল
             </h2>
             <span className="text-[10px] font-mono text-[#A4B0A8] block">
-              Latest Completed Matches
+              সর্বশেষ সমাপ্ত ম্যাচসমূহ
             </span>
           </div>
         </div>
@@ -127,7 +112,7 @@ export default function RecentResults() {
           href="/admin/results"
           className="inline-flex items-center gap-1 text-xs font-mono font-bold text-[#B9F66B] hover:text-white transition-colors"
         >
-          <span>ALL RESULTS</span>
+          <span>সকল ফলাফল</span>
           <ArrowRight className="w-3.5 h-3.5" />
         </Link>
       </div>
@@ -163,7 +148,7 @@ export default function RecentResults() {
                 className="bg-[#B9F66B] hover:bg-[#a8ec56] text-[#101A17] font-black text-xs uppercase px-3 py-1.5 rounded-xl cursor-pointer flex items-center gap-1.5 transition-colors"
               >
                 <LogIn className="w-3.5 h-3.5" />
-                <span>Sign In Again</span>
+                <span>আবার সাইন ইন করুন</span>
               </Link>
             ) : (
               <Button
@@ -172,7 +157,7 @@ export default function RecentResults() {
                 className="bg-white/[0.04] border border-white/10 hover:border-[#B9F66B]/50 text-white hover:text-[#B9F66B] font-mono text-xs uppercase px-3 py-1.5 rounded-xl cursor-pointer flex items-center gap-1.5"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
-                <span>Retry</span>
+                <span>পুনরায় চেষ্টা করুন</span>
               </Button>
             )}
           </div>
@@ -184,10 +169,10 @@ export default function RecentResults() {
             <Inbox className="w-5 h-5" />
           </div>
           <p className="text-xs font-bold text-white uppercase tracking-wider">
-            No Match Results Recorded
+            কোনো ফলাফল পাওয়া যায়নি
           </p>
           <p className="text-[11px] font-mono text-[#A4B0A8] max-w-sm mx-auto">
-            No completed scores have been logged yet. Match summaries will appear here once recorded.
+            এখনও কোনো সমাপ্ত ম্যাচের স্কোর রেকর্ড করা হয়নি। স্কোর এন্ট্রি করার পর ফলাফল এখানে দেখা যাবে।
           </p>
         </div>
       ) : (
@@ -202,7 +187,7 @@ export default function RecentResults() {
               <div className="space-y-0.5 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-bold text-white uppercase truncate">
-                    vs {res.opponent}
+                    বনাম {res.opponent}
                   </span>
                   {getOutcomeBadge(res.homeScore, res.awayScore)}
                 </div>
@@ -211,16 +196,16 @@ export default function RecentResults() {
                   <span>•</span>
                   <span className="flex items-center gap-1 shrink-0">
                     <Calendar className="w-3 h-3 text-[#B9F66B]" />
-                    {formatResultDate(res.matchDate)}
+                    {formatBnDate(res.matchDate)}
                   </span>
                 </div>
               </div>
 
               {/* Score Box */}
               <div className="px-3 py-1.5 rounded-xl bg-[#101A17] border border-white/10 font-mono font-black text-sm sm:text-base text-center shrink-0">
-                <span className="text-[#B9F66B]">{res.homeScore}</span>
+                <span className="text-[#B9F66B]">{toBnNum(res.homeScore)}</span>
                 <span className="text-white/30 mx-1.5">-</span>
-                <span className="text-white">{res.awayScore}</span>
+                <span className="text-white">{toBnNum(res.awayScore)}</span>
               </div>
             </div>
           ))}

@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Button } from "@heroui/react";
 import { apiClient, DashboardStats, ApiError } from "../../lib/api-client";
+import { toBnNum } from "../../lib/bn-utils";
 
 interface StatItemConfig {
   id: string;
@@ -28,38 +29,38 @@ interface StatItemConfig {
 const STATS_CONFIG: StatItemConfig[] = [
   {
     id: "total-players",
-    label: "TOTAL PLAYERS",
+    label: "মোট খেলোয়াড়",
     key: "totalPlayers",
-    sublabel: "Active Squad Roster",
-    getTrend: (val) => (val === 1 ? "1 active player" : `${val} active players`),
+    sublabel: "সক্রিয় স্কোয়াড সদস্য",
+    getTrend: (val) => `${toBnNum(val)} জন সক্রিয় খেলোয়াড়`,
     href: "/admin/players",
     icon: Users,
   },
   {
     id: "upcoming-matches",
-    label: "UPCOMING MATCHES",
+    label: "আসন্ন ম্যাচ",
     key: "upcomingMatches",
-    sublabel: "Scheduled Fixtures",
-    getTrend: (val) => (val === 0 ? "No fixtures scheduled" : `${val} upcoming fixtures`),
+    sublabel: "নির্ধারিত ফিক্সচার",
+    getTrend: (val) => (val === 0 ? "কোনো ফিক্সচার নির্ধারিত নেই" : `${toBnNum(val)}টি আসন্ন ফিক্সচার`),
     href: "/admin/matches",
     icon: Calendar,
   },
   {
     id: "match-results",
-    label: "MATCH RESULTS",
+    label: "খেলার ফলাফল",
     key: "matchResults",
-    sublabel: "Completed Games",
-    getTrend: (val) => (val === 0 ? "No records logged" : `${val} recorded outcomes`),
+    sublabel: "সমাপ্ত ম্যাচসমূহ",
+    getTrend: (val) => (val === 0 ? "কোনো ফলাফল রেকর্ড নেই" : `${toBnNum(val)}টি ফলাফল রেকর্ডকৃত`),
     href: "/admin/results",
     icon: Trophy,
   },
   {
     id: "pending-registrations",
-    label: "PENDING REGISTRATIONS",
+    label: "অপেক্ষমাণ রেজিস্ট্রেশন",
     key: "pendingRegistrations",
-    sublabel: "New Applications",
+    sublabel: "নতুন ট্রায়াল আবেদন",
     getTrend: (val) =>
-      val > 0 ? `${val} require review` : "All applications reviewed",
+      val > 0 ? `${toBnNum(val)}টি আবেদন পর্যালোচনার অপেক্ষায়` : "সকল আবেদন পর্যালোচিত",
     href: "/admin/registrations",
     icon: FileText,
   },
@@ -125,7 +126,7 @@ export default function AdminStats() {
             </div>
             <div>
               <h4 className="text-sm font-black uppercase tracking-tight text-white">
-                Unable to Load Academy Statistics
+                একাডেমি পরিসংখ্যান লোড করা যায়নি
               </h4>
               <p className="text-xs text-[#A4B0A8]">{error}</p>
             </div>
@@ -138,7 +139,7 @@ export default function AdminStats() {
                 className="bg-[#B9F66B] hover:bg-[#a8ec56] text-[#101A17] font-black text-xs uppercase px-3.5 py-1.5 rounded-xl cursor-pointer flex items-center gap-1.5 transition-colors"
               >
                 <LogIn className="w-3.5 h-3.5" />
-                <span>Sign In Again</span>
+                <span>আবার লগইন করুন</span>
               </Link>
             ) : (
               <Button
@@ -147,7 +148,7 @@ export default function AdminStats() {
                 className="bg-white/[0.04] border border-white/10 hover:border-[#B9F66B]/50 text-white hover:text-[#B9F66B] font-mono text-xs uppercase px-3.5 py-1.5 rounded-xl cursor-pointer flex items-center gap-1.5"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
-                <span>Retry</span>
+                <span>পুনরায় চেষ্টা করুন</span>
               </Button>
             )}
           </div>
@@ -189,7 +190,7 @@ export default function AdminStats() {
       {STATS_CONFIG.map((stat) => {
         const Icon = stat.icon;
         const count = stats ? stats[stat.key] : 0;
-        const formattedValue = String(count).padStart(2, "0");
+        const formattedValue = toBnNum(String(count).padStart(2, "0"));
 
         return (
           <Link

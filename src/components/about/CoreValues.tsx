@@ -13,43 +13,43 @@ interface ValueItem {
 
 const CORE_VALUES: ValueItem[] = [
   {
-    number: "01",
-    title: "TEAMWORK",
-    tagline: "Together we achieve more.",
+    number: "০১",
+    title: "দলগত ঐক্য",
+    tagline: "একসাথে আমরা আরো শক্তিশালী।",
     description:
-      "No individual stands above the team. We celebrate collective triumphs and lift one another through every challenge on the pitch.",
+      "দলের চেয়ে কোনো একক খেলোয়াড় বড় নয়। আমরা সম্মিলিত বিজয়ের আনন্দ ভাগ করি এবং মাঠে যেকোনো প্রতিকূলতায় একে অপরের পাশে দাঁড়াই।",
     icon: Users,
   },
   {
-    number: "02",
-    title: "DISCIPLINE",
-    tagline: "Consistency creates excellence.",
+    number: "০২",
+    title: "শৃঙ্খলা",
+    tagline: "ধারাবাহিকতাই সফলতার চাবিকাঠি।",
     description:
-      "Punctuality, tactical focus, and mental composure. Consistent daily effort and preparation build true champions.",
+      "সময়ানুবর্তিতা, ট্যাকটিক্যাল মনোযোগ এবং মানসিক স্থিরতা। প্রতিদিনের কঠোর নিষ্ঠা ও প্রস্তুতিই তৈরি করে সত্যিকারের চ্যাম্পিয়ন।",
     icon: Shield,
   },
   {
-    number: "03",
-    title: "RESPECT",
-    tagline: "Respect every player, coach, and opponent.",
+    number: "০৩",
+    title: "পারস্পরিক শ্রদ্ধা",
+    tagline: "সতীর্থ, কোচ এবং প্রতিপক্ষকে সম্মান।",
     description:
-      "We honor teammates, coaches, match officials, and opponents with genuine sportsmanship, humility, and fair play.",
+      "আমরা সতীর্থ, কোচিং স্টাফ, ম্যাচ রেফারি এবং প্রতিপক্ষের প্রতি সর্বদা আন্তরিক ক্রীড়াসুলভ মনোভাব, বিনয় ও ফেয়ার প্লে বজায় রাখি।",
     icon: HeartHandshake,
   },
   {
-    number: "04",
-    title: "PASSION",
-    tagline: "Play with heart and commitment.",
+    number: "০৪",
+    title: "একাগ্র নিষ্ঠা",
+    tagline: "হৃদয় ও প্রাণ ঢেলে খেলা।",
     description:
-      "Playing with high energy, courage, and relentless desire. We give 100% of our heart and soul from kickoff to the final whistle.",
+      "মাঠে তীব্র উদ্দীপনা, সাহস ও অবিচল জয়ের ক্ষুধা নিয়ে নামা। কিক-অফ থেকে শেষ বাঁশি পর্যন্ত আমরা নিজেদের শতভাগ উজাড় করে দিই।",
     icon: Flame,
   },
   {
-    number: "05",
-    title: "EXCELLENCE",
-    tagline: "Always strive to improve.",
+    number: "০৫",
+    title: "উৎকর্ষতা",
+    tagline: "সবসময় নিজেকে ছাড়িয়ে যাওয়ার প্রত্যয়।",
     description:
-      "Never complacent with yesterday's performance. We continuously seek self-critique, higher standards, and athletic growth.",
+      "আগের দিনের সাফল্যে আত্মতুষ্ট না হয়ে আমরা প্রতিনিয়ত আত্ম-উন্নয়ন, উচ্চতর মান অর্জন এবং দক্ষতা শাণিত করার সাধনায় নিমগ্ন থাকি।",
     icon: Trophy,
   },
 ];
@@ -76,7 +76,7 @@ export default function CoreValues() {
               className="bg-[#18251F] text-[#B9F66B] border border-[#B9F66B]/30 font-black tracking-[0.24em] text-[11px] uppercase px-3.5 py-1"
             >
               <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B] shadow-[0_0_8px_#B9F66B] mr-2 inline-block" />
-              FOUNDATIONAL PRINCIPLES
+              আমাদের মূল নীতিমালা
             </Chip>
           </div>
 
@@ -84,12 +84,11 @@ export default function CoreValues() {
             id="core-values-heading"
             className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white uppercase"
           >
-            THE VALUES THAT DRIVE US
+            আমাদের চালিকাশক্তি যে মূল্যবোধ
           </h2>
 
           <p className="text-sm sm:text-base text-[#A4B0A8] leading-relaxed">
-            The core tenets that guide every training session, tactical drill, and competitive match
-            at Morning Football Academy.
+            Morning Football Academy-র প্রতিটি অনুশীলন সেশন, ট্যাকটিক্যাল ড্রিল এবং প্রতিযোগিতামূলক ম্যাচের পথপ্রদর্শক এই মূল্যবোধগুলো।
           </p>
         </div>
 

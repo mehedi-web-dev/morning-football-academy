@@ -19,14 +19,15 @@ import {
   PlayerDocument,
   PaginationMeta,
 } from "../../lib/api-client";
+import { toBnNum } from "../../lib/bn-utils";
 import PublicPlayerCard from "../../components/squad/PublicPlayerCard";
 
 const POSITION_FILTERS: { label: string; value: string }[] = [
-  { label: "ALL POSITIONS", value: "ALL" },
-  { label: "GOALKEEPERS", value: "Goalkeeper" },
-  { label: "DEFENDERS", value: "Defender" },
-  { label: "MIDFIELDERS", value: "Midfielder" },
-  { label: "FORWARDS", value: "Forward" },
+  { label: "সকল পজিশন", value: "ALL" },
+  { label: "গোলরক্ষক", value: "Goalkeeper" },
+  { label: "ডিফেন্ডার", value: "Defender" },
+  { label: "মিডফিল্ডার", value: "Midfielder" },
+  { label: "ফরোয়ার্ড", value: "Forward" },
 ];
 
 /**
@@ -67,7 +68,7 @@ export default function SquadPage() {
       })
       .catch(() => {
         if (!abortSignal?.aborted) {
-          setError("Failed to load academy players from database.");
+          setError("ডাটাবেজ থেকে একাডেমি স্কোয়াড তালিকা লোড করতে ব্যর্থ হয়েছে।");
           setIsLoading(false);
         }
       });
@@ -113,23 +114,23 @@ export default function SquadPage() {
           <div className="flex items-center gap-2">
             <Chip className="bg-[#18251F]/90 backdrop-blur-md text-[#B9F66B] border border-[#B9F66B]/40 font-black tracking-[0.22em] text-[10px] sm:text-[11px] uppercase px-3.5 py-1">
               <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B] shadow-[0_0_8px_#B9F66B] mr-2 inline-block animate-pulse" />
-              OFFICIAL ROSTER 2026/2027
+              অফিসিয়াল স্কোয়াড ২০২৬/২০২৭
             </Chip>
             <span className="text-xs font-mono text-[#A4B0A8]">
-              {totalCount} ACTIVE PLAYERS
+              {toBnNum(totalCount)} জন সক্রিয় খেলোয়াড়
             </span>
           </div>
 
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white uppercase leading-[1.1]">
-            ACADEMY SQUAD{" "}
+            একাডেমি স্কোয়াড{" "}
             <span className="text-[#B9F66B] drop-shadow-[0_0_25px_rgba(185,246,107,0.35)]">
-              ROSTER.
+              তালিকা।
             </span>
           </h1>
 
           <p className="text-sm sm:text-base text-[#A4B0A8] max-w-2xl leading-relaxed">
-            Meet the athletes of Morning Football Academy. Built on athletic discipline,
-            tactical intelligence, and relentless teamwork on the pitch.
+            মর্নিং ফুটবল একাডেমির অ্যাথলেটদের সাথে পরিচিত হোন। মাঠে কঠোর নিয়মানুবর্তিতা,
+            কৌশলগত দূরদর্শিতা ও আপসহীন দলগত ঐক্যের প্রতিচ্ছবি।
           </p>
         </div>
       </section>
@@ -143,7 +144,7 @@ export default function SquadPage() {
             <Search className="w-4 h-4 text-[#A4B0A8] absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Search players by name..."
+              placeholder="নাম দিয়ে খেলোয়াড় খুঁজুন..."
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value);
@@ -183,7 +184,7 @@ export default function SquadPage() {
               type="button"
               onClick={handleRefresh}
               disabled={isLoading}
-              title="Refresh roster"
+              title="স্কোয়াড রিফ্রেশ করুন"
               className="p-2 rounded-xl bg-[#202E27] border border-white/10 text-[#A4B0A8] hover:text-white hover:border-[#B9F66B]/40 transition-colors disabled:opacity-50 cursor-pointer"
             >
               <RefreshCw
@@ -200,7 +201,7 @@ export default function SquadPage() {
             <AlertCircle className="w-10 h-10 text-red-400 mx-auto" />
             <div className="space-y-1">
               <h3 className="text-base font-bold text-white">
-                Failed to load academy roster
+                একাডেমি স্কোয়াড লোড করা যায়নি
               </h3>
               <p className="text-xs text-[#A4B0A8] max-w-md mx-auto">{error}</p>
             </div>
@@ -208,7 +209,7 @@ export default function SquadPage() {
               onPress={handleRefresh}
               className="bg-[#202E27] border border-white/10 text-white font-mono text-xs uppercase tracking-wider px-5 py-2.5 rounded-xl hover:border-[#B9F66B]/50 transition-colors cursor-pointer"
             >
-              Retry
+              পুনরায় চেষ্টা করুন
             </Button>
           </div>
         ) : isLoading ? (
@@ -234,13 +235,13 @@ export default function SquadPage() {
             <div className="space-y-1">
               <h3 className="text-xl font-black text-white uppercase tracking-tight">
                 {searchTerm || selectedPosition !== "ALL"
-                  ? "No matching players found"
-                  : "Squad Roster Updating"}
+                  ? "কোনো খেলোয়াড় খুঁজে পাওয়া যায়নি"
+                  : "স্কোয়াড তালিকা হালনাগাদ হচ্ছে"}
               </h3>
               <p className="text-xs sm:text-sm text-[#A4B0A8] max-w-sm mx-auto">
                 {searchTerm || selectedPosition !== "ALL"
-                  ? "Try clearing your search term or selecting another position category."
-                  : "Active squad registrations will appear here. Trial applications are currently open."}
+                  ? "আপনার অনুসন্ধানের শব্দ পরিবর্তন করুন অথবা অন্য কোনো পজিশন ফিল্টার নির্বাচন করে দেখুন।"
+                  : "সক্রিয় স্কোয়াডের তালিকা শীঘ্রই এখানে দৃশ্যমান হবে। বর্তমানে একাডেমি ট্রায়াল আবেদন উন্মুক্ত রয়েছে।"}
               </p>
             </div>
             {searchTerm || selectedPosition !== "ALL" ? (
@@ -252,12 +253,12 @@ export default function SquadPage() {
                 }}
                 className="bg-[#202E27] border border-white/10 text-white font-mono text-xs uppercase tracking-wider px-4 py-2 rounded-xl hover:border-[#B9F66B]/50 transition-colors cursor-pointer"
               >
-                Reset Filters
+                ফিল্টার রিসেট করুন
               </Button>
             ) : (
               <Link href="/join">
                 <Button className="bg-[#B9F66B] text-[#101A17] font-black text-xs uppercase tracking-wider px-6 py-2.5 rounded-full hover:bg-[#a8ec56] transition-all cursor-pointer">
-                  Apply for Academy Trials
+                  একাডেমি ট্রায়ালে আবেদন করুন
                 </Button>
               </Link>
             )}
@@ -275,15 +276,15 @@ export default function SquadPage() {
         {totalCount > limit && (
           <div className="p-4 rounded-2xl bg-[#18251F] border border-white/10 flex items-center justify-between gap-4">
             <span className="text-xs text-[#A4B0A8] font-mono">
-              Showing{" "}
+              দেখানো হচ্ছে{" "}
               <strong className="text-white">
-                {Math.min((page - 1) * limit + 1, totalCount)}
+                {toBnNum(Math.min((page - 1) * limit + 1, totalCount))}
               </strong>{" "}
-              to{" "}
+              থেকে{" "}
               <strong className="text-white">
-                {Math.min(page * limit, totalCount)}
+                {toBnNum(Math.min(page * limit, totalCount))}
               </strong>{" "}
-              of <strong className="text-white">{totalCount}</strong> players
+              (মোট <strong className="text-white">{toBnNum(totalCount)}</strong> জন)
             </span>
 
             <div className="flex items-center gap-2">
@@ -296,8 +297,8 @@ export default function SquadPage() {
               </Button>
 
               <span className="text-xs font-mono text-[#A4B0A8] px-2">
-                Page <strong className="text-white">{page}</strong> of{" "}
-                <strong className="text-white">{totalPages}</strong>
+                পৃষ্ঠা <strong className="text-white">{toBnNum(page)}</strong> /{" "}
+                <strong className="text-white">{toBnNum(totalPages)}</strong>
               </span>
 
               <Button
@@ -315,17 +316,17 @@ export default function SquadPage() {
         <div className="p-8 sm:p-10 rounded-3xl bg-[#18251F] border border-[#B9F66B]/20 flex flex-col sm:flex-row items-center justify-between gap-6 relative overflow-hidden">
           <div className="space-y-2 text-center sm:text-left">
             <h3 className="text-xl sm:text-2xl font-black text-white uppercase tracking-tight">
-              WANT TO WEAR THE MORNING FOOTBALL CREST?
+              মর্নিং ফুটবল একাডেমির ক্রেস্ট গায়ে জড়াতে চান?
             </h3>
             <p className="text-xs sm:text-sm text-[#A4B0A8] max-w-lg">
-              Academy trials are currently open for youth and first-team candidates.
-              Register your profile to be screened by our coaching team.
+              তরুণ ও মূল দলের প্রার্থীদের জন্য একাডেমি ট্রায়াল বর্তমানে উন্মুক্ত রয়েছে।
+              আমাদের অভিজ্ঞ কোচিং প্যানেলে স্ক্রিনিংয়ের জন্য আজই আপনার আবেদন সম্পন্ন করুন।
             </p>
           </div>
 
           <Link href="/join" className="shrink-0">
             <Button className="bg-[#B9F66B] text-[#101A17] font-black text-xs tracking-wider uppercase px-8 py-3.5 rounded-full hover:bg-[#a8ec56] transition-all shadow-md cursor-pointer flex items-center gap-2">
-              <span>APPLY FOR SQUAD TRIAL</span>
+              <span>স্কোয়াড ট্রায়ালে আবেদন করুন</span>
               <ArrowRight className="w-4 h-4" />
             </Button>
           </Link>

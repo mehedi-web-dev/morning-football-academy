@@ -12,13 +12,13 @@ export default function RootNotFound() {
 
         <div className="space-y-2">
           <span className="text-[10px] font-mono tracking-[0.24em] text-[#B9F66B] uppercase block">
-            404 • PAGE NOT FOUND
+            ৪০৪ • পৃষ্ঠাটি পাওয়া যায়নি
           </span>
           <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white">
-            Lost on the Pitch?
+            মাঠের বাইরে চলে গেছেন?
           </h1>
           <p className="text-xs sm:text-sm text-[#A4B0A8] leading-relaxed">
-            The page you are looking for does not exist, has been relocated, or is temporarily unavailable.
+            আপনি যে পৃষ্ঠাটি খুঁজছেন তা বিদ্যমান নেই, সরানো হয়েছে অথবা সাময়িকভাবে অনুপলব্ধ।
           </p>
         </div>
 
@@ -28,7 +28,7 @@ export default function RootNotFound() {
               className="bg-[#B9F66B] text-[#0A0A0A] font-black text-xs uppercase tracking-wider px-6 py-2.5 rounded-full hover:bg-[#cbfd82] transition-colors cursor-pointer inline-flex items-center gap-2"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span>Return to Academy Home</span>
+              <span>হোমপেজে ফিরে যান</span>
             </Button>
           </Link>
         </div>

@@ -1,62 +1,30 @@
 import { MatchStatus } from "./api-client";
+import { formatBnDate, formatBnKickOffTime } from "./bn-utils";
 
 /**
- * Format match date cleanly
+ * Format match date cleanly in Bengali
  */
 export function formatMatchDate(
   dateStr?: string,
   options: { includeDayOfWeek?: boolean; short?: boolean } = {}
 ): string {
-  if (!dateStr) return "TBA";
-  try {
-    const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return dateStr;
-
-    if (options.short) {
-      return d.toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      });
-    }
-
-    return d.toLocaleDateString("en-US", {
-      weekday: options.includeDayOfWeek !== false ? "short" : undefined,
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  } catch {
-    return dateStr;
-  }
+  if (!dateStr) return "তারিখ নির্ধারিত হয়নি";
+  return formatBnDate(dateStr, options);
 }
 
 /**
- * Format kickoff time cleanly (e.g., "15:30" -> "3:30 PM")
+ * Format kickoff time cleanly in Bengali (e.g., "15:30" -> "বিকাল ৩:৩০")
  */
 export function formatKickOffTime(timeStr?: string): string {
-  if (!timeStr) return "TBA";
-
-  // Check if string matches HH:MM format
-  const timeRegex = /^([0-1]?[0-9]|2[0-3]):([0-5][0-9])$/;
-  const match = timeStr.trim().match(timeRegex);
-
-  if (match) {
-    const hours = parseInt(match[1], 10);
-    const minutes = match[2];
-    const ampm = hours >= 12 ? "PM" : "AM";
-    const formattedHours = hours % 12 || 12;
-    return `${formattedHours}:${minutes} ${ampm}`;
-  }
-
-  return timeStr;
+  if (!timeStr) return "সময় নির্ধারিত হয়নি";
+  return formatBnKickOffTime(timeStr);
 }
 
 /**
  * Derive team abbreviation from full name
  */
 export function deriveTeamShortName(name?: string): string {
-  if (!name) return "OPP";
+  if (!name) return "দল";
   const trimmed = name.trim();
   const words = trimmed.split(/\s+/).filter(Boolean);
 
@@ -69,7 +37,7 @@ export function deriveTeamShortName(name?: string): string {
 }
 
 /**
- * Get display metadata for match status
+ * Get display metadata for match status in Bengali
  */
 export function getMatchStatusMeta(status: MatchStatus): {
   label: string;
@@ -80,35 +48,35 @@ export function getMatchStatusMeta(status: MatchStatus): {
   switch (status) {
     case "live":
       return {
-        label: "LIVE",
+        label: "লাইভ",
         badgeClass: "bg-red-500/15 text-red-400 border border-red-500/30",
         dotClass: "bg-red-500",
         isPulse: true,
       };
     case "upcoming":
       return {
-        label: "UPCOMING",
+        label: "আসন্ন",
         badgeClass: "bg-[#B9F66B]/15 text-[#B9F66B] border border-[#B9F66B]/30",
         dotClass: "bg-[#B9F66B]",
         isPulse: false,
       };
     case "completed":
       return {
-        label: "FULL TIME",
+        label: "সমাপ্ত",
         badgeClass: "bg-white/[0.06] text-[#A4B0A8] border border-white/10",
         dotClass: "bg-[#A4B0A8]",
         isPulse: false,
       };
     case "postponed":
       return {
-        label: "POSTPONED",
+        label: "স্থগিত",
         badgeClass: "bg-amber-500/15 text-amber-400 border border-amber-500/30",
         dotClass: "bg-amber-400",
         isPulse: false,
       };
     case "cancelled":
       return {
-        label: "CANCELLED",
+        label: "বাতিল",
         badgeClass: "bg-zinc-800 text-zinc-400 border border-zinc-700",
         dotClass: "bg-zinc-500",
         isPulse: false,

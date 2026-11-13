@@ -44,30 +44,28 @@ export default function HeroSection() {
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#18181B]/90 border border-[#B9F66B]/30 backdrop-blur-md shadow-[0_0_15px_rgba(185,246,107,0.15)]">
               <span className="w-2 h-2 rounded-full bg-[#B9F66B] animate-pulse" />
               <span className="text-[10px] sm:text-[11px] font-black tracking-[0.25em] text-[#B9F66B] uppercase">
-                OFFICIAL FOOTBALL CLUB
+                অফিসিয়াল ফুটবল একাডেমি
               </span>
             </div>
           </div>
 
           {/* Main Heading */}
           <h1 className="animate-hero-fade-2 text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-white leading-[1.08] uppercase drop-shadow-[0_4px_16px_rgba(0,0,0,0.6)]">
-            BUILT ON{" "}
+            অনুপ্রেরণায়{" "}
             <span className="text-[#B9F66B] drop-shadow-[0_0_30px_rgba(185,246,107,0.4)]">
-              PASSION
+              উদ্বুদ্ধ
             </span>
             .<br />
-            DRIVEN BY{" "}
+            বিজয়ের প্রত্যয়ে{" "}
             <span className="text-[#B9F66B] drop-shadow-[0_0_30px_rgba(185,246,107,0.4)]">
-              VICTORY
+              প্রতিজ্ঞাবদ্ধ
             </span>
             .
           </h1>
 
           {/* Description */}
           <p className="animate-hero-fade-3 text-base sm:text-lg text-white/90 max-w-[620px] leading-relaxed drop-shadow-[0_2px_8px_rgba(0,0,0,0.7)] font-medium">
-            Welcome to Morning Football Academy. We develop talent, build
-            character, and compete with passion. Our journey starts on the pitch
-            and our ambition goes beyond the game.
+            Morning Football Academy-তে স্বাগতম। আমরা উদীয়মান তরুণ প্রতিভা বিকাশ, চারিত্রিক দৃঢ়তা গঠন ও মাঠে সর্বোচ্চ আবেগে লড়াই করি। আমাদের শুরু ফুটবল মাঠ থেকে, আর স্বপ্ন দিগন্তছোঁয়া।
           </p>
 
           {/* CTA Buttons */}
@@ -77,7 +75,7 @@ export default function HeroSection() {
                 variant="primary"
                 className="w-full sm:w-auto bg-[#B9F66B] text-[#0A0A0A] font-black text-xs tracking-[0.16em] uppercase rounded-full px-7 py-3.5 hover:bg-[#cbfd82] active:scale-95 transition-all duration-300 shadow-[0_0_20px_rgba(185,246,107,0.3)] hover:shadow-[0_0_30px_rgba(185,246,107,0.5)] cursor-pointer flex items-center justify-center gap-2"
               >
-                <span>EXPLORE OUR TEAM</span>
+                <span>আমাদের দল দেখুন</span>
                 <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
               </Button>
             </Link>
@@ -88,7 +86,7 @@ export default function HeroSection() {
                 className="w-full sm:w-auto bg-white/[0.04] backdrop-blur-sm border border-white/25 hover:border-white/60 text-white font-black text-xs tracking-[0.16em] uppercase rounded-full px-7 py-3.5 hover:bg-white/10 active:scale-95 transition-all duration-300 cursor-pointer flex items-center justify-center gap-2"
               >
                 <Calendar className="w-4 h-4 text-[#B9F66B]" />
-                <span>UPCOMING MATCHES</span>
+                <span>আসন্ন ম্যাচসমূহ</span>
               </Button>
             </Link>
           </div>
@@ -102,7 +100,7 @@ export default function HeroSection() {
             {/* 01 - OUR CLUB */}
             <div className="py-3 md:py-0 md:pr-8 flex flex-col justify-center">
               <span className="text-[11px] font-black tracking-[0.22em] text-[#A4B0A8] uppercase flex items-center gap-1.5">
-                <span className="text-[#B9F66B] font-mono">01</span> — OUR CLUB
+                <span className="text-[#B9F66B] font-mono">০১</span> — আমাদের ক্লাব
               </span>
               <span className="text-sm sm:text-base font-black tracking-wider text-white uppercase mt-1">
                 MORNING FOOTBALL ACADEMY
@@ -112,17 +110,17 @@ export default function HeroSection() {
             {/* 02 - OUR MISSION */}
             <div className="py-3 md:py-0 md:px-8 flex flex-col justify-center">
               <span className="text-[11px] font-black tracking-[0.22em] text-[#A4B0A8] uppercase flex items-center gap-1.5">
-                <span className="text-[#B9F66B] font-mono">02</span> — OUR MISSION
+                <span className="text-[#B9F66B] font-mono">০২</span> — আমাদের লক্ষ্য
               </span>
               <span className="text-sm sm:text-base font-black tracking-wider text-white uppercase mt-1">
-                DEVELOPING TALENT
+                প্রতিভা অন্বেষণ ও বিকাশ
               </span>
             </div>
 
             {/* 03 - OUR PHILOSOPHY */}
             <div className="py-3 md:py-0 md:pl-8 flex flex-col justify-center">
               <span className="text-[11px] font-black tracking-[0.22em] text-[#A4B0A8] uppercase flex items-center gap-1.5">
-                <span className="text-[#B9F66B] font-mono">03</span> — OUR PHILOSOPHY
+                <span className="text-[#B9F66B] font-mono">০৩</span> — আমাদের দর্শন
               </span>
               <span className="text-sm sm:text-base font-black tracking-wider text-[#B9F66B] uppercase mt-1">
                 RISE TOGETHER. PLAY TO WIN.

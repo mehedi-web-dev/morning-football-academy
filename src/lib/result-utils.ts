@@ -13,7 +13,7 @@ export function calculateOutcome(homeScore: number, awayScore: number): ResultOu
 }
 
 /**
- * Get outcome badge styling and metadata
+ * Get outcome badge styling and metadata in Bengali
  */
 export function getOutcomeMeta(outcome: ResultOutcome): {
   label: string;
@@ -24,21 +24,21 @@ export function getOutcomeMeta(outcome: ResultOutcome): {
   switch (outcome) {
     case "WIN":
       return {
-        label: "WIN",
+        label: "জয়",
         badgeClass: "bg-[#B9F66B]/15 text-[#B9F66B] border border-[#B9F66B]/30 shadow-[0_0_10px_rgba(185,246,107,0.15)]",
         pillClass: "bg-[#B9F66B] text-[#0A0A0A] font-black",
         dotClass: "bg-[#B9F66B]",
       };
     case "DRAW":
       return {
-        label: "DRAW",
+        label: "ড্র",
         badgeClass: "bg-amber-500/15 text-amber-400 border border-amber-500/30",
         pillClass: "bg-amber-500 text-[#0A0A0A] font-black",
         dotClass: "bg-amber-400",
       };
     case "LOSS":
       return {
-        label: "LOSS",
+        label: "পরাজয়",
         badgeClass: "bg-red-500/15 text-red-400 border border-red-500/30",
         pillClass: "bg-red-500 text-white font-black",
         dotClass: "bg-red-400",

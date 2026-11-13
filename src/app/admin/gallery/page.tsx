@@ -33,43 +33,39 @@ import {
   PaginationMeta,
   ApiError,
 } from "../../../lib/api-client";
+import { toBnNum, formatBnDate } from "../../../lib/bn-utils";
 import GalleryFormModal from "../../../components/admin/GalleryFormModal";
 import DeleteGalleryModal from "../../../components/admin/DeleteGalleryModal";
 
-const CATEGORY_FILTERS = [
-  "ALL",
-  "MATCH DAY",
-  "TRAINING",
-  "TEAM MOMENTS",
-  "STADIUM",
-  "CELEBRATIONS",
-  "ACADEMY LIFE",
+const CATEGORY_FILTERS: { label: string; value: string }[] = [
+  { label: "সকল অ্যালবাম", value: "ALL" },
+  { label: "ম্যাচ ডে", value: "MATCH DAY" },
+  { label: "অনুশীলন", value: "TRAINING" },
+  { label: "দলের মুহূর্ত", value: "TEAM MOMENTS" },
+  { label: "স্টেডিয়াম", value: "STADIUM" },
+  { label: "উদযাপন", value: "CELEBRATIONS" },
+  { label: "একাডেমি জীবন", value: "ACADEMY LIFE" },
 ];
 
 const MEDIA_TYPE_FILTERS: { label: string; value: "ALL" | GalleryMediaType }[] = [
-  { label: "ALL MEDIA", value: "ALL" },
-  { label: "IMAGES ONLY", value: "image" },
-  { label: "VIDEOS ONLY", value: "video" },
+  { label: "সকল মিডিয়া", value: "ALL" },
+  { label: "ছবি", value: "image" },
+  { label: "ভিডিও", value: "video" },
 ];
 
 const PUBLISHED_FILTERS: { label: string; value: "ALL" | "published" | "unpublished" }[] = [
-  { label: "ALL STATUS", value: "ALL" },
-  { label: "PUBLISHED", value: "published" },
-  { label: "DRAFTS / UNPUBLISHED", value: "unpublished" },
+  { label: "সকল স্ট্যাটাস", value: "ALL" },
+  { label: "প্রকাশিত", value: "published" },
+  { label: "খসড়া / অপ্রকাশিত", value: "unpublished" },
 ];
 
 /**
  * Format asset timestamp
  */
 function formatAssetDate(dateStr?: string): string {
-  if (!dateStr) return "RECENT";
+  if (!dateStr) return "সাম্প্রতিক";
   try {
-    const d = new Date(dateStr);
-    return d.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
+    return formatBnDate(dateStr);
   } catch {
     return dateStr;
   }
@@ -197,7 +193,7 @@ export default function AdminGalleryPage() {
                 setError(err.message);
                 setIsAuthError(err.isAuthError);
               } else {
-                setError("Failed to fetch gallery media from database.");
+                setError("ডাটাবেস থেকে গ্যালারি মিডিয়া লোড করতে ব্যর্থ হয়েছে।");
               }
               setIsLoading(false);
             }
@@ -231,7 +227,7 @@ export default function AdminGalleryPage() {
                 setError(err.message);
                 setIsAuthError(err.isAuthError);
               } else {
-                setError("Failed to fetch gallery media from database.");
+                setError("ডাটাবেস থেকে গ্যালারি মিডিয়া লোড করতে ব্যর্থ হয়েছে।");
               }
               setIsLoading(false);
             }
@@ -275,8 +271,8 @@ export default function AdminGalleryPage() {
     setNotification({
       type: "success",
       message: isEdit
-        ? `Media asset "${savedItem.title}" updated successfully.`
-        : `Media asset "${savedItem.title}" added to gallery repository.`,
+        ? `মিডিয়া "${savedItem.title}" সফলভাবে আপডেট করা হয়েছে।`
+        : `মিডিয়া "${savedItem.title}" সফলভাবে গ্যালারিতে যোগ করা হয়েছে।`,
     });
     handleRefresh();
   };
@@ -291,15 +287,15 @@ export default function AdminGalleryPage() {
       setNotification({
         type: "success",
         message: newStatus
-          ? `"${item.title}" is now published to the public gallery.`
-          : `"${item.title}" is now set to draft (unpublished).`,
+          ? `"${item.title}" এখন পাবলিক গ্যালারিতে প্রকাশিত।`
+          : `"${item.title}" এখন খসড়া হিসেবে সংরক্ষিত (অপ্রকাশিত)।`,
       });
       handleRefresh();
     } catch (err: unknown) {
       const msg =
         err instanceof ApiError
           ? err.message
-          : "Failed to update asset publish status.";
+          : "মিডিয়ার প্রকাশের স্ট্যাটাস আপডেট করতে ব্যর্থ হয়েছে।";
       setNotification({ type: "error", message: msg });
     } finally {
       setTogglingId(null);
@@ -320,7 +316,7 @@ export default function AdminGalleryPage() {
       await apiClient.gallery.delete(itemToDelete._id);
       setNotification({
         type: "success",
-        message: `Media asset "${itemToDelete.title}" deleted successfully.`,
+        message: `মিডিয়া "${itemToDelete.title}" সফলভাবে মুছে ফেলা হয়েছে।`,
       });
       setItemToDelete(null);
       if (items.length === 1 && page > 1) {
@@ -330,7 +326,7 @@ export default function AdminGalleryPage() {
       }
     } catch (err: unknown) {
       const msg =
-        err instanceof ApiError ? err.message : "Failed to delete media asset.";
+        err instanceof ApiError ? err.message : "মিডিয়া মুছে ফেলতে ব্যর্থ হয়েছে।";
       setNotification({ type: "error", message: msg });
     } finally {
       setIsDeleting(false);
@@ -384,18 +380,18 @@ export default function AdminGalleryPage() {
           <div className="flex items-center gap-2">
             <Chip className="bg-[#18251F] text-[#B9F66B] border border-[#B9F66B]/30 font-black tracking-[0.2em] text-[10px] uppercase px-2.5 py-0.5">
               <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B] shadow-[0_0_8px_#B9F66B] mr-1.5 inline-block" />
-              GALLERY REPOSITORY
+              গ্যালারি রিপোজিটরি
             </Chip>
             <span className="text-[11px] font-mono text-[#A4B0A8]">
-              {totalCount} ASSETS IN DATABASE
+              {toBnNum(totalCount)}টি মিডিয়া সংরক্ষিত
             </span>
           </div>
 
           <h2 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight mt-1">
-            GALLERY REPOSITORY.
+            ফটো ও ভিডিও গ্যালারি।
           </h2>
           <p className="text-xs sm:text-sm text-[#A4B0A8]">
-            Curate matchday photography, video highlights, squad portraits, and training media.
+            ম্যাচ ডে ফটোগ্রাফি, ভিডিও হাইলাইটস, স্কোয়াড পোর্ট্রেট এবং অনুশীলনের মিডিয়া পরিচালনা করুন।
           </p>
         </div>
 
@@ -405,7 +401,7 @@ export default function AdminGalleryPage() {
             className="bg-[#B9F66B] hover:bg-[#a8ec56] text-[#101A17] font-black text-xs uppercase tracking-wider px-4 py-2.5 rounded-xl transition-all shadow-md cursor-pointer flex items-center gap-2"
           >
             <Plus className="w-4 h-4" />
-            <span>ADD MEDIA</span>
+            <span>নতুন মিডিয়া যুক্ত করুন</span>
           </Button>
         </div>
       </div>
@@ -445,15 +441,15 @@ export default function AdminGalleryPage() {
         <div className="p-4 rounded-xl bg-[#18251F] border border-white/10 space-y-1 relative overflow-hidden group">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-mono text-[#A4B0A8] uppercase tracking-wider block">
-              TOTAL ASSETS
+              মোট মিডিয়া
             </span>
             <SlidersHorizontal className="w-3.5 h-3.5 text-[#A4B0A8]/40" />
           </div>
           <span className="text-2xl sm:text-3xl font-black text-white block">
-            {metrics.total}
+            {toBnNum(metrics.total)}
           </span>
           <span className="text-[10px] text-[#A4B0A8]/70 block font-mono">
-            Catalogued media
+            ডাটাবেসে সংরক্ষিত
           </span>
         </div>
 
@@ -461,15 +457,15 @@ export default function AdminGalleryPage() {
         <div className="p-4 rounded-xl bg-[#18251F] border border-white/10 space-y-1 relative overflow-hidden">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-mono text-[#B9F66B] uppercase tracking-wider block">
-              PHOTOGRAPHS
+              আলোকচিত্র
             </span>
             <ImageIcon className="w-3.5 h-3.5 text-[#B9F66B]/70" />
           </div>
           <span className="text-2xl sm:text-3xl font-black text-[#B9F66B] block">
-            {metrics.images}
+            {toBnNum(metrics.images)}
           </span>
           <span className="text-[10px] text-[#B9F66B]/70 block font-mono">
-            High-res stills
+            হাই-রেজোলিউশন ছবি
           </span>
         </div>
 
@@ -477,15 +473,15 @@ export default function AdminGalleryPage() {
         <div className="p-4 rounded-xl bg-[#18251F] border border-white/10 space-y-1 relative overflow-hidden">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-mono text-cyan-300 uppercase tracking-wider block">
-              VIDEO REELS
+              ভিডিও রিলস
             </span>
             <Video className="w-3.5 h-3.5 text-cyan-300/70" />
           </div>
           <span className="text-2xl sm:text-3xl font-black text-cyan-300 block">
-            {metrics.videos}
+            {toBnNum(metrics.videos)}
           </span>
           <span className="text-[10px] text-cyan-300/70 block font-mono">
-            Highlights & drills
+            হাইলাইটস ও ড্রিলস
           </span>
         </div>
 
@@ -493,15 +489,15 @@ export default function AdminGalleryPage() {
         <div className="p-4 rounded-xl bg-[#18251F] border border-[#B9F66B]/20 space-y-1 relative overflow-hidden">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-mono text-[#B9F66B] uppercase tracking-wider block">
-              PUBLISHED
+              প্রকাশিত
             </span>
             <Globe className="w-3.5 h-3.5 text-[#B9F66B]" />
           </div>
           <span className="text-2xl sm:text-3xl font-black text-[#B9F66B] block">
-            {metrics.published}
+            {toBnNum(metrics.published)}
           </span>
           <span className="text-[10px] text-[#B9F66B]/70 block font-mono">
-            Public gallery active
+            পাবলিক গ্যালারিতে দৃশ্যমান
           </span>
         </div>
 
@@ -509,15 +505,15 @@ export default function AdminGalleryPage() {
         <div className="p-4 rounded-xl bg-[#18251F] border border-amber-400/20 space-y-1 col-span-2 md:col-span-1 relative overflow-hidden">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-mono text-amber-300 uppercase tracking-wider block">
-              DRAFTS / PENDING
+              খসড়া / অপ্রকাশিত
             </span>
             <EyeOff className="w-3.5 h-3.5 text-amber-300/70" />
           </div>
           <span className="text-2xl sm:text-3xl font-black text-amber-300 block">
-            {metrics.drafts}
+            {toBnNum(metrics.drafts)}
           </span>
           <span className="text-[10px] text-amber-300/70 block font-mono">
-            Hidden from public
+            পাবলিকের নিকট লুকানো
           </span>
         </div>
       </div>
@@ -530,7 +526,7 @@ export default function AdminGalleryPage() {
             <Search className="w-4 h-4 text-[#A4B0A8] absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Search by title, description, category, or URL..."
+              placeholder="শিরোনাম, বিবরণ, ক্যাটাগরি বা ইউআরএল দিয়ে খুঁজুন..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full bg-[#101A17] border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-[#A4B0A8]/60 focus:outline-none focus:border-[#B9F66B]/50 transition-colors"
@@ -564,7 +560,7 @@ export default function AdminGalleryPage() {
               type="button"
               onClick={handleRefresh}
               disabled={isLoading}
-              title="Refresh gallery"
+              title="গ্যালারি রিফ্রেশ করুন"
               className="p-2 rounded-xl bg-[#202E27] border border-white/10 text-[#A4B0A8] hover:text-white hover:border-[#B9F66B]/40 transition-colors disabled:opacity-50 cursor-pointer"
             >
               <RefreshCw
@@ -581,19 +577,19 @@ export default function AdminGalleryPage() {
             <Filter className="w-3.5 h-3.5 text-[#A4B0A8] mr-1 shrink-0 hidden sm:block" />
             {CATEGORY_FILTERS.map((cat) => (
               <button
-                key={cat}
+                key={cat.value}
                 type="button"
                 onClick={() => {
-                  setSelectedCategory(cat);
+                  setSelectedCategory(cat.value);
                   setPage(1);
                 }}
                 className={`px-3 py-1.5 rounded-xl text-xs font-mono uppercase tracking-wider transition-colors shrink-0 cursor-pointer ${
-                  selectedCategory === cat
+                  selectedCategory === cat.value
                     ? "bg-[#B9F66B] text-[#101A17] font-black"
                     : "bg-[#202E27] text-[#A4B0A8] hover:text-white border border-white/5"
                 }`}
               >
-                {cat}
+                {cat.label}
               </button>
             ))}
           </div>
@@ -601,7 +597,7 @@ export default function AdminGalleryPage() {
           {/* Published Status Filter */}
           <div className="flex items-center gap-1.5 shrink-0">
             <span className="text-[10px] font-mono text-[#A4B0A8] uppercase mr-1 hidden sm:inline">
-              Status:
+              স্ট্যাটাস:
             </span>
             {PUBLISHED_FILTERS.map((pub) => (
               <button
@@ -631,7 +627,7 @@ export default function AdminGalleryPage() {
           <AlertCircle className="w-10 h-10 text-red-400 mx-auto" />
           <div className="space-y-1">
             <h3 className="text-base font-bold text-white">
-              Failed to load gallery repository
+              গ্যালারি ডেটা লোড করতে ব্যর্থ হয়েছে
             </h3>
             <p className="text-xs text-[#A4B0A8] max-w-md mx-auto">{error}</p>
           </div>
@@ -641,14 +637,14 @@ export default function AdminGalleryPage() {
               className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#B9F66B] text-[#101A17] font-black text-xs uppercase tracking-wider hover:bg-[#a8ec56] transition-colors"
             >
               <LogIn className="w-4 h-4" />
-              <span>Log in to Admin</span>
+              <span>অ্যাডমিন লগইন করুন</span>
             </Link>
           ) : (
             <Button
               onPress={handleRefresh}
               className="bg-[#202E27] border border-white/10 text-white font-mono text-xs uppercase tracking-wider px-4 py-2 rounded-xl hover:border-[#B9F66B]/50 transition-colors cursor-pointer"
             >
-              Retry
+              পুনরায় চেষ্টা করুন
             </Button>
           )}
         </div>
@@ -681,13 +677,13 @@ export default function AdminGalleryPage() {
           <div className="space-y-1">
             <h3 className="text-base font-bold text-white">
               {searchTerm || selectedCategory !== "ALL" || selectedMediaType !== "ALL" || selectedPublished !== "ALL"
-                ? "No matching media assets found"
-                : "No gallery media in repository"}
+                ? "কোনো মানানসই মিডিয়া পাওয়া যায়নি"
+                : "গ্যালারিতে কোনো মিডিয়া সংরক্ষিত নেই"}
             </h3>
             <p className="text-xs text-[#A4B0A8] max-w-sm mx-auto">
               {searchTerm || selectedCategory !== "ALL" || selectedMediaType !== "ALL" || selectedPublished !== "ALL"
-                ? "Try clearing your filters or searching for another album or keyword."
-                : "Curate your first matchday photo or training video to showcase on the academy gallery."}
+                ? "ফিল্টার পরিবর্তন করে অথবা অন্য কোনো কিওয়ার্ড দিয়ে অনুসন্ধান করুন।"
+                : "একাডেমি গ্যালারিতে প্রদর্শনের জন্য প্রথম ম্যাচ ডে ছবি বা অনুশীলনের ভিডিও যুক্ত করুন।"}
             </p>
           </div>
           {searchTerm || selectedCategory !== "ALL" || selectedMediaType !== "ALL" || selectedPublished !== "ALL" ? (
@@ -700,7 +696,7 @@ export default function AdminGalleryPage() {
               }}
               className="bg-[#202E27] border border-white/10 text-white font-mono text-xs uppercase tracking-wider px-4 py-2 rounded-xl hover:border-[#B9F66B]/50 transition-colors cursor-pointer"
             >
-              Reset Filters
+              ফিল্টার রিসেট করুন
             </Button>
           ) : (
             <Button
@@ -708,7 +704,7 @@ export default function AdminGalleryPage() {
               className="bg-[#B9F66B] hover:bg-[#a8ec56] text-[#101A17] font-black text-xs uppercase tracking-wider px-4 py-2 rounded-xl transition-all shadow-md cursor-pointer inline-flex items-center gap-2"
             >
               <Plus className="w-4 h-4" />
-              <span>Add First Media</span>
+              <span>প্রথম মিডিয়া যুক্ত করুন</span>
             </Button>
           )}
         </div>
@@ -743,7 +739,7 @@ export default function AdminGalleryPage() {
                         <Video className="w-5 h-5" />
                       </div>
                       <span className="text-[10px] font-mono text-white/80 uppercase">
-                        VIDEO REEL
+                        ভিডিও রিল
                       </span>
                     </div>
                   )}
@@ -766,7 +762,7 @@ export default function AdminGalleryPage() {
                       ) : (
                         <Video className="w-3 h-3 text-cyan-300" />
                       )}
-                      <span>{item.mediaType}</span>
+                      <span>{item.mediaType === "image" ? "ছবি" : "ভিডিও"}</span>
                     </span>
 
                     {/* Publish Status Badge */}
@@ -777,7 +773,7 @@ export default function AdminGalleryPage() {
                           : "bg-amber-400/20 text-amber-300 border border-amber-400/30"
                       }`}
                     >
-                      {item.isPublished ? "PUB" : "DRAFT"}
+                      {item.isPublished ? "প্রকাশিত" : "খসড়া"}
                     </span>
                   </div>
                 </div>
@@ -788,7 +784,7 @@ export default function AdminGalleryPage() {
                     {item.title}
                   </h3>
                   <p className="text-xs text-[#A4B0A8] line-clamp-2 leading-relaxed">
-                    {item.description || "No media description provided."}
+                    {item.description || "কোনো বিবরণ প্রদান করা হয়নি।"}
                   </p>
                 </div>
               </div>
@@ -806,7 +802,7 @@ export default function AdminGalleryPage() {
                     type="button"
                     onClick={() => handleTogglePublish(item)}
                     disabled={togglingId === item._id}
-                    title={item.isPublished ? "Set to draft (unpublish)" : "Publish to gallery"}
+                    title={item.isPublished ? "খসড়া হিসেবে সংরক্ষণ করুন" : "গ্যালারিতে প্রকাশ করুন"}
                     className={`p-1.5 rounded-lg border transition-colors cursor-pointer ${
                       item.isPublished
                         ? "bg-amber-400/10 border-amber-400/20 text-amber-300 hover:bg-amber-400 hover:text-black"
@@ -826,7 +822,7 @@ export default function AdminGalleryPage() {
                   <button
                     type="button"
                     onClick={() => handleOpenEdit(item)}
-                    title="Edit media details"
+                    title="মিডিয়া সম্পাদনা করুন"
                     className="p-1.5 rounded-lg bg-white/[0.04] border border-white/10 text-[#A4B0A8] hover:text-[#B9F66B] hover:border-[#B9F66B]/40 transition-colors cursor-pointer"
                   >
                     <Edit2 className="w-3.5 h-3.5" />
@@ -836,7 +832,7 @@ export default function AdminGalleryPage() {
                   <button
                     type="button"
                     onClick={() => handleOpenDelete(item)}
-                    title="Delete media asset"
+                    title="মিডিয়া মুছে ফেলুন"
                     className="p-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 hover:text-white hover:bg-red-500 hover:border-red-500 transition-colors cursor-pointer"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -853,21 +849,21 @@ export default function AdminGalleryPage() {
         <div className="p-4 rounded-2xl bg-[#18251F] border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <span className="text-xs text-[#A4B0A8] font-mono">
-              Showing{" "}
+              প্রদর্শিত হচ্ছে{" "}
               <strong className="text-white">
-                {Math.min((page - 1) * limit + 1, totalCount)}
+                {toBnNum(Math.min((page - 1) * limit + 1, totalCount))}
               </strong>{" "}
-              to{" "}
+              থেকে{" "}
               <strong className="text-white">
-                {Math.min(page * limit, totalCount)}
+                {toBnNum(Math.min(page * limit, totalCount))}
               </strong>{" "}
-              of <strong className="text-white">{totalCount}</strong> assets
+              (মোট <strong className="text-white">{toBnNum(totalCount)}</strong> টি মিডিয়া)
             </span>
 
             {/* Page Size Selector */}
             <div className="flex items-center gap-1.5 pl-3 border-l border-white/10">
               <span className="text-[11px] text-[#A4B0A8] font-mono uppercase">
-                Per page:
+                প্রতি পৃষ্ঠায়:
               </span>
               {[8, 12, 24].map((sz) => (
                 <button
@@ -883,7 +879,7 @@ export default function AdminGalleryPage() {
                       : "text-[#A4B0A8] hover:text-white bg-white/5"
                   }`}
                 >
-                  {sz}
+                  {toBnNum(sz)}
                 </button>
               ))}
             </div>
@@ -899,8 +895,8 @@ export default function AdminGalleryPage() {
             </Button>
 
             <span className="text-xs font-mono text-[#A4B0A8] px-2">
-              Page <strong className="text-white">{page}</strong> of{" "}
-              <strong className="text-white">{totalPages}</strong>
+              পৃষ্ঠা <strong className="text-white">{toBnNum(page)}</strong> /{" "}
+              <strong className="text-white">{toBnNum(totalPages)}</strong>
             </span>
 
             <Button
@@ -919,7 +915,7 @@ export default function AdminGalleryPage() {
         <p className="text-[11px] font-mono text-[#A4B0A8]/70 uppercase tracking-widest flex items-center justify-center gap-2">
           <Sparkles className="w-3.5 h-3.5 text-[#B9F66B]" />
           <span>
-            Connected to MongoDB Gallery collection via Express REST API. Supports URL-based image & video media with instant publish controls.
+            Express REST API-এর মাধ্যমে লাইভ ডেটাবেজের সাথে সংযুক্ত। ছবি ও ভিডিও মিডিয়ার তাৎক্ষণিক প্রকাশনা নিয়ন্ত্রণ সমর্থিত।
           </span>
         </p>
       </div>

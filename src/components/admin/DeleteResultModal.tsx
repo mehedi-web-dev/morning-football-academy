@@ -3,6 +3,7 @@
 import { AlertTriangle, Trash2, X, Trophy, Calendar, MapPin } from "lucide-react";
 import { Button } from "@heroui/react";
 import { ResultDocument } from "../../lib/api-client";
+import { formatBnDate, toBnNum } from "../../lib/bn-utils";
 
 interface DeleteResultModalProps {
   isOpen: boolean;
@@ -10,23 +11,6 @@ interface DeleteResultModalProps {
   result: ResultDocument | null;
   onConfirm: () => Promise<void>;
   isDeleting: boolean;
-}
-
-/**
- * Format match result date
- */
-function formatResultDate(dateStr?: string): string {
-  if (!dateStr) return "";
-  try {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  } catch {
-    return dateStr;
-  }
 }
 
 /**
@@ -78,10 +62,10 @@ export default function DeleteResultModal({
               id="delete-result-title"
               className="text-base sm:text-lg font-black text-white uppercase tracking-tight"
             >
-              Delete Match Result?
+              ম্যাচ ফলাফল মুছে ফেলবেন?
             </h3>
             <span className="text-[11px] font-mono text-red-300 block uppercase">
-              Permanent Scoreline Removal
+              স্থায়ী স্কোরলাইন অপসারণ
             </span>
           </div>
         </div>
@@ -90,7 +74,7 @@ export default function DeleteResultModal({
         <div className="p-4 rounded-xl bg-[#101A17] border border-white/5 space-y-2.5 text-xs text-[#A4B0A8]">
           <div className="flex items-center justify-between">
             <span className="font-bold text-white uppercase truncate">
-              vs {result.opponent}
+              বনাম {result.opponent}
             </span>
             <span
               className={`px-2 py-0.5 rounded text-[10px] font-mono font-black uppercase ${
@@ -101,15 +85,15 @@ export default function DeleteResultModal({
                   : "bg-red-500/15 text-red-300 border border-red-500/30"
               }`}
             >
-              {outcome}
+              {outcome === "WIN" ? "জয়" : outcome === "DRAW" ? "ড্র" : "পরাজয়"}
             </span>
           </div>
 
           {/* Score Box */}
           <div className="p-3 rounded-xl bg-[#18251F] border border-white/10 flex items-center justify-center gap-3 text-lg font-mono font-black">
-            <span className="text-[#B9F66B]">MFA {result.homeScore}</span>
+            <span className="text-[#B9F66B]">MFA {toBnNum(result.homeScore)}</span>
             <span className="text-white/30">-</span>
-            <span className="text-white">{result.awayScore} {result.opponent}</span>
+            <span className="text-white">{toBnNum(result.awayScore)} {result.opponent}</span>
           </div>
 
           <div className="pt-1 space-y-1 font-mono text-[11px]">
@@ -119,7 +103,7 @@ export default function DeleteResultModal({
             </div>
             <div className="flex items-center gap-2 text-[#A4B0A8]">
               <Calendar className="w-3.5 h-3.5 text-[#A4B0A8]" />
-              <span>{formatResultDate(result.matchDate)}</span>
+              <span>{formatBnDate(result.matchDate)}</span>
               <span className="text-white/20">•</span>
               <MapPin className="w-3.5 h-3.5 text-[#A4B0A8]" />
               <span className="truncate">{result.venue}</span>
@@ -129,7 +113,7 @@ export default function DeleteResultModal({
 
         {/* Warning text */}
         <p className="text-xs text-[#A4B0A8]">
-          Are you sure you want to remove this match score? This permanently deletes the official scoreline and reverses season competition statistics.
+          আপনি কি নিশ্চিত যে আপনি এই ম্যাচের স্কোর মুছে ফেলতে চান? এটি স্থায়ীভাবে অফিসিয়াল স্কোরলাইন মুছে ফেলবে এবং টুর্নামেন্টের সিজন পরিসংখ্যান থেকে বাদ দেবে।
         </p>
 
         {/* Action Buttons */}
@@ -140,7 +124,7 @@ export default function DeleteResultModal({
             isDisabled={isDeleting}
             className="px-4 py-2 rounded-xl bg-white/[0.04] border border-white/10 text-xs font-mono text-white hover:bg-white/[0.08] transition-colors cursor-pointer"
           >
-            CANCEL
+            বাতিল
           </Button>
 
           <Button
@@ -149,7 +133,7 @@ export default function DeleteResultModal({
             className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer flex items-center gap-2 shadow-lg shadow-red-950/50"
           >
             <Trash2 className="w-4 h-4" />
-            <span>{isDeleting ? "DELETING..." : "DELETE RESULT"}</span>
+            <span>{isDeleting ? "মুছে ফেলা হচ্ছে..." : "ফলাফল মুছুন"}</span>
           </Button>
         </div>
       </div>

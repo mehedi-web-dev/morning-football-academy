@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Camera, Video, Play, Maximize2, Shield } from "lucide-react";
 import { GalleryDocument } from "../../lib/api-client";
+import { formatBnDate } from "../../lib/bn-utils";
 
 interface PublicGalleryCardProps {
   item: GalleryDocument;
@@ -47,13 +48,13 @@ export default function PublicGalleryCard({
           onClick();
         }
       }}
-      aria-label={`View ${item.mediaType}: ${item.title}`}
+      aria-label={`${item.mediaType === "video" ? "ভিডিও" : "ছবি"} দেখুন: ${item.title}`}
     >
       {/* 1. Media Image or Fallback */}
       {displayUrl && !imageError ? (
         <Image
           src={displayUrl}
-          alt={item.title || "Morning Football Academy Gallery media"}
+          alt={item.title || "Morning Football Academy গ্যালারি মিডিয়া"}
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           className="object-cover transition-transform duration-700 ease-out group-hover:scale-108"
@@ -63,7 +64,7 @@ export default function PublicGalleryCard({
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-[#18251F] to-[#101A17] text-[#A4B0A8] p-4 text-center">
           <Camera className="w-10 h-10 text-[#B9F66B]/40 mb-2" />
           <span className="text-xs font-mono uppercase tracking-wider text-[#A4B0A8]">
-            {item.category || "Academy Moment"}
+            {item.category || "একাডেমি মুহূর্ত"}
           </span>
         </div>
       )}
@@ -82,12 +83,12 @@ export default function PublicGalleryCard({
           {item.mediaType === "video" ? (
             <>
               <Video className="w-3 h-3 text-[#B9F66B]" />
-              <span>VIDEO</span>
+              <span>ভিডিও</span>
             </>
           ) : (
             <>
               <Camera className="w-3 h-3 text-[#B9F66B]" />
-              <span>PHOTO</span>
+              <span>ছবি</span>
             </>
           )}
         </span>
@@ -115,9 +116,9 @@ export default function PublicGalleryCard({
         )}
 
         <div className="flex items-center justify-between pt-2 text-[10px] font-mono text-[#A4B0A8]/80">
-          <span>{new Date(item.createdAt).toLocaleDateString("en-US", { month: "short", year: "numeric" })}</span>
+          <span>{formatBnDate(item.createdAt)}</span>
           <span className="inline-flex items-center gap-1 text-[#B9F66B] font-bold group-hover:translate-x-1 transition-transform">
-            <span>View</span>
+            <span>দেখুন</span>
             <Maximize2 className="w-3 h-3" />
           </span>
         </div>

@@ -18,6 +18,7 @@ import {
   Shield,
 } from "lucide-react";
 import { apiClient, GalleryDocument } from "../../lib/api-client";
+import { toBnNum, formatBnDate } from "../../lib/bn-utils";
 
 export default function GallerySection() {
   const [items, setItems] = useState<GalleryDocument[]>([]);
@@ -46,7 +47,7 @@ export default function GallerySection() {
       })
       .catch(() => {
         if (!abortSignal?.aborted) {
-          setError("Failed to load gallery items from database.");
+          setError("ডাটাবেস থেকে গ্যালারি আইটেম লোড করতে ব্যর্থ হয়েছে।");
           setIsLoading(false);
         }
       });
@@ -147,15 +148,15 @@ export default function GallerySection() {
             <div className="flex flex-wrap items-center gap-3">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#18251F] border border-[#B9F66B]/30 font-black tracking-[0.24em] text-[11px] uppercase text-[#B9F66B]">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B] shadow-[0_0_8px_#B9F66B]" />
-                OUR MOMENTS
+                আমাদের মুহূর্তগুলো
               </span>
 
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 text-xs font-mono text-[#A4B0A8] uppercase tracking-wider">
                 <Camera className="w-3.5 h-3.5 text-[#B9F66B]" />
                 <strong className="text-[#B9F66B] font-bold">
-                  {totalCount > 0 ? totalCount : "OFFICIAL"}
+                  {totalCount > 0 ? toBnNum(totalCount) : "অফিসিয়াল"}
                 </strong>{" "}
-                ARCHIVED MOMENTS
+                টি সংরক্ষিত মুহূর্ত
               </span>
             </div>
 
@@ -163,11 +164,11 @@ export default function GallerySection() {
               id="gallery-section-heading"
               className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white uppercase"
             >
-              CAPTURE THE MOMENT.
+              ফ্রেমবন্দী সোনালী মুহূর্ত
             </h2>
 
             <p className="text-sm sm:text-base text-[#A4B0A8] max-w-2xl leading-relaxed">
-              Every match. Every training drill. Every triumph. Explore the official media gallery of Morning Football Academy.
+              প্রতিটি ম্যাচ, নিবিড় অনুশীলন এবং বিজয়ের উল্লাস—Morning Football Academy-র অফিসিয়াল মিডিয়া গ্যালারি ঘুরে দেখুন।
             </p>
           </div>
 
@@ -177,7 +178,7 @@ export default function GallerySection() {
               <Button
                 className="w-full sm:w-auto bg-[#B9F66B] text-[#0A0A0A] font-black text-xs tracking-[0.16em] uppercase rounded-full px-6 py-3.5 hover:bg-[#cbfd82] active:scale-95 transition-all duration-300 shadow-[0_0_18px_rgba(185,246,107,0.25)] hover:shadow-[0_0_28px_rgba(185,246,107,0.45)] cursor-pointer flex items-center justify-center gap-2"
               >
-                <span>VIEW ALL GALLERY</span>
+                <span>সম্পূর্ণ গ্যালারি দেখুন</span>
                 <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
               </Button>
             </Link>
@@ -201,7 +202,7 @@ export default function GallerySection() {
                   }`}
                   aria-pressed={isActive}
                 >
-                  {cat}
+                  {cat === "ALL" ? "সকল অ্যালবাম" : cat}
                 </button>
               );
             })}
@@ -218,7 +219,7 @@ export default function GallerySection() {
               className="bg-[#202E27] border border-white/10 text-white font-mono text-xs uppercase tracking-wider px-5 py-2 rounded-xl hover:border-[#B9F66B]/50 transition-colors cursor-pointer inline-flex items-center gap-2"
             >
               <RefreshCw className="w-3.5 h-3.5" />
-              <span>Retry</span>
+              <span>আবার চেষ্টা করুন</span>
             </Button>
           </div>
         ) : isLoading ? (
@@ -267,7 +268,7 @@ export default function GallerySection() {
                     }
                   }}
                   className={`group relative rounded-2xl bg-[#18251F] border border-white/10 overflow-hidden cursor-pointer transition-all duration-300 hover:border-[#B9F66B]/50 hover:shadow-[0_20px_40px_rgba(0,0,0,0.6)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B9F66B] flex flex-col justify-end ${spanClass}`}
-                  aria-label={`Open media: ${item.title}`}
+                  aria-label={`মিডিয়া খুলুন: ${item.title}`}
                 >
                   {displayUrl ? (
                     <Image
@@ -295,7 +296,7 @@ export default function GallerySection() {
                   {/* Top Overlay Bar */}
                   <div className="absolute top-3.5 inset-x-3.5 z-10 flex items-center justify-between">
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#101A17]/90 backdrop-blur-md border border-[#B9F66B]/40 text-[10px] font-black tracking-wider text-[#B9F66B] uppercase shadow-sm">
-                      <Shield className="w-3 h-3 text-[#B9F66B]" />
+                      <Shield className="w-3.5 h-3.5 text-[#B9F66B]" />
                       {item.category}
                     </span>
 
@@ -312,7 +313,7 @@ export default function GallerySection() {
                   <div className="relative z-10 p-5 sm:p-6 space-y-1.5">
                     <span className="text-[10px] font-mono font-bold tracking-widest text-[#B9F66B] uppercase flex items-center gap-1">
                       <Calendar className="w-3 h-3 text-[#B9F66B]" />
-                      {new Date(item.createdAt).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
+                      {formatBnDate(item.createdAt)}
                     </span>
 
                     <h3 className="text-base sm:text-lg lg:text-xl font-black text-white uppercase tracking-tight group-hover:text-[#B9F66B] transition-colors duration-200 line-clamp-2">
@@ -336,10 +337,10 @@ export default function GallerySection() {
               <Camera className="w-7 h-7" />
             </div>
             <h3 className="text-lg font-black text-white uppercase tracking-tight">
-              No Published Moments Yet
+              এখনও কোনো ছবি প্রকাশিত হয়নি
             </h3>
             <p className="text-xs sm:text-sm text-[#A4B0A8] max-w-md mx-auto leading-relaxed">
-              Official photography and tournament footage will be uploaded and published here soon.
+              অফিসিয়াল আলোকচিত্র ও টুর্নামেন্ট ফুটেজ শীঘ্রই এখানে প্রকাশিত হবে।
             </p>
           </div>
         )}
@@ -347,14 +348,14 @@ export default function GallerySection() {
         {/* 4. Bottom Footer Link */}
         <div className="pt-4 border-t border-white/[0.06] flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
           <p className="text-[11px] text-[#A4B0A8]/60 uppercase tracking-widest font-mono">
-            * Official Morning Football Academy media archive. Published photographs and tournament videos.
+            * Morning Football Academy-র অফিসিয়াল মিডিয়া আর্কাইভ। প্রকাশিত আলোকচিত্র ও টুর্নামেন্ট ভিডিও।
           </p>
 
           <Link
             href="/gallery"
             className="inline-flex items-center gap-2 text-xs font-black tracking-[0.16em] uppercase text-[#B9F66B] hover:text-white transition-colors cursor-pointer"
           >
-            <span>VIEW ALL GALLERY MOMENTS</span>
+            <span>সম্পূর্ণ গ্যালারি দেখুন</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
@@ -382,7 +383,7 @@ export default function GallerySection() {
                 </span>
 
                 <span className="text-xs font-mono text-[#A4B0A8]">
-                  MOMENT {(activeLightboxIndex ?? 0) + 1} OF {filteredItems.length}
+                  ছবি {toBnNum((activeLightboxIndex ?? 0) + 1)} / {toBnNum(filteredItems.length)}
                 </span>
               </div>
 
@@ -390,7 +391,7 @@ export default function GallerySection() {
                 type="button"
                 onClick={handleCloseLightbox}
                 className="w-10 h-10 rounded-full bg-[#18251F] border border-white/15 text-white/80 hover:text-[#B9F66B] hover:border-[#B9F66B]/50 transition-all cursor-pointer flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B9F66B]"
-                aria-label="Close lightbox"
+                aria-label="গ্যালারি বন্ধ করুন"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -431,7 +432,7 @@ export default function GallerySection() {
                 type="button"
                 onClick={handlePrev}
                 className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-[#101A17]/85 backdrop-blur-md border border-white/20 text-white hover:text-[#B9F66B] hover:border-[#B9F66B]/50 hover:scale-105 transition-all cursor-pointer flex items-center justify-center shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B9F66B]"
-                aria-label="Previous photo (Left arrow key)"
+                aria-label="পূর্ববর্তী ছবি"
               >
                 <ChevronLeft className="w-6 h-6" />
               </button>
@@ -441,7 +442,7 @@ export default function GallerySection() {
                 type="button"
                 onClick={handleNext}
                 className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-[#101A17]/85 backdrop-blur-md border border-white/20 text-white hover:text-[#B9F66B] hover:border-[#B9F66B]/50 hover:scale-105 transition-all cursor-pointer flex items-center justify-center shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B9F66B]"
-                aria-label="Next photo (Right arrow key)"
+                aria-label="পরবর্তী ছবি"
               >
                 <ChevronRight className="w-6 h-6" />
               </button>
@@ -465,7 +466,7 @@ export default function GallerySection() {
                   <Button
                     className="bg-[#B9F66B] text-[#0A0A0A] font-black text-xs uppercase tracking-wider px-4 py-2 rounded-full hover:bg-[#cbfd82] transition-colors cursor-pointer inline-flex items-center gap-1.5"
                   >
-                    <span>View Detail Page</span>
+                    <span>বিস্তারিত পৃষ্ঠা দেখুন</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </Button>
                 </Link>

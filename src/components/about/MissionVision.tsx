@@ -21,7 +21,7 @@ export default function MissionVision() {
               className="bg-[#18251F] text-[#B9F66B] border border-[#B9F66B]/30 font-black tracking-[0.24em] text-[11px] uppercase px-3.5 py-1"
             >
               <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B] shadow-[0_0_8px_#B9F66B] mr-2 inline-block" />
-              MISSION & VISION
+              মিশন ও ভিশন
             </Chip>
           </div>
 
@@ -29,12 +29,11 @@ export default function MissionVision() {
             id="mission-vision-heading"
             className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white uppercase"
           >
-            OUR PURPOSE & DIRECTION.
+            আমাদের উদ্দেশ্য ও ভবিষ্যৎ রূপরেখা
           </h2>
 
           <p className="text-sm sm:text-base text-[#A4B0A8] leading-relaxed">
-            Guiding principles that define our coaching standards, academy culture, and long-term
-            player development philosophy.
+            আমাদের কোচিংয়ের মানদণ্ড, একাডেমি সংস্কৃতি এবং দীর্ঘমেয়াদি খেলোয়াড় বিকাশ দর্শনের মূল দিকনির্দেশনা।
           </p>
         </div>
 
@@ -49,18 +48,17 @@ export default function MissionVision() {
                   <Target className="w-7 h-7" />
                 </div>
                 <span className="text-[11px] font-mono font-bold tracking-[0.2em] text-[#B9F66B] uppercase">
-                  PILLAR 01
+                  মূল স্তম্ভ ০১
                 </span>
               </div>
 
               {/* Title & Official Description */}
               <div className="space-y-3">
                 <h3 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight group-hover:text-[#B9F66B] transition-colors">
-                  OUR MISSION
+                  আমাদের মিশন
                 </h3>
                 <p className="text-base sm:text-lg text-white/90 leading-relaxed font-medium">
-                  To develop talented, disciplined, and confident football players through quality
-                  training and teamwork.
+                  মানসম্মত ফুটবল প্রশিক্ষণ এবং সুদৃঢ় দলগত সমন্বয়ের মাধ্যমে প্রতিভাবান, সুশৃঙ্খল এবং আত্মবিশ্বাসী ফুটবলার গড়ে তোলা।
                 </p>
               </div>
 
@@ -68,15 +66,15 @@ export default function MissionVision() {
               <ul className="space-y-2.5 pt-2 border-t border-white/[0.08] text-xs sm:text-sm text-[#A4B0A8]">
                 <li className="flex items-start gap-2.5">
                   <CheckCircle2 className="w-4 h-4 text-[#B9F66B] shrink-0 mt-0.5" />
-                  <span>Structured training sessions elevating technical and tactical capabilities.</span>
+                  <span>টেকনিক্যাল ও ট্যাকটিক্যাল সক্ষমতা বৃদ্ধির সুবিন্যস্ত প্রশিক্ষণ কার্যক্রম।</span>
                 </li>
                 <li className="flex items-start gap-2.5">
                   <CheckCircle2 className="w-4 h-4 text-[#B9F66B] shrink-0 mt-0.5" />
-                  <span>Nurturing athlete self-belief, mental strength, and sportsmanship.</span>
+                  <span>খেলোয়াড়দের আত্মবিশ্বাস, মানসিক দৃঢ়তা ও ক্রীড়াসুলভ মনোভাবের বিকাশ।</span>
                 </li>
                 <li className="flex items-start gap-2.5">
                   <CheckCircle2 className="w-4 h-4 text-[#B9F66B] shrink-0 mt-0.5" />
-                  <span>Building unbreakable bonds of unity, collective responsibility, and trust.</span>
+                  <span>অটুট একতা, সম্মিলিত দায়িত্বশীলতা এবং পারস্পরিক আস্থার বন্ধন তৈরি।</span>
                 </li>
               </ul>
             </div>
@@ -91,18 +89,17 @@ export default function MissionVision() {
                   <Eye className="w-7 h-7" />
                 </div>
                 <span className="text-[11px] font-mono font-bold tracking-[0.2em] text-[#B9F66B] uppercase">
-                  PILLAR 02
+                  মূল স্তম্ভ ০২
                 </span>
               </div>
 
               {/* Title & Official Description */}
               <div className="space-y-3">
                 <h3 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight group-hover:text-[#B9F66B] transition-colors">
-                  OUR VISION
+                  আমাদের ভিশন
                 </h3>
                 <p className="text-base sm:text-lg text-white/90 leading-relaxed font-medium">
-                  To build a football community where players can grow, compete, and reach their full
-                  potential.
+                  এমন একটি শক্তিশালী ফুটবল কমিউনিটি গড়ে তোলা যেখানে প্রতিটি খেলোয়াড় শিখবে, সাহসিকতার সাথে লড়াই করবে এবং নিজেদের পূর্ণ সম্ভাবনায় পৌঁছাবে।
                 </p>
               </div>
 
@@ -110,15 +107,15 @@ export default function MissionVision() {
               <ul className="space-y-2.5 pt-2 border-t border-white/[0.08] text-xs sm:text-sm text-[#A4B0A8]">
                 <li className="flex items-start gap-2.5">
                   <CheckCircle2 className="w-4 h-4 text-[#B9F66B] shrink-0 mt-0.5" />
-                  <span>Cultivating an inspiring regional football culture rooted in shared values.</span>
+                  <span>যৌথ মূল্যবোধে সমৃদ্ধ অনুপ্রেরণাদায়ক তৃণমূল ফুটবল সংস্কৃতি প্রতিষ্ঠা।</span>
                 </li>
                 <li className="flex items-start gap-2.5">
                   <CheckCircle2 className="w-4 h-4 text-[#B9F66B] shrink-0 mt-0.5" />
-                  <span>Preparing young footballers for higher levels of competitive play.</span>
+                  <span>উদীয়মান ফুটবলারদের উচ্চস্তরের প্রতিযোগিতামূলক ফুটবলের উপযোগী করে প্রস্তুত করা।</span>
                 </li>
                 <li className="flex items-start gap-2.5">
                   <CheckCircle2 className="w-4 h-4 text-[#B9F66B] shrink-0 mt-0.5" />
-                  <span>Empowering every enrolled player to realize their highest football ambitions.</span>
+                  <span>একাডেমিতে যুক্ত প্রতিটি খেলোয়াড়কে তাদের ফুটবল স্বপ্ন পূরণে সক্ষম করে তোলা।</span>
                 </li>
               </ul>
             </div>

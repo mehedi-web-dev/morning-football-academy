@@ -17,42 +17,42 @@ import {
   Star,
 } from "lucide-react";
 import { apiClient, PlayerDocument } from "../../lib/api-client";
-import { getShortPosition } from "../../lib/player-utils";
+import { toBnNum, getBnPosition } from "../../lib/bn-utils";
 
 function getPositionAttributes(position: string) {
   switch (position) {
     case "Goalkeeper":
       return [
-        { label: "Reflexes & Shot-Stopping", value: 92 },
-        { label: "1-on-1 Box Dominance", value: 88 },
-        { label: "Distribution From Back", value: 85 },
-        { label: "Cross Claiming & Reach", value: 87 },
-        { label: "Command of the Area", value: 89 },
+        { label: "রিফ্লেক্স ও শট সেভিং", value: 92 },
+        { label: "ওয়ান-অন-ওয়ান বক্স নিয়ন্ত্রণ", value: 88 },
+        { label: "নিচ থেকে বল বণ্টন", value: 85 },
+        { label: "ক্রস প্রতিরোধ ও রিচ", value: 87 },
+        { label: "গোলপোস্ট নিয়ন্ত্রণ", value: 89 },
       ];
     case "Defender":
       return [
-        { label: "Defensive Awareness", value: 90 },
-        { label: "Physical Aerial Duels", value: 88 },
-        { label: "Tackling Precision", value: 87 },
-        { label: "Backline Leadership", value: 86 },
-        { label: "Strength & Balance", value: 85 },
+        { label: "রক্ষণভাগের সতর্কতা", value: 90 },
+        { label: "এরিয়াল ডুয়েল ও হেড", value: 88 },
+        { label: "নির্ভুল ট্যাকলিং", value: 87 },
+        { label: "ডিফেন্স লাইন লিডারশিপ", value: 86 },
+        { label: "শারীরিক শক্তি ও ব্যালেন্স", value: 85 },
       ];
     case "Midfielder":
       return [
-        { label: "Vision & Distribution", value: 91 },
-        { label: "Passing Accuracy", value: 89 },
-        { label: "Ball Control & Composure", value: 88 },
-        { label: "Press Resistance", value: 87 },
-        { label: "Stamina & Coverage", value: 88 },
+        { label: "দূরদর্শিতা ও বল বণ্টন", value: 91 },
+        { label: "পাসিং নির্ভুলতা", value: 89 },
+        { label: "বল নিয়ন্ত্রণ ও স্থিরতা", value: 88 },
+        { label: "প্রেস প্রতিরোধ ক্ষমতা", value: 87 },
+        { label: "স্ট্যামিনা ও কভারেজ", value: 88 },
       ];
     case "Forward":
     default:
       return [
-        { label: "Pace & Acceleration", value: 91 },
-        { label: "Clinical Finishing", value: 88 },
-        { label: "Dribbling in Tight Spaces", value: 86 },
-        { label: "Tactical Movement", value: 89 },
-        { label: "Work Rate & Pressing", value: 85 },
+        { label: "গতি ও অ্যাক্সিলারেশন", value: 91 },
+        { label: "নিখুঁত ফিনিশিং", value: 88 },
+        { label: "ড্রিবলিং দক্ষতা", value: 86 },
+        { label: "ট্যাকটিক্যাল মুভমেন্ট", value: 89 },
+        { label: "ওয়ার্ক রেট ও প্রেসিং", value: 85 },
       ];
   }
 }
@@ -108,16 +108,16 @@ export default function PlayerSpotlight() {
     ? (currentPlayer.statistics?.assists ?? 0)
     : (currentPlayer.statistics?.goals ?? 0);
   const primaryStatLabel = isGK
-    ? "CLEAN SHEETS"
+    ? "ক্লিন শিট"
     : isMID
-    ? "ASSISTS"
-    : "GOALS";
+    ? "অ্যাসিস্ট"
+    : "গোল";
 
-  const formRating = "9.1";
-  const passAccuracy = isGK ? "82%" : isMID ? "91%" : "87%";
+  const formRating = "৯.১";
+  const passAccuracy = isGK ? "৮২%" : isMID ? "৯১%" : "৮৭%";
   const coachNote =
     currentPlayer.bio ||
-    "Demonstrates high athletic discipline, technical precision, and tactical intelligence in academy competitions.";
+    "একাডেমি টুর্নামেন্ট ও অনুশীলনে কঠোর শৃঙ্খলা, টেকনিক্যাল দক্ষতা ও অসাধারণ দূরদর্শিতার পরিচয় বহন করে।";
 
   const attributes = getPositionAttributes(currentPlayer.position);
 
@@ -152,12 +152,12 @@ export default function PlayerSpotlight() {
                 className="bg-[#142316] text-[#B9F66B] border border-[#B9F66B]/30 font-black tracking-[0.24em] text-[11px] uppercase px-3 py-1"
               >
                 <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B] shadow-[0_0_8px_#B9F66B] mr-1.5 inline-block" />
-                ACADEMY SPOTLIGHT
+                একাডেমি স্পটলাইট
               </Chip>
 
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#18181B] border border-white/10 text-xs font-mono text-[#A4B0A8] uppercase tracking-wider">
                 <Star className="w-3.5 h-3.5 text-[#B9F66B] fill-[#B9F66B]" />
-                STANDOUT TALENT OF THE MONTH
+                মাসের সেরা উদীয়মান প্রতিভা
               </span>
             </div>
 
@@ -165,12 +165,11 @@ export default function PlayerSpotlight() {
               id="player-spotlight-heading"
               className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white uppercase"
             >
-              PLAYER IN FOCUS.
+              বিশেষ নজরে খেলোয়াড়
             </h2>
 
             <p className="text-sm sm:text-base text-[#A4B0A8] max-w-2xl leading-relaxed">
-              Showcasing rising athletes who embody the Morning Football Academy ethos—exceptional
-              discipline, athletic intensity, and technical mastery on the pitch.
+              Morning Football Academy-র আদর্শে বেড়ে ওঠা তরুণ খেলোয়াড়দের প্রতিভার ঝলক—মাঠে অদম্য শৃঙ্খলা, তীব্রতা ও টেকনিক্যাল দক্ষতা।
             </p>
           </div>
 
@@ -189,7 +188,7 @@ export default function PlayerSpotlight() {
                   }`}
                   aria-label={`Select ${player.fullName}`}
                 >
-                  #{player.jerseyNumber} {getShortPosition(player.position)}
+                  #{toBnNum(player.jerseyNumber)} {getBnPosition(player.position)}
                 </button>
               ))}
             </div>
@@ -200,7 +199,7 @@ export default function PlayerSpotlight() {
                 variant="outline"
                 onPress={handlePrev}
                 className="min-w-10 w-10 h-10 p-0 rounded-full bg-[#18181B] border border-white/10 hover:border-[#B9F66B]/50 hover:bg-[#B9F66B]/10 text-white hover:text-[#B9F66B] transition-all cursor-pointer flex items-center justify-center"
-                aria-label="Previous spotlight player"
+                aria-label="পূর্ববর্তী খেলোয়াড়"
               >
                 <ChevronLeft className="w-5 h-5" />
               </Button>
@@ -208,7 +207,7 @@ export default function PlayerSpotlight() {
                 variant="outline"
                 onPress={handleNext}
                 className="min-w-10 w-10 h-10 p-0 rounded-full bg-[#18181B] border border-white/10 hover:border-[#B9F66B]/50 hover:bg-[#B9F66B]/10 text-white hover:text-[#B9F66B] transition-all cursor-pointer flex items-center justify-center"
-                aria-label="Next spotlight player"
+                aria-label="পরবর্তী খেলোয়াড়"
               >
                 <ChevronRight className="w-5 h-5" />
               </Button>
@@ -246,17 +245,17 @@ export default function PlayerSpotlight() {
                 <div className="absolute top-5 left-5 z-20 flex flex-col gap-2">
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0A0A0A]/90 backdrop-blur-md border border-[#B9F66B]/40 text-xs font-black tracking-wider text-[#B9F66B] uppercase shadow-md">
                     <span className="w-2 h-2 rounded-full bg-[#B9F66B] animate-pulse" />
-                    {currentPlayer.position}
+                    {getBnPosition(currentPlayer.position)}
                   </span>
                   <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/[0.06] backdrop-blur-md border border-white/10 text-[10px] font-mono font-bold text-white/80 uppercase">
-                    FORM: {formRating} / 10
+                    ম্যাচ ফর্ম: {formRating} / ১০
                   </span>
                 </div>
 
                 {/* Top-Right: Watermark Jersey Number */}
                 <div className="absolute top-3 right-4 z-20 select-none pointer-events-none">
                   <span className="text-6xl sm:text-7xl font-black font-mono tracking-tighter text-white/15 drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">
-                    #{currentPlayer.jerseyNumber}
+                    #{toBnNum(currentPlayer.jerseyNumber)}
                   </span>
                 </div>
 
@@ -265,7 +264,7 @@ export default function PlayerSpotlight() {
                   <div className="flex items-center justify-between">
                     <div>
                       <span className="text-xs font-mono font-bold tracking-[0.2em] text-[#B9F66B] uppercase">
-                        SQUAD #{currentPlayer.jerseyNumber} • {getShortPosition(currentPlayer.position)}
+                        জার্সি #{toBnNum(currentPlayer.jerseyNumber)} • {getBnPosition(currentPlayer.position)}
                       </span>
                       <h3 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight">
                         {currentPlayer.fullName}
@@ -273,7 +272,7 @@ export default function PlayerSpotlight() {
                     </div>
 
                     <div className="w-12 h-12 rounded-2xl bg-[#18181B]/90 border border-white/15 flex flex-col items-center justify-center text-center shrink-0">
-                      <span className="text-[9px] font-mono text-[#A4B0A8] uppercase">FORM</span>
+                      <span className="text-[9px] font-mono text-[#A4B0A8] uppercase">ফর্ম</span>
                       <span className="text-base font-black font-mono text-[#B9F66B] leading-none">
                         {formRating}
                       </span>
@@ -281,7 +280,7 @@ export default function PlayerSpotlight() {
                   </div>
 
                   <p className="text-xs sm:text-sm text-[#A4B0A8] line-clamp-2">
-                    {currentPlayer.bio || `${currentPlayer.position} • ${currentPlayer.nationality}`}
+                    {currentPlayer.bio || `${getBnPosition(currentPlayer.position)} • ${currentPlayer.nationality}`}
                   </p>
                 </div>
               </div>
@@ -294,30 +293,30 @@ export default function PlayerSpotlight() {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div className="p-4 rounded-2xl bg-[#141417] border border-white/10 hover:border-[#B9F66B]/30 transition-colors">
                 <span className="text-[10px] font-bold text-[#A4B0A8] uppercase tracking-wider block mb-1">
-                  MATCH FORM
+                  ম্যাচ ফর্ম
                 </span>
                 <div className="flex items-baseline gap-1">
                   <span className="text-2xl sm:text-3xl font-black font-mono text-[#B9F66B]">
                     {formRating}
                   </span>
-                  <span className="text-xs text-[#A4B0A8] font-mono">/10</span>
+                  <span className="text-xs text-[#A4B0A8] font-mono">/১০</span>
                 </div>
                 <div className="mt-1 flex items-center gap-1 text-[10px] font-mono text-white/50">
                   <Activity className="w-3 h-3 text-[#B9F66B]" />
-                  <span>Elite Tier</span>
+                  <span>এলিট মান</span>
                 </div>
               </div>
 
               <div className="p-4 rounded-2xl bg-[#141417] border border-white/10 hover:border-[#B9F66B]/30 transition-colors">
                 <span className="text-[10px] font-bold text-[#A4B0A8] uppercase tracking-wider block mb-1">
-                  APPEARANCES
+                  ম্যাচ উপস্থিতি
                 </span>
                 <span className="text-2xl sm:text-3xl font-black font-mono text-white">
-                  {appearances}
+                  {toBnNum(appearances)}
                 </span>
                 <div className="mt-1 flex items-center gap-1 text-[10px] font-mono text-white/50">
                   <Shield className="w-3 h-3 text-[#B9F66B]" />
-                  <span>Matches</span>
+                  <span>ম্যাচ</span>
                 </div>
               </div>
 
@@ -326,24 +325,24 @@ export default function PlayerSpotlight() {
                   {primaryStatLabel}
                 </span>
                 <span className="text-2xl sm:text-3xl font-black font-mono text-[#B9F66B]">
-                  {primaryStatValue}
+                  {toBnNum(primaryStatValue)}
                 </span>
                 <div className="mt-1 flex items-center gap-1 text-[10px] font-mono text-white/50">
                   <Target className="w-3 h-3 text-[#B9F66B]" />
-                  <span>Season Total</span>
+                  <span>মৌসুমে মোট</span>
                 </div>
               </div>
 
               <div className="p-4 rounded-2xl bg-[#141417] border border-white/10 hover:border-[#B9F66B]/30 transition-colors">
                 <span className="text-[10px] font-bold text-[#A4B0A8] uppercase tracking-wider block mb-1">
-                  PASS ACCURACY
+                  পাসিং নির্ভুলতা
                 </span>
                 <span className="text-2xl sm:text-3xl font-black font-mono text-white">
                   {passAccuracy}
                 </span>
                 <div className="mt-1 flex items-center gap-1 text-[10px] font-mono text-white/50">
                   <Zap className="w-3 h-3 text-[#B9F66B]" />
-                  <span>Efficiency</span>
+                  <span>দক্ষতা</span>
                 </div>
               </div>
             </div>
@@ -354,11 +353,11 @@ export default function PlayerSpotlight() {
                 <div className="flex items-center gap-2">
                   <Award className="w-4 h-4 text-[#B9F66B]" />
                   <h4 className="text-xs font-black tracking-[0.2em] uppercase text-white">
-                    SCOUTING EVALUATION & ATTRIBUTES
+                    স্কাউটিং মূল্যায়ন ও দক্ষতা
                   </h4>
                 </div>
                 <span className="text-[11px] font-mono text-[#B9F66B] font-bold uppercase tracking-wider">
-                  MFA BENCHMARK 100
+                  একাডেমি বেঞ্চমার্ক ১০০
                 </span>
               </div>
 
@@ -370,7 +369,7 @@ export default function PlayerSpotlight() {
                         {attr.label}
                       </span>
                       <span className="font-mono font-black text-[#B9F66B]">
-                        {attr.value}
+                        {toBnNum(attr.value)}
                       </span>
                     </div>
                     {/* Dark Green Track with Glowing Lime Progress */}
@@ -392,7 +391,7 @@ export default function PlayerSpotlight() {
               </div>
               <div className="space-y-1">
                 <span className="text-[10px] font-mono font-bold tracking-[0.2em] uppercase text-[#B9F66B]">
-                  TECHNICAL DIRECTOR EVALUATION
+                  টেকনিক্যাল ডিরেক্টরের মূল্যায়ন
                 </span>
                 <p className="text-xs sm:text-sm text-[#A4B0A8] leading-relaxed italic">
                   &ldquo;{coachNote}&rdquo;
@@ -408,7 +407,7 @@ export default function PlayerSpotlight() {
                     variant="primary"
                     className="w-full sm:w-auto bg-[#B9F66B] text-[#0A0A0A] font-black text-xs tracking-[0.16em] uppercase rounded-full px-6 py-3 hover:bg-[#cbfd82] active:scale-95 transition-all duration-300 shadow-[0_0_20px_rgba(185,246,107,0.25)] hover:shadow-[0_0_28px_rgba(185,246,107,0.45)] cursor-pointer flex items-center justify-center gap-2"
                   >
-                    <span>VIEW {currentPlayer.fullName}&apos;S FULL PROFILE</span>
+                    <span>{currentPlayer.fullName}-এর সম্পূর্ণ প্রোফাইল দেখুন</span>
                     <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
                   </Button>
                 </Link>
@@ -418,14 +417,14 @@ export default function PlayerSpotlight() {
                     variant="outline"
                     className="w-full sm:w-auto bg-white/[0.03] border border-white/20 hover:border-white/50 text-white font-bold text-xs tracking-wider uppercase rounded-full px-5 py-3 hover:bg-white/10 active:scale-95 transition-all cursor-pointer"
                   >
-                    EXPLORE ALL SQUAD
+                    সম্পূর্ণ স্কোয়াড দেখুন
                   </Button>
                 </Link>
               </div>
 
               {/* Roster index indicator */}
               <div className="text-right sm:text-right text-[11px] font-mono text-[#A4B0A8]">
-                <span>PLAYER {selectedIndex + 1} OF {players.length}</span>
+                <span>খেলোয়াড় {toBnNum(selectedIndex + 1)} / {toBnNum(players.length)}</span>
               </div>
             </div>
           </div>
@@ -434,9 +433,7 @@ export default function PlayerSpotlight() {
         {/* 3. Bottom Disclaimer Notice */}
         <div className="pt-2 text-center border-t border-white/[0.06]">
           <p className="text-[11px] text-[#A4B0A8]/60 uppercase tracking-widest font-mono">
-            * Spotlight evaluations and attribute statistics reflect temporary demonstration
-            metrics for player portfolio display. Official academy combine metrics are updated each
-            tournament window.
+            * স্পটলাইট মূল্যায়ন ও দক্ষতার সূচকসমূহ খেলোয়াড় পোর্টফোলিও প্রদর্শনীর সাধারণ মানদণ্ড।
           </p>
         </div>
       </div>

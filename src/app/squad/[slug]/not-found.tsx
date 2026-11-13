@@ -12,10 +12,10 @@ export default function PlayerNotFound() {
 
         <div className="space-y-2">
           <h1 className="text-2xl font-black uppercase tracking-tight text-white">
-            Player Not Found
+            খেলোয়াড় পাওয়া যায়নি
           </h1>
           <p className="text-xs sm:text-sm text-[#A4B0A8] leading-relaxed">
-            The requested player profile does not exist or may have been deactivated from the squad roster.
+            অনুরোধকৃত খেলোয়াড়ের প্রোফাইলটি পাওয়া যায়নি বা স্কোয়াড তালিকা থেকে সাময়িকভাবে নিষ্ক্রিয় করা হয়েছে।
           </p>
         </div>
 
@@ -25,7 +25,7 @@ export default function PlayerNotFound() {
               className="bg-[#B9F66B] text-[#0A0A0A] font-black text-xs uppercase tracking-wider px-6 py-2.5 rounded-full hover:bg-[#cbfd82] transition-colors cursor-pointer inline-flex items-center gap-2"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span>Back to Full Squad</span>
+              <span>পূর্ণাঙ্গ স্কোয়াডে ফিরে যান</span>
             </Button>
           </Link>
         </div>

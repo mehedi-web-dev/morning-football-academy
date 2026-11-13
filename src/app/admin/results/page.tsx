@@ -29,27 +29,11 @@ import {
   PaginationMeta,
   ApiError,
 } from "../../../lib/api-client";
+import { toBnNum, formatBnDate, getBnOutcome } from "../../../lib/bn-utils";
 import ResultFormModal from "../../../components/admin/ResultFormModal";
 import DeleteResultModal from "../../../components/admin/DeleteResultModal";
 
 type OutcomeFilter = "ALL" | "WIN" | "DRAW" | "LOSS";
-
-/**
- * Format match result date
- */
-function formatResultDate(dateStr: string): string {
-  try {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString("en-US", {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  } catch {
-    return dateStr;
-  }
-}
 
 /**
  * Derive match outcome from scoreline
@@ -69,21 +53,21 @@ function getOutcomeBadge(outcome: "WIN" | "DRAW" | "LOSS") {
       return (
         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#B9F66B]/15 text-[#B9F66B] border border-[#B9F66B]/30 text-[10px] font-mono font-black uppercase tracking-wider">
           <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B] shadow-[0_0_6px_#B9F66B]" />
-          WIN
+          জয়
         </span>
       );
     case "DRAW":
       return (
         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-400/15 text-amber-300 border border-amber-400/30 text-[10px] font-mono font-black uppercase tracking-wider">
           <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-          DRAW
+          ড্র
         </span>
       );
     case "LOSS":
       return (
         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-rose-500/15 text-rose-400 border border-rose-500/30 text-[10px] font-mono font-black uppercase tracking-wider">
           <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
-          LOSS
+          পরাজয়
         </span>
       );
   }
@@ -170,7 +154,7 @@ export default function AdminResultsPage() {
               setError(err.message);
               setIsAuthError(err.isAuthError);
             } else {
-              setError("Failed to fetch match results from database.");
+              setError("ডাটাবেস থেকে ম্যাচ ফলাফল লোড করতে ব্যর্থ হয়েছে।");
             }
             setIsLoading(false);
           }
@@ -211,11 +195,12 @@ export default function AdminResultsPage() {
   // Form Success Callback
   const handleFormSuccess = (savedResult: ResultDocument, isEdit: boolean) => {
     const outcome = getMatchOutcome(savedResult.homeScore, savedResult.awayScore);
+    const outcomeBn = getBnOutcome(outcome);
     setNotification({
       type: "success",
       message: isEdit
-        ? `Result vs ${savedResult.opponent} (${savedResult.homeScore}-${savedResult.awayScore}) updated successfully.`
-        : `Result vs ${savedResult.opponent} logged as ${outcome} (${savedResult.homeScore}-${savedResult.awayScore}).`,
+        ? `${savedResult.opponent}-এর বিরুদ্ধে ফলাফল (${toBnNum(savedResult.homeScore)}-${toBnNum(savedResult.awayScore)}) সফলভাবে আপডেট করা হয়েছে।`
+        : `${savedResult.opponent}-এর বিরুদ্ধে ফলাফল ${outcomeBn} (${toBnNum(savedResult.homeScore)}-${toBnNum(savedResult.awayScore)}) হিসেবে নথিভুক্ত করা হয়েছে।`,
     });
     handleRefresh();
   };
@@ -234,7 +219,7 @@ export default function AdminResultsPage() {
       await apiClient.results.delete(resultToDelete._id);
       setNotification({
         type: "success",
-        message: `Result vs ${resultToDelete.opponent} deleted successfully.`,
+        message: `${resultToDelete.opponent}-এর বিরুদ্ধে ফলাফল সফলভাবে মুছে ফেলা হয়েছে।`,
       });
       setResultToDelete(null);
       if (results.length === 1 && page > 1) {
@@ -244,7 +229,7 @@ export default function AdminResultsPage() {
       }
     } catch (err: unknown) {
       const msg =
-        err instanceof ApiError ? err.message : "Failed to delete result record.";
+        err instanceof ApiError ? err.message : "ফলাফল রেকর্ড মুছে ফেলতে ব্যর্থ হয়েছে।";
       setNotification({ type: "error", message: msg });
     } finally {
       setIsDeleting(false);
@@ -325,18 +310,18 @@ export default function AdminResultsPage() {
           <div className="flex items-center gap-2">
             <Chip className="bg-[#18251F] text-[#B9F66B] border border-[#B9F66B]/30 font-black tracking-[0.2em] text-[10px] uppercase px-2.5 py-0.5">
               <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B] shadow-[0_0_8px_#B9F66B] mr-1.5 inline-block" />
-              RESULTS LEDGER
+              ফলাফল লেজার
             </Chip>
             <span className="text-[11px] font-mono text-[#A4B0A8]">
-              {totalCount} FIXTURES ARCHIVED
+              {toBnNum(totalCount)}টি ফলাফল সংরক্ষিত
             </span>
           </div>
 
           <h2 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight mt-1">
-            MATCH RESULTS.
+            ম্যাচ ফলাফল।
           </h2>
           <p className="text-xs sm:text-sm text-[#A4B0A8]">
-            Log official match scorelines, track tournament outcomes, and review season performance records.
+            অফিসিয়াল ম্যাচের স্কোরলাইন রেকর্ড করুন, টুর্নামেন্টের ফলাফল ট্র্যাক করুন এবং সিজনের পারফরম্যান্স পর্যালোচনা করুন।
           </p>
         </div>
 
@@ -346,7 +331,7 @@ export default function AdminResultsPage() {
             className="bg-[#B9F66B] hover:bg-[#a8ec56] text-[#101A17] font-black text-xs uppercase tracking-wider px-4 py-2.5 rounded-xl transition-all shadow-md cursor-pointer flex items-center gap-2"
           >
             <Plus className="w-4 h-4" />
-            <span>RECORD RESULT</span>
+            <span>নতুন ফলাফল যুক্ত করুন</span>
           </Button>
         </div>
       </div>
@@ -386,15 +371,15 @@ export default function AdminResultsPage() {
         <div className="p-4 rounded-xl bg-[#18251F] border border-white/10 space-y-1 relative overflow-hidden group">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-mono text-[#A4B0A8] uppercase tracking-wider block">
-              TOTAL PLAYED
+              মোট ম্যাচ
             </span>
             <Trophy className="w-3.5 h-3.5 text-[#A4B0A8]/40" />
           </div>
           <span className="text-2xl sm:text-3xl font-black text-white block">
-            {metrics.total}
+            {toBnNum(metrics.total)}
           </span>
           <span className="text-[10px] text-[#A4B0A8]/70 block font-mono">
-            Recorded in database
+            ডাটাবেসে সংরক্ষিত
           </span>
         </div>
 
@@ -402,15 +387,15 @@ export default function AdminResultsPage() {
         <div className="p-4 rounded-xl bg-[#18251F] border border-[#B9F66B]/20 space-y-1 relative overflow-hidden">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-mono text-[#B9F66B] uppercase tracking-wider block">
-              VICTORIES
+              বিজয়
             </span>
             <span className="w-2 h-2 rounded-full bg-[#B9F66B]" />
           </div>
           <span className="text-2xl sm:text-3xl font-black text-[#B9F66B] block">
-            {metrics.wins}
+            {toBnNum(metrics.wins)}
           </span>
           <span className="text-[10px] text-[#B9F66B]/70 block font-mono">
-            {metrics.total > 0 ? `${metrics.winRate}% win rate` : "--"}
+            {metrics.total > 0 ? `${toBnNum(metrics.winRate)}% জয়ের হার` : "--"}
           </span>
         </div>
 
@@ -418,15 +403,15 @@ export default function AdminResultsPage() {
         <div className="p-4 rounded-xl bg-[#18251F] border border-amber-400/20 space-y-1 relative overflow-hidden">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-mono text-amber-300 uppercase tracking-wider block">
-              DRAWS
+              ড্র
             </span>
             <span className="w-2 h-2 rounded-full bg-amber-400" />
           </div>
           <span className="text-2xl sm:text-3xl font-black text-amber-300 block">
-            {metrics.draws}
+            {toBnNum(metrics.draws)}
           </span>
           <span className="text-[10px] text-amber-300/70 block font-mono">
-            Shared points
+            পয়েন্ট ভাগাভাগি
           </span>
         </div>
 
@@ -434,15 +419,15 @@ export default function AdminResultsPage() {
         <div className="p-4 rounded-xl bg-[#18251F] border border-rose-500/20 space-y-1 relative overflow-hidden">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-mono text-rose-400 uppercase tracking-wider block">
-              DEFEATS
+              পরাজয়
             </span>
             <span className="w-2 h-2 rounded-full bg-rose-500" />
           </div>
           <span className="text-2xl sm:text-3xl font-black text-rose-400 block">
-            {metrics.losses}
+            {toBnNum(metrics.losses)}
           </span>
           <span className="text-[10px] text-rose-400/70 block font-mono">
-            Matches dropped
+            পরাজিত ম্যাচ
           </span>
         </div>
 
@@ -450,13 +435,13 @@ export default function AdminResultsPage() {
         <div className="p-4 rounded-xl bg-[#18251F] border border-white/10 space-y-1 col-span-2 md:col-span-1 relative overflow-hidden">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-mono text-[#A4B0A8] uppercase tracking-wider block">
-              GOAL METRICS
+              গোল পরিসংখ্যান
             </span>
             <TrendingUp className="w-3.5 h-3.5 text-[#B9F66B]" />
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-2xl sm:text-3xl font-black text-white">
-              {metrics.goalsFor}:{metrics.goalsAgainst}
+              {toBnNum(metrics.goalsFor)}:{toBnNum(metrics.goalsAgainst)}
             </span>
             <span
               className={`text-xs font-mono font-bold ${
@@ -467,11 +452,11 @@ export default function AdminResultsPage() {
                   : "text-[#A4B0A8]"
               }`}
             >
-              {metrics.goalDiff > 0 ? `+${metrics.goalDiff}` : metrics.goalDiff} GD
+              {metrics.goalDiff > 0 ? `+${toBnNum(metrics.goalDiff)}` : toBnNum(metrics.goalDiff)} গোল ব্যবধান
             </span>
           </div>
           <span className="text-[10px] text-[#A4B0A8]/70 block font-mono">
-            Scored : Conceded
+            স্কোরকৃত : হজমকৃত
           </span>
         </div>
       </div>
@@ -483,7 +468,7 @@ export default function AdminResultsPage() {
           <Search className="w-4 h-4 text-[#A4B0A8] absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Search records by opponent, tournament, or venue..."
+            placeholder="প্রতিপক্ষ, টুর্নামেন্ট বা ভেন্যু দিয়ে খুঁজুন..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full bg-[#101A17] border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-[#A4B0A8]/60 focus:outline-none focus:border-[#B9F66B]/50 transition-colors"
@@ -501,7 +486,7 @@ export default function AdminResultsPage() {
               }}
               className="bg-[#101A17] border border-white/10 rounded-xl px-3 py-2 text-xs text-[#A4B0A8] hover:text-white focus:text-white focus:outline-none focus:border-[#B9F66B]/50 transition-colors cursor-pointer"
             >
-              <option value="">All Competitions</option>
+              <option value="">সকল প্রতিযোগিতা</option>
               {distinctCompetitions.map((comp) => (
                 <option key={comp} value={comp}>
                   {comp}
@@ -512,18 +497,23 @@ export default function AdminResultsPage() {
 
           <div className="flex items-center gap-1.5">
             <Filter className="w-3.5 h-3.5 text-[#A4B0A8] mr-1 shrink-0 hidden sm:block" />
-            {(["ALL", "WIN", "DRAW", "LOSS"] as OutcomeFilter[]).map((outcome) => (
+            {[
+              { label: "সকল", value: "ALL" },
+              { label: "জয়", value: "WIN" },
+              { label: "ড্র", value: "DRAW" },
+              { label: "পরাজয়", value: "LOSS" },
+            ].map((outcome) => (
               <button
-                key={outcome}
+                key={outcome.value}
                 type="button"
-                onClick={() => setSelectedOutcome(outcome)}
+                onClick={() => setSelectedOutcome(outcome.value as OutcomeFilter)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-mono uppercase tracking-wider transition-colors cursor-pointer ${
-                  selectedOutcome === outcome
+                  selectedOutcome === outcome.value
                     ? "bg-[#B9F66B] text-[#101A17] font-black shadow-sm"
                     : "bg-[#202E27] text-[#A4B0A8] hover:text-white border border-white/5"
                 }`}
               >
-                {outcome}
+                {outcome.label}
               </button>
             ))}
           </div>
@@ -535,7 +525,7 @@ export default function AdminResultsPage() {
             type="button"
             onClick={handleRefresh}
             disabled={isLoading}
-            title="Refresh results"
+            title="ফলাফল তালিকা রিফ্রেশ করুন"
             className="p-2 rounded-xl bg-[#202E27] border border-white/10 text-[#A4B0A8] hover:text-white hover:border-[#B9F66B]/40 transition-colors disabled:opacity-50 cursor-pointer"
           >
             <RefreshCw
@@ -552,7 +542,7 @@ export default function AdminResultsPage() {
           <AlertCircle className="w-10 h-10 text-red-400 mx-auto" />
           <div className="space-y-1">
             <h3 className="text-base font-bold text-white">
-              Failed to load match results
+              ম্যাচ ফলাফল লোড করতে ব্যর্থ হয়েছে
             </h3>
             <p className="text-xs text-[#A4B0A8] max-w-md mx-auto">{error}</p>
           </div>
@@ -562,14 +552,14 @@ export default function AdminResultsPage() {
               className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#B9F66B] text-[#101A17] font-black text-xs uppercase tracking-wider hover:bg-[#a8ec56] transition-colors"
             >
               <LogIn className="w-4 h-4" />
-              <span>Log in to Admin</span>
+              <span>আবার সাইন ইন করুন</span>
             </Link>
           ) : (
             <Button
               onPress={handleRefresh}
               className="bg-[#202E27] border border-white/10 text-white font-mono text-xs uppercase tracking-wider px-4 py-2 rounded-xl hover:border-[#B9F66B]/50 transition-colors cursor-pointer"
             >
-              Retry
+              পুনরায় চেষ্টা করুন
             </Button>
           )}
         </div>
@@ -604,13 +594,13 @@ export default function AdminResultsPage() {
           <div className="space-y-1">
             <h3 className="text-base font-bold text-white">
               {searchTerm || selectedOutcome !== "ALL" || competitionFilter
-                ? "No matching match results"
-                : "No match results recorded yet"}
+                ? "কোনো ম্যাচ ফলাফল মেলেনি"
+                : "এখনও কোনো ফলাফল রেকর্ড করা হয়নি"}
             </h3>
             <p className="text-xs text-[#A4B0A8] max-w-sm mx-auto">
               {searchTerm || selectedOutcome !== "ALL" || competitionFilter
-                ? "Try clearing your filters or searching for another tournament or opponent team."
-                : "Log your first academy match scoreline to track win rates, goals, and official season archives."}
+                ? "আপনার ফিল্টার পরিবর্তন করুন অথবা অন্য টুর্নামেন্ট বা প্রতিপক্ষ দল দিয়ে অনুসন্ধান করুন।"
+                : "জয়ের হার, গোল এবং অফিসিয়াল সিজন রেকর্ড ট্র্যাক করতে আপনার প্রথম ম্যাচের স্কোরলাইন যুক্ত করুন।"}
             </p>
           </div>
           {searchTerm || selectedOutcome !== "ALL" || competitionFilter ? (
@@ -622,7 +612,7 @@ export default function AdminResultsPage() {
               }}
               className="bg-[#202E27] border border-white/10 text-white font-mono text-xs uppercase tracking-wider px-4 py-2 rounded-xl hover:border-[#B9F66B]/50 transition-colors cursor-pointer"
             >
-              Reset Filters
+              ফিল্টার রিসেট করুন
             </Button>
           ) : (
             <Button
@@ -630,7 +620,7 @@ export default function AdminResultsPage() {
               className="bg-[#B9F66B] hover:bg-[#a8ec56] text-[#101A17] font-black text-xs uppercase tracking-wider px-4 py-2 rounded-xl transition-all shadow-md cursor-pointer inline-flex items-center gap-2"
             >
               <Plus className="w-4 h-4" />
-              <span>Record First Result</span>
+              <span>প্রথম ফলাফল রেকর্ড করুন</span>
             </Button>
           )}
         </div>
@@ -670,7 +660,7 @@ export default function AdminResultsPage() {
                               : "text-amber-300"
                           }
                         >
-                          {result.homeScore}
+                          {toBnNum(result.homeScore)}
                         </span>
                         <span className="text-white/40">-</span>
                         <span
@@ -682,7 +672,7 @@ export default function AdminResultsPage() {
                               : "text-amber-300"
                           }
                         >
-                          {result.awayScore}
+                          {toBnNum(result.awayScore)}
                         </span>
                       </div>
 
@@ -704,7 +694,7 @@ export default function AdminResultsPage() {
 
                       <div className="flex items-center gap-1.5 font-mono text-[11px]">
                         <Calendar className="w-3.5 h-3.5 text-[#A4B0A8] shrink-0" />
-                        <span>{formatResultDate(result.matchDate)}</span>
+                        <span>{formatBnDate(result.matchDate)}</span>
                       </div>
 
                       <span className="text-white/20 hidden sm:inline">•</span>
@@ -724,21 +714,21 @@ export default function AdminResultsPage() {
                   <button
                     type="button"
                     onClick={() => handleOpenEdit(result)}
-                    title="Edit scoreline and details"
+                    title="ফলাফল ও বিবরণ সম্পাদনা করুন"
                     className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-white/[0.04] border border-white/10 text-xs font-mono text-white hover:text-[#B9F66B] hover:border-[#B9F66B]/50 transition-colors cursor-pointer flex items-center gap-1.5"
                   >
                     <Edit2 className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">EDIT</span>
+                    <span className="hidden sm:inline">সম্পাদনা</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => handleOpenDelete(result)}
-                    title="Delete match result"
+                    title="ম্যাচ ফলাফল মুছুন"
                     className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-red-500/10 border border-red-500/20 text-xs font-mono text-red-400 hover:text-white hover:bg-red-500 hover:border-red-500 transition-colors cursor-pointer flex items-center gap-1.5"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">DELETE</span>
+                    <span className="hidden sm:inline">মুছুন</span>
                   </button>
                 </div>
               </div>
@@ -752,21 +742,21 @@ export default function AdminResultsPage() {
         <div className="p-4 rounded-2xl bg-[#18251F] border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <span className="text-xs text-[#A4B0A8] font-mono">
-              Showing{" "}
+              প্রদর্শিত হচ্ছে{" "}
               <strong className="text-white">
-                {Math.min((page - 1) * limit + 1, totalCount)}
+                {toBnNum(Math.min((page - 1) * limit + 1, totalCount))}
               </strong>{" "}
-              to{" "}
+              থেকে{" "}
               <strong className="text-white">
-                {Math.min(page * limit, totalCount)}
-              </strong>{" "}
-              of <strong className="text-white">{totalCount}</strong> results
+                {toBnNum(Math.min(page * limit, totalCount))}
+              </strong>
+              , সর্বমোট <strong className="text-white">{toBnNum(totalCount)}</strong>টি ফলাফল
             </span>
 
             {/* Page Size Selector */}
             <div className="flex items-center gap-1.5 pl-3 border-l border-white/10">
               <span className="text-[11px] text-[#A4B0A8] font-mono uppercase">
-                Per page:
+                প্রতি পৃষ্ঠায়:
               </span>
               {[8, 12, 24].map((sz) => (
                 <button
@@ -782,7 +772,7 @@ export default function AdminResultsPage() {
                       : "text-[#A4B0A8] hover:text-white bg-white/5"
                   }`}
                 >
-                  {sz}
+                  {toBnNum(sz)}
                 </button>
               ))}
             </div>
@@ -798,8 +788,8 @@ export default function AdminResultsPage() {
             </Button>
 
             <span className="text-xs font-mono text-[#A4B0A8] px-2">
-              Page <strong className="text-white">{page}</strong> of{" "}
-              <strong className="text-white">{totalPages}</strong>
+              পৃষ্ঠা <strong className="text-white">{toBnNum(page)}</strong> /{" "}
+              <strong className="text-white">{toBnNum(totalPages)}</strong>
             </span>
 
             <Button
@@ -818,7 +808,7 @@ export default function AdminResultsPage() {
         <p className="text-[11px] font-mono text-[#A4B0A8]/70 uppercase tracking-widest flex items-center justify-center gap-2">
           <Sparkles className="w-3.5 h-3.5 text-[#B9F66B]" />
           <span>
-            Connected to MongoDB Match Results collection via Express REST API. Scoreline updates automatically sync with fixture records.
+            এক্সপ্রেস রেস্ট এপিআই-এর মাধ্যমে ম্যাচ ফলাফল ডাটাবেসের সাথে সংযুক্ত। স্কোরলাইন আপডেট স্বয়ংক্রিয়ভাবে সংরক্ষিত হয়।
           </span>
         </p>
       </div>

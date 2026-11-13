@@ -14,6 +14,7 @@ import { Button } from "@heroui/react";
 import { apiClient, ResultDocument } from "../../../lib/api-client";
 import { formatMatchDate } from "../../../lib/match-utils";
 import { calculateOutcome, getOutcomeMeta } from "../../../lib/result-utils";
+import { toBnNum } from "../../../lib/bn-utils";
 import { TeamEmblem } from "../../../components/matches/PublicMatchCard";
 
 export const instant = false;
@@ -33,17 +34,17 @@ export async function generateMetadata({
 
     if (!result) {
       return {
-        title: "Match Result Not Found | Morning Football Academy",
+        title: "খেলার ফলাফল পাওয়া যায়নি | Morning Football Academy",
       };
     }
 
     return {
-      title: `Morning Football Academy ${result.homeScore} - ${result.awayScore} ${result.opponent} | Match Report`,
-      description: `Official match report: Morning Football Academy vs ${result.opponent} in the ${result.competition}. Final Score: ${result.homeScore} - ${result.awayScore}. Venue: ${result.venue}.`,
+      title: `Morning Football Academy ${toBnNum(result.homeScore)} - ${toBnNum(result.awayScore)} ${result.opponent} | ম্যাচ রিপোর্ট`,
+      description: `অফিসিয়াল ম্যাচ রিপোর্ট: Morning Football Academy বনাম ${result.opponent} (${result.competition})। চূড়ান্ত স্কোর: ${toBnNum(result.homeScore)} - ${toBnNum(result.awayScore)}। ভেন্যু: ${result.venue}।`,
     };
   } catch {
     return {
-      title: "Match Result Not Found | Morning Football Academy",
+      title: "খেলার ফলাফল পাওয়া যায়নি | Morning Football Academy",
     };
   }
 }
@@ -76,7 +77,7 @@ export default async function ResultDetailPage({ params }: ResultDetailPageProps
             className="inline-flex items-center gap-2 text-xs font-mono font-bold tracking-wider uppercase text-[#A4B0A8] hover:text-[#B9F66B] transition-colors group cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-            <span>BACK TO ALL RESULTS</span>
+            <span>সকল ফলাফলে ফিরে যান</span>
           </Link>
 
           <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#18251F] border border-white/10 text-[11px] font-mono text-[#A4B0A8] uppercase">
@@ -97,7 +98,7 @@ export default async function ResultDetailPage({ params }: ResultDetailPageProps
           <div className="flex flex-wrap items-center justify-between pb-8 border-b border-white/[0.08] gap-4">
             <div className="space-y-1">
               <span className="text-[10px] font-mono tracking-[0.24em] text-[#B9F66B] uppercase block">
-                OFFICIAL MATCH REPORT &amp; SCORELINE
+                অফিসিয়াল ম্যাচ রিপোর্ট ও স্কোরলাইন
               </span>
               <h2 className="text-lg sm:text-xl font-black text-white uppercase tracking-tight">
                 {result.competition}
@@ -126,7 +127,7 @@ export default async function ResultDetailPage({ params }: ResultDetailPageProps
                 />
                 <div className="space-y-1">
                   <span className="text-[11px] font-bold font-mono tracking-[0.2em] uppercase text-[#B9F66B]">
-                    HOME CLUB
+                    স্বাগতিক ক্লাব
                   </span>
                   <h1 className="text-xl sm:text-3xl font-black text-white uppercase tracking-tight">
                     Morning Football Academy
@@ -138,17 +139,17 @@ export default async function ResultDetailPage({ params }: ResultDetailPageProps
               <div className="flex flex-col items-center justify-center space-y-3 py-4">
                 <div className="inline-flex items-center justify-center gap-4 px-6 sm:px-8 py-3 rounded-2xl bg-white/[0.04] border border-white/10 shadow-inner">
                   <span className="text-4xl sm:text-6xl font-black font-mono text-[#B9F66B]">
-                    {result.homeScore}
+                    {toBnNum(result.homeScore)}
                   </span>
                   <span className="text-2xl sm:text-4xl font-bold text-white/30 font-mono">
                     -
                   </span>
                   <span className="text-4xl sm:text-6xl font-black font-mono text-white">
-                    {result.awayScore}
+                    {toBnNum(result.awayScore)}
                   </span>
                 </div>
                 <span className="text-xs font-mono font-bold uppercase tracking-widest text-[#A4B0A8]">
-                  FULL TIME RESULT
+                  পূর্ণ সময়ের ফলাফল
                 </span>
               </div>
 
@@ -157,7 +158,7 @@ export default async function ResultDetailPage({ params }: ResultDetailPageProps
                 <TeamEmblem name={result.opponent} size="lg" />
                 <div className="space-y-1">
                   <span className="text-[11px] font-bold font-mono tracking-[0.2em] uppercase text-[#A4B0A8]">
-                    OPPONENT CLUB
+                    প্রতিপক্ষ ক্লাব
                   </span>
                   <h2 className="text-xl sm:text-3xl font-black text-white uppercase tracking-tight">
                     {result.opponent}
@@ -172,7 +173,7 @@ export default async function ResultDetailPage({ params }: ResultDetailPageProps
             <div className="p-4 rounded-2xl bg-[#202E27] border border-white/10 space-y-1.5">
               <div className="flex items-center gap-2 text-[#B9F66B] text-xs font-mono uppercase tracking-wider">
                 <Calendar className="w-4 h-4" />
-                <span>MATCH DATE</span>
+                <span>ম্যাচের তারিখ</span>
               </div>
               <p className="text-sm sm:text-base font-bold text-white">
                 {formatMatchDate(result.matchDate)}
@@ -182,7 +183,7 @@ export default async function ResultDetailPage({ params }: ResultDetailPageProps
             <div className="p-4 rounded-2xl bg-[#202E27] border border-white/10 space-y-1.5">
               <div className="flex items-center gap-2 text-[#B9F66B] text-xs font-mono uppercase tracking-wider">
                 <MapPin className="w-4 h-4" />
-                <span>VENUE LOCATION</span>
+                <span>মাঠের অবস্থান / ভেন্যু</span>
               </div>
               <p className="text-sm sm:text-base font-bold text-white truncate">
                 {result.venue}
@@ -192,7 +193,7 @@ export default async function ResultDetailPage({ params }: ResultDetailPageProps
             <div className="p-4 rounded-2xl bg-[#202E27] border border-white/10 space-y-1.5">
               <div className="flex items-center gap-2 text-[#B9F66B] text-xs font-mono uppercase tracking-wider">
                 <Trophy className="w-4 h-4" />
-                <span>TOURNAMENT COMPETITION</span>
+                <span>টুর্নামেন্ট / প্রতিযোগিতা</span>
               </div>
               <p className="text-sm sm:text-base font-bold text-white truncate">
                 {result.competition}
@@ -206,11 +207,11 @@ export default async function ResultDetailPage({ params }: ResultDetailPageProps
           <div className="space-y-1 text-center sm:text-left">
             <h3 className="text-xs font-mono font-bold tracking-[0.2em] text-[#B9F66B] uppercase flex items-center justify-center sm:justify-start gap-2">
               <Activity className="w-4 h-4" />
-              <span>RECORD AUDIT ID</span>
+              <span>রেকর্ড অডিট আইডি</span>
             </h3>
             <p className="text-xs font-mono text-[#A4B0A8]">
-              Database Record: <strong className="text-white">{result._id}</strong>
-              {result.matchId && ` • Match Ref: ${result.matchId}`}
+              ডাটাবেজ রেকর্ড: <strong className="text-white">{result._id}</strong>
+              {result.matchId && ` • ম্যাচ রেফারেন্স: ${result.matchId}`}
             </p>
           </div>
 
@@ -221,7 +222,7 @@ export default async function ResultDetailPage({ params }: ResultDetailPageProps
                   className="w-full sm:w-auto bg-[#202E27] border border-white/10 text-white font-mono text-xs uppercase tracking-wider px-5 py-2.5 rounded-xl hover:border-[#B9F66B]/50 transition-colors cursor-pointer inline-flex items-center justify-center gap-2"
                 >
                   <ExternalLink className="w-3.5 h-3.5 text-[#B9F66B]" />
-                  <span>View Fixture</span>
+                  <span>ম্যাচ ফিক্সচার দেখুন</span>
                 </Button>
               </Link>
             )}
@@ -230,7 +231,7 @@ export default async function ResultDetailPage({ params }: ResultDetailPageProps
               <Button
                 className="w-full sm:w-auto bg-[#B9F66B] text-[#0A0A0A] font-black text-xs uppercase tracking-wider px-5 py-2.5 rounded-full hover:bg-[#cbfd82] transition-colors cursor-pointer"
               >
-                All Results
+                সকল ফলাফল
               </Button>
             </Link>
           </div>

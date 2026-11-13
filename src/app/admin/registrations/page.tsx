@@ -32,15 +32,21 @@ import {
   PaginationMeta,
   ApiError,
 } from "../../../lib/api-client";
+import {
+  toBnNum,
+  formatBnDate,
+  getBnPosition,
+  getBnRegistrationStatus,
+} from "../../../lib/bn-utils";
 import RegistrationDetailsModal from "../../../components/admin/RegistrationDetailsModal";
 import StatusChangeModal from "../../../components/admin/StatusChangeModal";
 import DeleteRegistrationModal from "../../../components/admin/DeleteRegistrationModal";
 
 const STATUS_FILTERS: { label: string; value: "ALL" | RegistrationStatus }[] = [
-  { label: "ALL STATUS", value: "ALL" },
-  { label: "PENDING REVIEW", value: "pending" },
-  { label: "ACCEPTED", value: "approved" },
-  { label: "REJECTED", value: "rejected" },
+  { label: "সকল স্ট্যাটাস", value: "ALL" },
+  { label: "অপেক্ষমাণ", value: "pending" },
+  { label: "অনুমোদিত", value: "approved" },
+  { label: "প্রত্যাখ্যাত", value: "rejected" },
 ];
 
 /**
@@ -65,14 +71,9 @@ function calculateAge(dobStr: string): number {
  * Format date for display
  */
 function formatDate(dateStr?: string): string {
-  if (!dateStr) return "N/A";
+  if (!dateStr) return "অজানা";
   try {
-    const d = new Date(dateStr);
-    return d.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
+    return formatBnDate(dateStr);
   } catch {
     return dateStr;
   }
@@ -175,7 +176,7 @@ export default function AdminRegistrationsPage() {
               setError(err.message);
               setIsAuthError(err.isAuthError);
             } else {
-              setError("Failed to fetch registrations from database.");
+              setError("ডেটাবেজ থেকে রেজিস্ট্রেশন তথ্য পেতে ব্যর্থ হয়েছে।");
             }
             setIsLoading(false);
           }
@@ -229,7 +230,7 @@ export default function AdminRegistrationsPage() {
 
       setNotification({
         type: "success",
-        message: `Application for ${registration.fullName} updated to ${targetStatus.toUpperCase()}.`,
+        message: `${registration.fullName}-এর আবেদন সফলভাবে ${getBnRegistrationStatus(targetStatus)} করা হয়েছে।`,
       });
       setStatusChangeTarget(null);
       handleRefresh();
@@ -237,7 +238,7 @@ export default function AdminRegistrationsPage() {
       const msg =
         err instanceof ApiError
           ? err.message
-          : "Failed to update registration status.";
+          : "আবেদনের স্ট্যাটাস আপডেট করতে ব্যর্থ হয়েছে।";
       setNotification({ type: "error", message: msg });
     } finally {
       setIsUpdatingStatus(false);
@@ -257,7 +258,7 @@ export default function AdminRegistrationsPage() {
       await apiClient.registrations.delete(registrationToDelete._id);
       setNotification({
         type: "success",
-        message: `Application for ${registrationToDelete.fullName} deleted successfully.`,
+        message: `${registrationToDelete.fullName}-এর রেজিস্ট্রেশন রেকর্ড মুছে ফেলা হয়েছে।`,
       });
 
       if (selectedForDetails?._id === registrationToDelete._id) {
@@ -274,7 +275,7 @@ export default function AdminRegistrationsPage() {
       const msg =
         err instanceof ApiError
           ? err.message
-          : "Failed to delete registration record.";
+          : "রেজিস্ট্রেশন রেকর্ড মুছতে ব্যর্থ হয়েছে।";
       setNotification({ type: "error", message: msg });
     } finally {
       setIsDeleting(false);
@@ -303,7 +304,7 @@ export default function AdminRegistrationsPage() {
       if (recordsToExport.length === 0) {
         setNotification({
           type: "error",
-          message: "No registration records available to export.",
+          message: "রপ্তানি করার জন্য কোনো রেজিস্ট্রেশন রেকর্ড নেই।",
         });
         return;
       }
@@ -317,16 +318,16 @@ export default function AdminRegistrationsPage() {
 
       // Build CSV Header & Rows
       const headers = [
-        "Full Name",
-        "Email",
-        "Phone",
-        "Date of Birth",
-        "Age",
-        "Preferred Position",
-        "Football Experience",
-        "Application Message",
-        "Status",
-        "Submission Date",
+        "নাম",
+        "ইমেইল",
+        "ফোন",
+        "জন্ম তারিখ",
+        "বয়স",
+        "পজিশন",
+        "ফুটবল অভিজ্ঞতা",
+        "আবেদনের বার্তা",
+        "স্ট্যাটাস",
+        "আবেদনের তারিখ",
       ];
 
       const rows = filteredRecords.map((r) => [
@@ -365,13 +366,13 @@ export default function AdminRegistrationsPage() {
 
       setNotification({
         type: "success",
-        message: `Successfully exported ${filteredRecords.length} registration records to CSV.`,
+        message: `সফলভাবে ${toBnNum(filteredRecords.length)} টি রেজিস্ট্রেশন রেকর্ড CSV আকারে রপ্তানি করা হয়েছে।`,
       });
     } catch (err: unknown) {
       const msg =
         err instanceof ApiError
           ? err.message
-          : "Failed to export registrations to CSV.";
+          : "CSV ফাইলে রপ্তানি করতে ব্যর্থ হয়েছে।";
       setNotification({ type: "error", message: msg });
     } finally {
       setIsExporting(false);
@@ -432,18 +433,18 @@ export default function AdminRegistrationsPage() {
           <div className="flex items-center gap-2">
             <Chip className="bg-[#18251F] text-[#B9F66B] border border-[#B9F66B]/30 font-black tracking-[0.2em] text-[10px] uppercase px-2.5 py-0.5">
               <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B] shadow-[0_0_8px_#B9F66B] mr-1.5 inline-block" />
-              TRIAL PIPELINE
+              ট্রায়াল পাইপলাইন
             </Chip>
             <span className="text-[11px] font-mono text-[#A4B0A8]">
-              {metrics.pending} PENDING REVIEWS • {totalCount} TOTAL APPLICANTS
+              {toBnNum(metrics.pending)} অপেক্ষমাণ • সর্বমোট {toBnNum(totalCount)} আবেদনকারী
             </span>
           </div>
 
           <h2 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight mt-1">
-            ENROLLMENT REGISTRATIONS.
+            ভর্তি রেজিস্ট্রেশন ব্যবস্থাপনা.
           </h2>
           <p className="text-xs sm:text-sm text-[#A4B0A8]">
-            Review trialist applications, evaluate candidate football backgrounds, and manage admission workflows.
+            ট্রায়ালিস্ট আবেদন পর্যালোচনা করুন, প্রার্থীর ফুটবল অভিজ্ঞতা মূল্যায়ন করুন এবং ভর্তি প্রক্রিয়া পরিচালনা করুন।
           </p>
         </div>
 
@@ -457,12 +458,12 @@ export default function AdminRegistrationsPage() {
             {isExporting ? (
               <>
                 <div className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                <span>EXPORTING...</span>
+                <span>রপ্তানি হচ্ছে...</span>
               </>
             ) : (
               <>
                 <Download className="w-4 h-4 text-[#B9F66B]" />
-                <span>EXPORT CSV</span>
+                <span>CSV রপ্তানি</span>
               </>
             )}
           </Button>
@@ -504,15 +505,15 @@ export default function AdminRegistrationsPage() {
         <div className="p-4 rounded-xl bg-[#18251F] border border-white/10 space-y-1 relative overflow-hidden group">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-mono text-[#A4B0A8] uppercase tracking-wider block">
-              TOTAL APPLICANTS
+              সর্বমোট আবেদনকারী
             </span>
             <User className="w-3.5 h-3.5 text-[#A4B0A8]/40" />
           </div>
           <span className="text-2xl sm:text-3xl font-black text-white block">
-            {metrics.total}
+            {toBnNum(metrics.total)}
           </span>
           <span className="text-[10px] text-[#A4B0A8]/70 block font-mono">
-            Candidate submissions
+            গৃহীত আবেদনসমূহ
           </span>
         </div>
 
@@ -520,15 +521,15 @@ export default function AdminRegistrationsPage() {
         <div className="p-4 rounded-xl bg-[#18251F] border border-amber-400/20 space-y-1 relative overflow-hidden">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-mono text-amber-300 uppercase tracking-wider block">
-              PENDING EVALUATION
+              অপেক্ষমাণ পর্যালোচনা
             </span>
             <Clock className="w-3.5 h-3.5 text-amber-300" />
           </div>
           <span className="text-2xl sm:text-3xl font-black text-amber-300 block">
-            {metrics.pending}
+            {toBnNum(metrics.pending)}
           </span>
           <span className="text-[10px] text-amber-300/70 block font-mono">
-            Requires staff review
+            পর্যালোচনা আবশ্যক
           </span>
         </div>
 
@@ -536,15 +537,15 @@ export default function AdminRegistrationsPage() {
         <div className="p-4 rounded-xl bg-[#18251F] border border-[#B9F66B]/20 space-y-1 relative overflow-hidden">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-mono text-[#B9F66B] uppercase tracking-wider block">
-              ACCEPTED / TRIAL
+              অনুমোদিত / ট্রায়াল
             </span>
             <CheckCircle2 className="w-3.5 h-3.5 text-[#B9F66B]" />
           </div>
           <span className="text-2xl sm:text-3xl font-black text-[#B9F66B] block">
-            {metrics.approved}
+            {toBnNum(metrics.approved)}
           </span>
           <span className="text-[10px] text-[#B9F66B]/70 block font-mono">
-            Approved for intake
+            ভর্তির জন্য মনোনীত
           </span>
         </div>
 
@@ -552,15 +553,15 @@ export default function AdminRegistrationsPage() {
         <div className="p-4 rounded-xl bg-[#18251F] border border-rose-500/20 space-y-1 relative overflow-hidden">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-mono text-rose-400 uppercase tracking-wider block">
-              DECLINED
+              প্রত্যাখ্যাত
             </span>
             <XCircle className="w-3.5 h-3.5 text-rose-400" />
           </div>
           <span className="text-2xl sm:text-3xl font-black text-rose-400 block">
-            {metrics.rejected}
+            {toBnNum(metrics.rejected)}
           </span>
           <span className="text-[10px] text-rose-400/70 block font-mono">
-            Ineligible this batch
+            অনুপযুক্ত বিবেচিত
           </span>
         </div>
 
@@ -568,15 +569,15 @@ export default function AdminRegistrationsPage() {
         <div className="p-4 rounded-xl bg-[#18251F] border border-white/10 space-y-1 col-span-2 md:col-span-1 relative overflow-hidden">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-mono text-[#A4B0A8] uppercase tracking-wider block">
-              ACCEPTANCE RATE
+              ভর্তির হার
             </span>
             <Award className="w-3.5 h-3.5 text-[#B9F66B]" />
           </div>
           <span className="text-2xl sm:text-3xl font-black text-white block">
-            {metrics.acceptanceRate}%
+            {toBnNum(metrics.acceptanceRate)}%
           </span>
           <span className="text-[10px] text-[#A4B0A8]/70 block font-mono">
-            Of decided applicants
+            সিদ্ধান্তকৃত আবেদনের
           </span>
         </div>
       </div>
@@ -588,7 +589,7 @@ export default function AdminRegistrationsPage() {
           <Search className="w-4 h-4 text-[#A4B0A8] absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Search applicants by name, email address, or phone number..."
+            placeholder="নাম, ইমেইল বা ফোন নম্বর দিয়ে আবেদনকারী খুঁজুন..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full bg-[#101A17] border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-[#A4B0A8]/60 focus:outline-none focus:border-[#B9F66B]/50 transition-colors"
@@ -604,10 +605,10 @@ export default function AdminRegistrationsPage() {
               onChange={(e) => setPositionFilter(e.target.value)}
               className="bg-[#101A17] border border-white/10 rounded-xl px-3 py-2 text-xs text-[#A4B0A8] hover:text-white focus:text-white focus:outline-none focus:border-[#B9F66B]/50 transition-colors cursor-pointer"
             >
-              <option value="">All Positions</option>
+              <option value="">সকল পজিশন</option>
               {distinctPositions.map((pos) => (
                 <option key={pos} value={pos}>
-                  {pos}
+                  {getBnPosition(pos)}
                 </option>
               ))}
             </select>
@@ -641,10 +642,10 @@ export default function AdminRegistrationsPage() {
           <button
             type="button"
             onClick={() => setSortOrder(sortOrder === "desc" ? "asc" : "desc")}
-            title={sortOrder === "desc" ? "Newest first" : "Oldest first"}
+            title={sortOrder === "desc" ? "নতুন আবেদন আগে" : "পুরনো আবেদন আগে"}
             className="px-2.5 py-1.5 rounded-xl bg-[#202E27] border border-white/10 text-[10px] font-mono text-[#A4B0A8] hover:text-white transition-colors cursor-pointer"
           >
-            {sortOrder === "desc" ? "LATEST" : "OLDEST"}
+            {sortOrder === "desc" ? "নতুন" : "পুরনো"}
           </button>
 
           {/* Refresh Button */}
@@ -652,7 +653,7 @@ export default function AdminRegistrationsPage() {
             type="button"
             onClick={handleRefresh}
             disabled={isLoading}
-            title="Refresh list"
+            title="তালিকা রিফ্রেশ করুন"
             className="p-2 rounded-xl bg-[#202E27] border border-white/10 text-[#A4B0A8] hover:text-white hover:border-[#B9F66B]/40 transition-colors disabled:opacity-50 cursor-pointer"
           >
             <RefreshCw
@@ -669,7 +670,7 @@ export default function AdminRegistrationsPage() {
           <AlertCircle className="w-10 h-10 text-red-400 mx-auto" />
           <div className="space-y-1">
             <h3 className="text-base font-bold text-white">
-              Failed to load applicant registrations
+              আবেদনকারী তালিকা লোড করতে ব্যর্থ হয়েছে
             </h3>
             <p className="text-xs text-[#A4B0A8] max-w-md mx-auto">{error}</p>
           </div>
@@ -679,14 +680,14 @@ export default function AdminRegistrationsPage() {
               className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#B9F66B] text-[#101A17] font-black text-xs uppercase tracking-wider hover:bg-[#a8ec56] transition-colors"
             >
               <LogIn className="w-4 h-4" />
-              <span>Log in to Admin</span>
+              <span>অ্যাডমিন লগইন করুন</span>
             </Link>
           ) : (
             <Button
               onPress={handleRefresh}
               className="bg-[#202E27] border border-white/10 text-white font-mono text-xs uppercase tracking-wider px-4 py-2 rounded-xl hover:border-[#B9F66B]/50 transition-colors cursor-pointer"
             >
-              Retry
+              পুনরায় চেষ্টা করুন
             </Button>
           )}
         </div>
@@ -718,13 +719,13 @@ export default function AdminRegistrationsPage() {
           <div className="space-y-1">
             <h3 className="text-base font-bold text-white">
               {searchTerm || selectedStatus !== "ALL" || positionFilter
-                ? "No matching applicants found"
-                : "No registration applications received yet"}
+                ? "কোনো আবেদনকারী খুঁজে পাওয়া যায়নি"
+                : "এখনও কোনো ভর্তি আবেদন জমা পড়েনি"}
             </h3>
             <p className="text-xs text-[#A4B0A8] max-w-sm mx-auto">
               {searchTerm || selectedStatus !== "ALL" || positionFilter
-                ? "Try clearing your filters or searching for another applicant name or contact."
-                : "New academy enrollment submissions from the public website will appear here automatically for review."}
+                ? "ফিল্টার পরিবর্তন করে অথবা অন্য কোনো প্রার্থীর নাম বা যোগাযোগ নম্বর দিয়ে অনুসন্ধান করুন।"
+                : "ওয়েবসাইট থেকে নতুন ভর্তি আবেদন জমা হলে তা পর্যালোচনার জন্য এখানে প্রদর্শিত হবে।"}
             </p>
           </div>
           {searchTerm || selectedStatus !== "ALL" || positionFilter ? (
@@ -736,7 +737,7 @@ export default function AdminRegistrationsPage() {
               }}
               className="bg-[#202E27] border border-white/10 text-white font-mono text-xs uppercase tracking-wider px-4 py-2 rounded-xl hover:border-[#B9F66B]/50 transition-colors cursor-pointer"
             >
-              Reset Filters
+              ফিল্টার রিসেট করুন
             </Button>
           ) : null}
         </div>
@@ -758,19 +759,19 @@ export default function AdminRegistrationsPage() {
                     {reg.status === "pending" && (
                       <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400/15 text-amber-300 border border-amber-400/30 text-[10px] font-mono font-black uppercase tracking-wider">
                         <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-                        PENDING
+                        অপেক্ষমাণ
                       </span>
                     )}
                     {reg.status === "approved" && (
                       <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#B9F66B]/15 text-[#B9F66B] border border-[#B9F66B]/30 text-[10px] font-mono font-black uppercase tracking-wider">
                         <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B]" />
-                        ACCEPTED
+                        অনুমোদিত
                       </span>
                     )}
                     {reg.status === "rejected" && (
                       <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-500/15 text-rose-400 border border-rose-500/30 text-[10px] font-mono font-black uppercase tracking-wider">
                         <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
-                        REJECTED
+                        প্রত্যাখ্যাত
                       </span>
                     )}
                   </div>
@@ -782,10 +783,10 @@ export default function AdminRegistrationsPage() {
                         {reg.fullName}
                       </span>
                       <span className="px-2 py-0.5 rounded-md bg-[#101A17] border border-white/10 text-[10px] font-mono text-[#B9F66B] font-bold">
-                        Age {age}
+                        বয়স {toBnNum(age)}
                       </span>
                       <span className="px-2 py-0.5 rounded-md bg-[#101A17] border border-white/10 text-[10px] font-mono text-white/90">
-                        {reg.position}
+                        {getBnPosition(reg.position)}
                       </span>
                     </div>
 
@@ -806,7 +807,7 @@ export default function AdminRegistrationsPage() {
 
                       <div className="flex items-center gap-1.5 font-mono text-[11px]">
                         <Clock className="w-3.5 h-3.5 text-[#A4B0A8]" />
-                        <span>Applied {formatDate(reg.createdAt)}</span>
+                        <span>আবেদনের তারিখ: {formatDate(reg.createdAt)}</span>
                       </div>
                     </div>
                   </div>
@@ -818,11 +819,11 @@ export default function AdminRegistrationsPage() {
                   <button
                     type="button"
                     onClick={() => setSelectedForDetails(reg)}
-                    title="View complete application profile"
+                    title="সম্পূর্ণ প্রোফাইল দেখুন"
                     className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-white/[0.04] border border-white/10 text-xs font-mono text-white hover:text-[#B9F66B] hover:border-[#B9F66B]/40 transition-colors cursor-pointer flex items-center gap-1.5"
                   >
                     <Eye className="w-3.5 h-3.5 text-[#B9F66B]" />
-                    <span>DETAILS</span>
+                    <span>বিবরণ</span>
                   </button>
 
                   {/* Quick Approve (If Pending or Rejected) */}
@@ -830,11 +831,11 @@ export default function AdminRegistrationsPage() {
                     <button
                       type="button"
                       onClick={() => handleOpenStatusChange(reg, "approved")}
-                      title="Approve candidate for academy trials"
+                      title="একাডেমি ট্রায়ালের জন্য প্রার্থীকে অনুমোদন দিন"
                       className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-[#B9F66B]/15 border border-[#B9F66B]/30 text-xs font-mono text-[#B9F66B] hover:bg-[#B9F66B] hover:text-[#101A17] transition-all cursor-pointer flex items-center gap-1.5 font-bold"
                     >
                       <CheckCircle2 className="w-3.5 h-3.5" />
-                      <span className="hidden sm:inline">ACCEPT</span>
+                      <span className="hidden sm:inline">অনুমোদন</span>
                     </button>
                   )}
 
@@ -843,11 +844,11 @@ export default function AdminRegistrationsPage() {
                     <button
                       type="button"
                       onClick={() => handleOpenStatusChange(reg, "rejected")}
-                      title="Decline applicant"
+                      title="আবেদন প্রত্যাখ্যান করুন"
                       className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-xs font-mono text-rose-400 hover:bg-rose-500 hover:text-white transition-all cursor-pointer flex items-center gap-1.5"
                     >
                       <XCircle className="w-3.5 h-3.5" />
-                      <span className="hidden sm:inline">DECLINE</span>
+                      <span className="hidden sm:inline">প্রত্যাখ্যান</span>
                     </button>
                   )}
 
@@ -855,7 +856,7 @@ export default function AdminRegistrationsPage() {
                   <button
                     type="button"
                     onClick={() => handleOpenDelete(reg)}
-                    title="Delete registration record"
+                    title="রেজিস্ট্রেশন রেকর্ড মুছে ফেলুন"
                     className="p-2 rounded-xl bg-red-500/10 border border-red-500/20 text-xs font-mono text-red-400 hover:text-white hover:bg-red-500 hover:border-red-500 transition-colors cursor-pointer"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -872,21 +873,21 @@ export default function AdminRegistrationsPage() {
         <div className="p-4 rounded-2xl bg-[#18251F] border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <span className="text-xs text-[#A4B0A8] font-mono">
-              Showing{" "}
+              প্রদর্শিত হচ্ছে{" "}
               <strong className="text-white">
-                {Math.min((page - 1) * limit + 1, totalCount)}
+                {toBnNum(Math.min((page - 1) * limit + 1, totalCount))}
               </strong>{" "}
-              to{" "}
+              থেকে{" "}
               <strong className="text-white">
-                {Math.min(page * limit, totalCount)}
+                {toBnNum(Math.min(page * limit, totalCount))}
               </strong>{" "}
-              of <strong className="text-white">{totalCount}</strong> applicants
+              (মোট <strong className="text-white">{toBnNum(totalCount)}</strong> জন আবেদনকারী)
             </span>
 
             {/* Page Size Selector */}
             <div className="flex items-center gap-1.5 pl-3 border-l border-white/10">
               <span className="text-[11px] text-[#A4B0A8] font-mono uppercase">
-                Per page:
+                প্রতি পৃষ্ঠায়:
               </span>
               {[8, 12, 24].map((sz) => (
                 <button
@@ -902,7 +903,7 @@ export default function AdminRegistrationsPage() {
                       : "text-[#A4B0A8] hover:text-white bg-white/5"
                   }`}
                 >
-                  {sz}
+                  {toBnNum(sz)}
                 </button>
               ))}
             </div>
@@ -918,8 +919,8 @@ export default function AdminRegistrationsPage() {
             </Button>
 
             <span className="text-xs font-mono text-[#A4B0A8] px-2">
-              Page <strong className="text-white">{page}</strong> of{" "}
-              <strong className="text-white">{totalPages}</strong>
+              পৃষ্ঠা <strong className="text-white">{toBnNum(page)}</strong> /{" "}
+              <strong className="text-white">{toBnNum(totalPages)}</strong>
             </span>
 
             <Button
@@ -938,7 +939,7 @@ export default function AdminRegistrationsPage() {
         <p className="text-[11px] font-mono text-[#A4B0A8]/70 uppercase tracking-widest flex items-center justify-center gap-2">
           <Sparkles className="w-3.5 h-3.5 text-[#B9F66B]" />
           <span>
-            Connected to MongoDB Registrations collection via Express REST API. Status changes update trialist records in real time.
+            Express REST API-এর মাধ্যমে ডেটাবেজের সাথে সরাসরি সংযুক্ত। স্ট্যাটাস পরিবর্তন তাৎক্ষণিকভাবে সংরক্ষিত হয়।
           </span>
         </p>
       </div>

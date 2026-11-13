@@ -34,22 +34,22 @@ export async function generateMetadata({
 
     if (!match) {
       return {
-        title: "Match Not Found | Morning Football Academy",
+        title: "ম্যাচ পাওয়া যায়নি | Morning Football Academy",
       };
     }
 
     const titleStr =
       match.homeAway === "home"
-        ? `Morning Football Academy vs ${match.opponent}`
-        : `${match.opponent} vs Morning Football Academy`;
+        ? `Morning Football Academy বনাম ${match.opponent}`
+        : `${match.opponent} বনাম Morning Football Academy`;
 
     return {
-      title: `${titleStr} | Morning Football Academy Fixtures`,
-      description: `Official match fixture and schedule for Morning Football Academy vs ${match.opponent} in ${match.competition}. Venue: ${match.venue}, Date: ${formatMatchDate(match.matchDate)}.`,
+      title: `${titleStr} | Morning Football Academy ফিক্সচার`,
+      description: `মর্নিং ফুটবল একাডেমি বনাম ${match.opponent}-এর অফিসিয়াল ম্যাচ ফিক্সচার ও সময়সূচি (${match.competition})। ভেন্যু: ${match.venue}, তারিখ: ${formatMatchDate(match.matchDate)}।`,
     };
   } catch {
     return {
-      title: "Match Not Found | Morning Football Academy",
+      title: "ম্যাচ পাওয়া যায়নি | Morning Football Academy",
     };
   }
 }
@@ -94,7 +94,7 @@ export default async function MatchDetailPage({ params }: MatchDetailPageProps) 
             className="inline-flex items-center gap-2 text-xs font-mono font-bold tracking-wider uppercase text-[#A4B0A8] hover:text-[#B9F66B] transition-colors group cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-            <span>BACK TO ALL FIXTURES</span>
+            <span>সকল ফিক্সচারে ফিরে যান</span>
           </Link>
 
           <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#18251F] border border-white/10 text-[11px] font-mono text-[#A4B0A8] uppercase">
@@ -115,7 +115,7 @@ export default async function MatchDetailPage({ params }: MatchDetailPageProps) 
           <div className="flex flex-wrap items-center justify-between pb-8 border-b border-white/[0.08] gap-4">
             <div className="space-y-1">
               <span className="text-[10px] font-mono tracking-[0.24em] text-[#B9F66B] uppercase block">
-                SANCTIONED MATCH FIXTURE
+                অনুমোদিত ম্যাচ ফিক্সচার
               </span>
               <h2 className="text-lg sm:text-xl font-black text-white uppercase tracking-tight">
                 {match.competition}
@@ -147,7 +147,7 @@ export default async function MatchDetailPage({ params }: MatchDetailPageProps) 
                 />
                 <div className="space-y-1">
                   <span className="text-[11px] font-bold font-mono tracking-[0.2em] uppercase text-[#B9F66B]">
-                    HOME TEAM
+                    স্বাগতিক দল
                   </span>
                   <h1 className="text-xl sm:text-3xl font-black text-white uppercase tracking-tight">
                     {homeTeam.name}
@@ -162,7 +162,7 @@ export default async function MatchDetailPage({ params }: MatchDetailPageProps) 
                 </span>
                 <div className="inline-flex items-center gap-2 text-xs font-mono font-bold tracking-wider uppercase text-white bg-white/[0.05] px-4 py-1.5 rounded-full border border-white/10">
                   <Clock className="w-3.5 h-3.5 text-[#B9F66B]" />
-                  <span>KICKOFF {formatKickOffTime(match.kickOffTime)}</span>
+                  <span>কিক-অফ {formatKickOffTime(match.kickOffTime)}</span>
                 </div>
               </div>
 
@@ -176,7 +176,7 @@ export default async function MatchDetailPage({ params }: MatchDetailPageProps) 
                 />
                 <div className="space-y-1">
                   <span className="text-[11px] font-bold font-mono tracking-[0.2em] uppercase text-[#A4B0A8]">
-                    AWAY TEAM
+                    অতিথি দল
                   </span>
                   <h2 className="text-xl sm:text-3xl font-black text-white uppercase tracking-tight">
                     {awayTeam.name}
@@ -191,7 +191,7 @@ export default async function MatchDetailPage({ params }: MatchDetailPageProps) 
             <div className="p-4 rounded-2xl bg-[#202E27] border border-white/10 space-y-1.5">
               <div className="flex items-center gap-2 text-[#B9F66B] text-xs font-mono uppercase tracking-wider">
                 <Calendar className="w-4 h-4" />
-                <span>MATCH DATE</span>
+                <span>ম্যাচের তারিখ</span>
               </div>
               <p className="text-sm sm:text-base font-bold text-white">
                 {formatMatchDate(match.matchDate)}
@@ -201,7 +201,7 @@ export default async function MatchDetailPage({ params }: MatchDetailPageProps) 
             <div className="p-4 rounded-2xl bg-[#202E27] border border-white/10 space-y-1.5">
               <div className="flex items-center gap-2 text-[#B9F66B] text-xs font-mono uppercase tracking-wider">
                 <Clock className="w-4 h-4" />
-                <span>KICK-OFF TIME</span>
+                <span>কিক-অফের সময়</span>
               </div>
               <p className="text-sm sm:text-base font-bold text-white">
                 {formatKickOffTime(match.kickOffTime)}
@@ -211,7 +211,7 @@ export default async function MatchDetailPage({ params }: MatchDetailPageProps) 
             <div className="p-4 rounded-2xl bg-[#202E27] border border-white/10 space-y-1.5">
               <div className="flex items-center gap-2 text-[#B9F66B] text-xs font-mono uppercase tracking-wider">
                 <MapPin className="w-4 h-4" />
-                <span>VENUE LOCATION</span>
+                <span>মাঠের অবস্থান / ভেন্যু</span>
               </div>
               <p className="text-sm sm:text-base font-bold text-white truncate">
                 {match.venue}
@@ -224,10 +224,10 @@ export default async function MatchDetailPage({ params }: MatchDetailPageProps) 
         <div className="p-6 rounded-2xl bg-[#18251F] border border-white/10 space-y-3">
           <h3 className="text-xs font-mono font-bold tracking-[0.2em] text-[#B9F66B] uppercase flex items-center gap-2">
             <Activity className="w-4 h-4" />
-            <span>MATCH DAY INFORMATION</span>
+            <span>ম্যাচ ডে সংক্রান্ত নির্দেশনা</span>
           </h3>
           <p className="text-xs sm:text-sm text-[#A4B0A8] leading-relaxed">
-            Supporters and parents are advised to arrive at {match.venue} at least 30 minutes before kick-off. Gates open one hour prior to scheduled match time. Match status and referee updates are published in real time.
+            সমর্থক ও অভিভাবকদের কিক-অফের অন্তত ৩০ মিনিট পূর্বে {match.venue}-এ উপস্থিত হওয়ার জন্য অনুরোধ জানানো যাচ্ছে। ম্যাচ শুরুর ১ ঘণ্টা আগে গেট উন্মুক্ত করা হবে।
           </p>
         </div>
       </div>

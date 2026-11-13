@@ -19,22 +19,7 @@ import {
   MatchDocument,
   ApiError,
 } from "../../lib/api-client";
-
-/**
- * Format match fixture date into clean display string
- */
-function formatMatchDate(dateStr: string): string {
-  try {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  } catch {
-    return dateStr;
-  }
-}
+import { formatBnDate, formatBnKickOffTime } from "../../lib/bn-utils";
 
 /**
  * RecentUpcomingMatches Component
@@ -63,7 +48,7 @@ export default function RecentUpcomingMatches() {
             setError(err.message);
             setIsAuthError(err.isAuthError);
           } else {
-            setError("Failed to fetch upcoming matches from backend API.");
+            setError("ব্যাকএন্ড এপিআই থেকে আসন্ন ম্যাচসমূহ লোড করতে ব্যর্থ হয়েছে।");
           }
           setIsLoading(false);
         }
@@ -95,10 +80,10 @@ export default function RecentUpcomingMatches() {
           </div>
           <div>
             <h2 className="text-sm sm:text-base font-black text-white uppercase tracking-tight">
-              UPCOMING MATCHES
+              আসন্ন ম্যাচসমূহ
             </h2>
             <span className="text-[10px] font-mono text-[#A4B0A8] block">
-              Next Scheduled Fixtures
+              পরবর্তী নির্ধারিত ফিক্সচার
             </span>
           </div>
         </div>
@@ -107,7 +92,7 @@ export default function RecentUpcomingMatches() {
           href="/admin/matches"
           className="inline-flex items-center gap-1 text-xs font-mono font-bold text-[#B9F66B] hover:text-white transition-colors"
         >
-          <span>ALL MATCHES</span>
+          <span>সকল ম্যাচ</span>
           <ArrowRight className="w-3.5 h-3.5" />
         </Link>
       </div>
@@ -144,7 +129,7 @@ export default function RecentUpcomingMatches() {
                 className="bg-[#B9F66B] hover:bg-[#a8ec56] text-[#101A17] font-black text-xs uppercase px-3 py-1.5 rounded-xl cursor-pointer flex items-center gap-1.5 transition-colors"
               >
                 <LogIn className="w-3.5 h-3.5" />
-                <span>Sign In Again</span>
+                <span>আবার সাইন ইন করুন</span>
               </Link>
             ) : (
               <Button
@@ -153,7 +138,7 @@ export default function RecentUpcomingMatches() {
                 className="bg-white/[0.04] border border-white/10 hover:border-[#B9F66B]/50 text-white hover:text-[#B9F66B] font-mono text-xs uppercase px-3 py-1.5 rounded-xl cursor-pointer flex items-center gap-1.5"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
-                <span>Retry</span>
+                <span>পুনরায় চেষ্টা করুন</span>
               </Button>
             )}
           </div>
@@ -165,10 +150,10 @@ export default function RecentUpcomingMatches() {
             <Inbox className="w-5 h-5" />
           </div>
           <p className="text-xs font-bold text-white uppercase tracking-wider">
-            No Upcoming Matches
+            কোনো আসন্ন ম্যাচ নেই
           </p>
           <p className="text-[11px] font-mono text-[#A4B0A8] max-w-sm mx-auto">
-            No academy fixtures currently scheduled. New matches added via match administration will appear here.
+            বর্তমানে কোনো একাডেমি ফিক্সচার নির্ধারিত নেই। ম্যাচ অ্যাডমিন থেকে যুক্ত করা নতুন ম্যাচ এখানে দেখা যাবে।
           </p>
         </div>
       ) : (
@@ -187,14 +172,14 @@ export default function RecentUpcomingMatches() {
                 </span>
 
                 <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-white/50">
-                  {match.homeAway === "home" ? "HOME FIXTURE" : "AWAY FIXTURE"}
+                  {match.homeAway === "home" ? "হোম ফিক্সচার" : "অ্যাওয়ে ফিক্সচার"}
                 </span>
               </div>
 
               {/* Teams */}
               <div className="flex items-center justify-between">
                 <span className="text-sm font-black text-white uppercase tracking-tight">
-                  MFA <span className="text-[#B9F66B]">VS</span> {match.opponent}
+                  MFA <span className="text-[#B9F66B]">বনাম</span> {match.opponent}
                 </span>
               </div>
 
@@ -203,7 +188,7 @@ export default function RecentUpcomingMatches() {
                 <div className="flex items-center gap-1 font-mono text-[11px]">
                   <Clock className="w-3 h-3 text-[#B9F66B]" />
                   <span>
-                    {formatMatchDate(match.matchDate)} • {match.kickOffTime}
+                    {formatBnDate(match.matchDate)} • {formatBnKickOffTime(match.kickOffTime)}
                   </span>
                 </div>
 

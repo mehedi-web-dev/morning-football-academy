@@ -47,15 +47,15 @@ export default function AdminLoginPage() {
 
     const cleanEmail = email.trim();
     if (!cleanEmail) {
-      errors.email = "Admin email address is required";
+      errors.email = "অ্যাডমিন ইমেইল ঠিকানা আবশ্যক";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
-      errors.email = "Please enter a valid email address";
+      errors.email = "সঠিক ইমেইল ঠিকানা প্রদান করুন";
     }
 
     if (!password) {
-      errors.password = "Admin password is required";
+      errors.password = "অ্যাডমিন পাসওয়ার্ড আবশ্যক";
     } else if (password.length < 6) {
-      errors.password = "Password must be at least 6 characters";
+      errors.password = "পাসওয়ার্ড অন্তত ৬ অক্ষরের হতে হবে";
     }
 
     setValidationErrors(errors);
@@ -81,7 +81,7 @@ export default function AdminLoginPage() {
       if (result.error) {
         setErrorMessage(
           result.error.message ||
-            "Authentication failed. Please verify your administrator credentials."
+            "লগইন ব্যর্থ হয়েছে। আপনার অ্যাডমিন তথ্য পুনরায় যাচাই করুন।"
         );
       } else {
         // Successful authentication: navigate to the protected admin area
@@ -91,7 +91,7 @@ export default function AdminLoginPage() {
       const message =
         err instanceof Error
           ? err.message
-          : "Unable to connect to authentication server. Please ensure the backend is running.";
+          : "অথেন্টিকেশন সার্ভারের সাথে সংযোগ স্থাপন করা যায়নি। সার্ভার চলমান রয়েছে কি না নিশ্চিত হোন।";
       setErrorMessage(message);
     } finally {
       setIsLoading(false);
@@ -135,15 +135,15 @@ export default function AdminLoginPage() {
               className="bg-[#18251F] text-[#B9F66B] border border-[#B9F66B]/40 font-black tracking-[0.24em] text-[10px] uppercase px-3 py-1 shadow-sm"
             >
               <Shield className="w-3 h-3 text-[#B9F66B] mr-1.5 inline-block" />
-              STAFF PORTAL
+              স্টাফ পোর্টাল
             </Chip>
 
             <h1 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight">
-              ADMIN LOGIN.
+              অ্যাডমিন লগইন।
             </h1>
 
             <p className="text-xs sm:text-sm text-[#A4B0A8]">
-              Authorized administrative access for Morning Football Academy.
+              মর্নিং ফুটবল একাডেমির অনুমোদিত প্রশাসনিক প্রবেশদ্বার।
             </p>
           </div>
         </div>
@@ -159,7 +159,7 @@ export default function AdminLoginPage() {
               <ShieldAlert className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
               <div className="space-y-0.5">
                 <span className="font-bold text-red-400 block uppercase text-xs tracking-wider">
-                  Authentication Failed
+                  প্রবেশাধিকার ব্যর্থ হয়েছে
                 </span>
                 <p className="leading-relaxed text-red-200/90">{errorMessage}</p>
               </div>
@@ -173,7 +173,7 @@ export default function AdminLoginPage() {
                 htmlFor="admin-email"
                 className="block text-xs font-mono font-bold tracking-wider text-[#A4B0A8] uppercase"
               >
-                Admin Email Address
+                অ্যাডমিন ইমেইল ঠিকানা
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#A4B0A8]">
@@ -212,7 +212,7 @@ export default function AdminLoginPage() {
                 htmlFor="admin-password"
                 className="block text-xs font-mono font-bold tracking-wider text-[#A4B0A8] uppercase"
               >
-                Admin Password
+                অ্যাডমিন পাসওয়ার্ড
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#A4B0A8]">
@@ -243,7 +243,7 @@ export default function AdminLoginPage() {
                   disabled={isLoading}
                   tabIndex={0}
                   className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[#A4B0A8] hover:text-[#B9F66B] transition-colors focus:outline-none cursor-pointer"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  aria-label={showPassword ? "পাসওয়ার্ড লুকান" : "পাসওয়ার্ড প্রদর্শন করুন"}
                 >
                   {showPassword ? (
                     <EyeOff className="w-4 h-4" />
@@ -262,7 +262,7 @@ export default function AdminLoginPage() {
             {/* Security Notice */}
             <div className="pt-1 flex items-center gap-2 text-[11px] text-[#A4B0A8] font-mono">
               <CheckCircle2 className="w-3.5 h-3.5 text-[#B9F66B] shrink-0" />
-              <span>Protected by Better Auth session encryption</span>
+              <span>Better Auth সেশন এনক্রিপশন দ্বারা সুরক্ষিত</span>
             </div>
 
             {/* Submit Button */}
@@ -276,11 +276,11 @@ export default function AdminLoginPage() {
                 {isLoading ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>AUTHENTICATING...</span>
+                    <span>যাচাই করা হচ্ছে...</span>
                   </>
                 ) : (
                   <>
-                    <span>SIGN IN TO ADMIN PORTAL</span>
+                    <span>অ্যাডমিন পোর্টালে প্রবেশ করুন</span>
                     <ArrowRight className="w-4 h-4" />
                   </>
                 )}
@@ -291,7 +291,7 @@ export default function AdminLoginPage() {
           {/* Footer Security Badge */}
           <div className="pt-4 border-t border-white/[0.08] text-center">
             <p className="text-[10px] text-[#A4B0A8]/60 font-mono uppercase tracking-widest">
-              Single Administrator Authorization • Public Sign-up Restricted
+              একক অ্যাডমিনিস্ট্রেটর প্রবেশাধিকার • সাধারণ নিবন্ধন সংরক্ষিত
             </p>
           </div>
         </div>

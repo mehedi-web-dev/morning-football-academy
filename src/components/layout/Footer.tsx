@@ -41,19 +41,19 @@ function ClubEmblem() {
 
 // Quick Links Data
 const QUICK_LINKS = [
-  { label: "Home", href: "/" },
-  { label: "About", href: "/#about" },
-  { label: "Players", href: "/#players" },
-  { label: "Fixtures", href: "/#fixtures" },
-  { label: "Results", href: "/#results" },
+  { label: "হোম", href: "/" },
+  { label: "আমাদের সম্পর্কে", href: "/#about" },
+  { label: "খেলোয়াড়বৃন্দ", href: "/#players" },
+  { label: "ফিক্সচার ও সূচি", href: "/#fixtures" },
+  { label: "ম্যাচ ফলাফল", href: "/#results" },
 ];
 
 // Club Resources Data
 const CLUB_RESOURCES = [
-  { label: "News", href: "/#news" },
-  { label: "Gallery", href: "/gallery" },
-  { label: "Player Statistics", href: "/#players" },
-  { label: "Join Our Academy", href: "/#join", badge: "Enroll" },
+  { label: "সর্বশেষ সংবাদ", href: "/#news" },
+  { label: "ফটো গ্যালারি", href: "/gallery" },
+  { label: "খেলোয়াড় পরিসংখ্যান", href: "/#players" },
+  { label: "একাডেমিতে ভর্তি", href: "/#join", badge: "ভর্তি চলছে" },
 ];
 
 // Social Links Data with Custom SVGs
@@ -152,15 +152,13 @@ export default function Footer() {
 
             {/* Description */}
             <p className="text-sm text-[#A4B0A8] leading-relaxed">
-              Morning Football Academy is dedicated to developing football
-              talent, building teamwork, and inspiring the next generation of
-              players.
+              Morning Football Academy নতুন প্রজন্মের ফুটবল প্রতিভা বিকাশ, দলগত সংহতি তৈরি এবং পেশাদার খেলোয়াড় গড়ে তুলতে প্রতিশ্রুতিবদ্ধ।
             </p>
 
             {/* Social Media Links */}
             <div className="pt-2">
               <span className="block text-xs font-bold tracking-[0.16em] uppercase text-white mb-3">
-                Follow Us
+                আমাদের অনুসরণ করুন
               </span>
               <div className="flex items-center gap-2.5">
                 {SOCIAL_LINKS.map((item) => (
@@ -183,7 +181,7 @@ export default function Footer() {
           <div className="space-y-4">
             <h3 className="text-xs font-black tracking-[0.22em] text-white uppercase flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B] shadow-[0_0_8px_#B9F66B]" />
-              Quick Links
+              প্রয়োজনীয় লিংক
             </h3>
             <ul className="space-y-2.5">
               {QUICK_LINKS.map((link) => (
@@ -206,7 +204,7 @@ export default function Footer() {
           <div className="space-y-4">
             <h3 className="text-xs font-black tracking-[0.22em] text-white uppercase flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B] shadow-[0_0_8px_#B9F66B]" />
-              Club Resources
+              ক্লাব রিসোর্স
             </h3>
             <ul className="space-y-2.5">
               {CLUB_RESOURCES.map((link) => (
@@ -234,7 +232,7 @@ export default function Footer() {
           <div id="contact" className="space-y-4">
             <h3 className="text-xs font-black tracking-[0.22em] text-white uppercase flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B] shadow-[0_0_8px_#B9F66B]" />
-              Contact Information
+              যোগাযোগ
             </h3>
             <div className="space-y-3.5 text-sm">
               {/* Email */}
@@ -244,7 +242,7 @@ export default function Footer() {
                 </div>
                 <div className="flex flex-col">
                   <span className="text-[11px] font-bold tracking-wider text-[#A4B0A8]/80 uppercase">
-                    Email
+                    ইমেইল
                   </span>
                   <a
                     href="mailto:info@morningfootballacademy.com"
@@ -262,13 +260,13 @@ export default function Footer() {
                 </div>
                 <div className="flex flex-col">
                   <span className="text-[11px] font-bold tracking-wider text-[#A4B0A8]/80 uppercase">
-                    Phone
+                    ফোন
                   </span>
                   <a
                     href="tel:+8801XXXXXXXXX"
                     className="text-[#A4B0A8] hover:text-[#B9F66B] transition-colors"
                   >
-                    +880 1XXXXXXXXX
+                    +৮৮০ ১XXXXXXXXX
                   </a>
                 </div>
               </div>
@@ -280,9 +278,9 @@ export default function Footer() {
                 </div>
                 <div className="flex flex-col">
                   <span className="text-[11px] font-bold tracking-wider text-[#A4B0A8]/80 uppercase">
-                    Location
+                    অবস্থান
                   </span>
-                  <span className="text-[#A4B0A8]">Bangladesh</span>
+                  <span className="text-[#A4B0A8]">বাংলাদেশ</span>
                 </div>
               </div>
             </div>
@@ -293,7 +291,7 @@ export default function Footer() {
         <div className="mt-12 lg:mt-16 pt-8 border-t border-white/10">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#A4B0A8]">
             <p className="text-center sm:text-left">
-              &copy; 2026 Morning Football Academy. All rights reserved.
+              &copy; ২০২৬ Morning Football Academy. সর্বস্বত্ব সংরক্ষিত।
             </p>
 
             <div className="flex items-center gap-6">
@@ -301,14 +299,14 @@ export default function Footer() {
                 href="/#privacy"
                 className="hover:text-[#B9F66B] transition-colors duration-200"
               >
-                Privacy Policy
+                গোপনীয়তা নীতি
               </Link>
               <span className="w-1 h-1 rounded-full bg-white/20" />
               <Link
                 href="/#terms"
                 className="hover:text-[#B9F66B] transition-colors duration-200"
               >
-                Terms &amp; Conditions
+                শর্তাবলী
               </Link>
             </div>
           </div>

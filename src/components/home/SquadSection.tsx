@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowRight, RefreshCw, AlertCircle, Users } from "lucide-react";
 import { Button } from "@heroui/react";
 import { apiClient, PlayerDocument } from "../../lib/api-client";
+import { toBnNum } from "../../lib/bn-utils";
 import PublicPlayerCard from "../squad/PublicPlayerCard";
 
 /**
@@ -33,7 +34,7 @@ export default function SquadSection() {
       })
       .catch(() => {
         if (!abortSignal?.aborted) {
-          setError("Unable to load squad roster from database.");
+          setError("ডাটাবেস থেকে স্কোয়াড তালিকা লোড করতে ব্যর্থ হয়েছে।");
           setIsLoading(false);
         }
       });
@@ -66,15 +67,15 @@ export default function SquadSection() {
             <div className="flex flex-wrap items-center gap-3">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#18181B] border border-white/10 text-[11px] font-black tracking-[0.24em] text-[#B9F66B] uppercase">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B] shadow-[0_0_8px_#B9F66B]" />
-                OUR SQUAD
+                আমাদের স্কোয়াড
               </div>
 
               {/* Squad Count Label */}
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 text-xs font-mono text-[#A4B0A8] uppercase tracking-wider">
                 <strong className="text-[#B9F66B] font-bold">
-                  {totalCount > 0 ? totalCount : "OFFICIAL"}
+                  {totalCount > 0 ? toBnNum(totalCount) : "অফিসিয়াল"}
                 </strong>{" "}
-                SQUAD MEMBERS
+                জন সদস্য
               </span>
             </div>
 
@@ -82,12 +83,11 @@ export default function SquadSection() {
               id="squad-section-heading"
               className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white uppercase"
             >
-              MEET THE SQUAD.
+              স্কোয়াডের সাথে পরিচিত হোন
             </h2>
 
             <p className="text-sm sm:text-base text-[#A4B0A8] max-w-xl leading-relaxed">
-              Talent, discipline, and teamwork make us stronger. Meet the players
-              representing Morning Football Academy.
+              প্রতিভা, শৃঙ্খলা এবং দলগত একতাই আমাদের শক্তি। Morning Football Academy-র প্রতিনিধিত্বকারী প্রতিভাবান খেলোয়াড়দের দেখুন।
             </p>
           </div>
 
@@ -97,7 +97,7 @@ export default function SquadSection() {
               href="/squad"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#B9F66B] text-[#0A0A0A] font-black text-xs tracking-[0.16em] uppercase hover:bg-[#cbfd82] active:scale-95 transition-all duration-300 shadow-[0_0_15px_rgba(185,246,107,0.25)] hover:shadow-[0_0_24px_rgba(185,246,107,0.45)] group shrink-0 cursor-pointer"
             >
-              <span>VIEW FULL SQUAD</span>
+              <span>সম্পূর্ণ স্কোয়াড দেখুন</span>
               <ArrowRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" />
             </Link>
           </div>
@@ -113,7 +113,7 @@ export default function SquadSection() {
               className="bg-[#202E27] border border-white/10 text-white font-mono text-xs uppercase tracking-wider px-4 py-2 rounded-xl hover:border-[#B9F66B]/50 transition-colors cursor-pointer inline-flex items-center gap-2"
             >
               <RefreshCw className="w-3.5 h-3.5" />
-              <span>Retry</span>
+              <span>আবার চেষ্টা করুন</span>
             </Button>
           </div>
         ) : isLoading ? (
@@ -138,16 +138,15 @@ export default function SquadSection() {
             </div>
             <div className="space-y-1">
               <h3 className="text-lg font-black text-white uppercase tracking-tight">
-                Squad Roster In Formation
+                স্কোয়াড গঠন প্রক্রিয়াধীন
               </h3>
               <p className="text-xs sm:text-sm text-[#A4B0A8] max-w-md mx-auto">
-                Official squad profiles are being registered for the upcoming competitive season.
-                Apply for upcoming academy trials to join the roster.
+                আসন্ন প্রতিযোগিতামূলক মৌসুমের জন্য খেলোয়াড়দের প্রোফাইল নিবন্ধিত হচ্ছে। একাডেমিতে অংশ নিতে এখনই ট্রায়ালের জন্য আবেদন করুন।
               </p>
             </div>
             <Link href="/join">
               <Button className="bg-[#B9F66B] text-[#101A17] font-black text-xs uppercase tracking-wider px-6 py-2.5 rounded-full hover:bg-[#a8ec56] transition-all cursor-pointer">
-                Join The Academy
+                একাডেমিতে ভর্তি আবেদন
               </Button>
             </Link>
           </div>
@@ -163,13 +162,13 @@ export default function SquadSection() {
         {/* 3. Squad Roster Footer Link */}
         <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-white/[0.06] text-[11px] font-mono text-[#A4B0A8]/70">
           <span>
-            Morning Football Academy • Official Registered Player Roster
+            Morning Football Academy • অফিসিয়াল নিবন্ধিত খেলোয়াড় তালিকা
           </span>
           <Link
             href="/squad"
             className="text-[#B9F66B] hover:underline flex items-center gap-1.5 font-bold uppercase tracking-wider"
           >
-            <span>Explore all positions</span>
+            <span>সকল পজিশন দেখুন</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>

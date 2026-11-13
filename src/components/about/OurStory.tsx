@@ -46,7 +46,7 @@ export default function OurStory() {
               </div>
               <div className="space-y-0.5">
                 <span className="text-[10px] font-mono font-bold tracking-[0.2em] uppercase text-[#B9F66B] block">
-                  OFFICIAL CREST
+                  অফিসিয়াল ক্লাব ক্রেস্ট
                 </span>
                 <span className="text-xs sm:text-sm font-black text-white uppercase tracking-tight block">
                   MORNING FOOTBALL ACADEMY
@@ -65,31 +65,26 @@ export default function OurStory() {
                 className="bg-[#18251F] text-[#B9F66B] border border-[#B9F66B]/30 font-black tracking-[0.24em] text-[11px] uppercase px-3.5 py-1"
               >
                 <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B] shadow-[0_0_8px_#B9F66B] mr-2 inline-block" />
-                WHO WE ARE
+                আমরা কারা
               </Chip>
 
               <h2
                 id="our-story-heading"
                 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white uppercase leading-[1.12]"
               >
-                BUILT ON PASSION.{" "}
+                গভীর ভালোবাসায় গড়া,{" "}
                 <span className="text-[#B9F66B] drop-shadow-[0_0_24px_rgba(185,246,107,0.35)] block sm:inline">
-                  UNITED BY FOOTBALL.
+                  ফুটবলের ঐক্যে অবিচল
                 </span>
               </h2>
             </div>
 
             <div className="space-y-4 text-sm sm:text-base text-[#A4B0A8] leading-relaxed">
               <p>
-                Morning Football Academy is dedicated to developing football players through quality
-                training, teamwork, and athletic discipline. We believe football is more than a game—it
-                is a proven pathway for building character, instilling resilience, and fostering lifelong
-                camaraderie.
+                Morning Football Academy উন্নতমানের প্রশিক্ষণ, দলগত সমন্বয় এবং ক্রীড়াসুলভ শৃঙ্খলার মাধ্যমে প্রতিশ্রুতিশীল ফুটবলার তৈরিতে নিবেদিত। আমরা বিশ্বাস করি ফুটবল নিছক একটি খেলা নয়—এটি চরিত্র গঠন, মানসিক দৃঢ়তা এবং আজীবন ভ্রাতৃত্ববোধ তৈরির অন্যতম মাধ্যম।
               </p>
               <p>
-                Every training drill, tactical session, and match is approached with a commitment to
-                continuous growth. By combining athletic intensity with mutual respect, our academy
-                creates an inspiring environment where players push their boundaries and grow together.
+                প্রতিটি অনুশীলন ড্রিল, ট্যাকটিক্যাল সেশন এবং প্রতিযোগিতামূলক ম্যাচকে আমরা খেলোয়াড়দের ক্রমাগত উন্নতির সুযোগ হিসেবে গ্রহণ করি। কঠোর অনুশীলন ও পারস্পরিক শ্রদ্ধার সমন্বয়ে একাডেমি এমন একটি পরিবেশ গড়ে তুলেছে যেখানে প্রতিটি খেলোয়াড় নিজেদের সামর্থ্যের সর্বোচ্চ বিকাশ ঘটাতে পারে।
               </p>
             </div>
 
@@ -101,10 +96,10 @@ export default function OurStory() {
                   <Flame className="w-4 h-4" />
                 </div>
                 <h3 className="text-sm font-black text-white uppercase tracking-tight">
-                  PASSION FOR FOOTBALL
+                  ফুটবলের প্রতি অগাধ ভালোবাসা
                 </h3>
                 <p className="text-xs text-[#A4B0A8] leading-relaxed">
-                  Relentless love for the sport driving focused energy in every session and match.
+                  প্রতিটি সেশন ও ম্যাচে পূর্ণ একাগ্রতা এবং উৎসাহ নিয়ে মাঠে নামার অনুপ্রেরণা।
                 </p>
               </div>
 
@@ -114,10 +109,10 @@ export default function OurStory() {
                   <ShieldCheck className="w-4 h-4" />
                 </div>
                 <h3 className="text-sm font-black text-white uppercase tracking-tight">
-                  TEAMWORK & DISCIPLINE
+                  দলগত ঐক্য ও শৃঙ্খলা
                 </h3>
                 <p className="text-xs text-[#A4B0A8] leading-relaxed">
-                  Holding each other accountable with consistency, mutual respect, and tactical unity.
+                  নিয়মানুবর্তিতা, পারস্পরিক শ্রদ্ধা এবং ট্যাকটিক্যাল সংহতির মাধ্যমে একে অপরের পাশে থাকা।
                 </p>
               </div>
 
@@ -127,10 +122,10 @@ export default function OurStory() {
                   <Sparkles className="w-4 h-4" />
                 </div>
                 <h3 className="text-sm font-black text-white uppercase tracking-tight">
-                  PLAYER DEVELOPMENT
+                  সার্বিক খেলোয়াড় বিকাশ
                 </h3>
                 <p className="text-xs text-[#A4B0A8] leading-relaxed">
-                  Comprehensive athletic pathways nurturing technical skill and confident decision-making.
+                  টেকনিক্যাল দক্ষতা, শারীরিক ফিটনেস এবং সঠিক সিদ্ধান্ত গ্রহণের সুপরিকল্পিত বিকাশ ধারা।
                 </p>
               </div>
             </div>

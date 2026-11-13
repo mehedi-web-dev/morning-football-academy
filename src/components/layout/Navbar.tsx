@@ -12,13 +12,13 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { label: "HOME", href: "/" },
-  { label: "ABOUT", href: "/about" },
-  { label: "PLAYERS", href: "/#players" },
-  { label: "FIXTURES", href: "/#fixtures" },
-  { label: "RESULTS", href: "/#results" },
-  { label: "NEWS", href: "/#news" },
-  { label: "GALLERY", href: "/gallery" },
+  { label: "হোম", href: "/" },
+  { label: "আমাদের সম্পর্কে", href: "/about" },
+  { label: "খেলোয়াড়বৃন্দ", href: "/#players" },
+  { label: "ফিক্সচার", href: "/#fixtures" },
+  { label: "ফলাফল", href: "/#results" },
+  { label: "সংবাদ", href: "/#news" },
+  { label: "গ্যালারি", href: "/gallery" },
 ];
 
 /**
@@ -241,7 +241,7 @@ export default function Navbar() {
               onPress={handleJoinClick}
               className="bg-[#B9F66B] text-[#0A0A0A] font-black text-xs tracking-[0.14em] uppercase rounded-full px-5 py-2.5 hover:bg-[#cbfd82] active:scale-95 transition-all duration-300 shadow-[0_0_15px_rgba(185,246,107,0.25)] hover:shadow-[0_0_24px_rgba(185,246,107,0.45)] cursor-pointer"
             >
-              JOIN OUR ACADEMY
+              একাডেমিতে ভর্তি হন
             </Button>
           </div>
 
@@ -253,8 +253,8 @@ export default function Navbar() {
               className="relative p-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white hover:text-[#B9F66B] hover:border-[#B9F66B]/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B9F66B] transition-colors duration-200"
               aria-label={
                 isMobileMenuOpen
-                  ? "Close navigation menu"
-                  : "Open navigation menu"
+                  ? "নেভিগেশন মেনু বন্ধ করুন"
+                  : "নেভিগেশন মেনু খুলুন"
               }
               aria-expanded={isMobileMenuOpen}
               aria-controls="mobile-navigation-drawer"
@@ -327,7 +327,7 @@ export default function Navbar() {
               onPress={handleJoinClick}
               className="w-full bg-[#B9F66B] text-[#0A0A0A] font-black text-xs tracking-[0.14em] uppercase rounded-full py-3 hover:bg-[#cbfd82] active:scale-98 transition-all duration-300 shadow-[0_0_20px_rgba(185,246,107,0.3)] cursor-pointer"
             >
-              JOIN OUR ACADEMY
+              একাডেমিতে ভর্তি হন
             </Button>
           </div>
         </div>

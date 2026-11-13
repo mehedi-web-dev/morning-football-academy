@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { Button } from "@heroui/react";
 import { apiClient, GalleryDocument } from "../../../lib/api-client";
+import { formatBnDate } from "../../../lib/bn-utils";
 
 export const instant = false;
 
@@ -28,15 +29,15 @@ export async function generateMetadata({
 
     if (!item || !item.isPublished) {
       return {
-        title: "Gallery Moment Not Found | Morning Football Academy",
+        title: "গ্যালারি মুহূর্ত পাওয়া যায়নি | Morning Football Academy",
       };
     }
 
     return {
-      title: `${item.title} | Morning Football Academy Gallery`,
+      title: `${item.title} | Morning Football Academy গ্যালারি`,
       description:
         item.description ||
-        `Official academy photography for ${item.title} (${item.category}) at Morning Football Academy.`,
+        `মর্নিং ফুটবল একাডেমির অফিসিয়াল অ্যালবাম: ${item.title} (${item.category})।`,
       openGraph: {
         title: `${item.title} | Morning Football Academy`,
         description: item.description,
@@ -50,7 +51,7 @@ export async function generateMetadata({
     };
   } catch {
     return {
-      title: "Gallery Moment Not Found | Morning Football Academy",
+      title: "গ্যালারি মুহূর্ত পাওয়া যায়নি | Morning Football Academy",
     };
   }
 }
@@ -83,7 +84,7 @@ export default async function GalleryDetailPage({ params }: GalleryDetailPagePro
             className="inline-flex items-center gap-2 text-xs font-mono font-bold tracking-wider uppercase text-[#A4B0A8] hover:text-[#B9F66B] transition-colors group cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-            <span>BACK TO GALLERY</span>
+            <span>গ্যালারিতে ফিরে যান</span>
           </Link>
 
           <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#18251F] border border-white/10 text-[11px] font-mono text-[#A4B0A8] uppercase">
@@ -121,7 +122,7 @@ export default async function GalleryDetailPage({ params }: GalleryDetailPagePro
             ) : (
               <Image
                 src={item.mediaUrl}
-                alt={item.title || "Morning Football Academy photograph"}
+                alt={item.title || "Morning Football Academy ছবি"}
                 fill
                 priority
                 sizes="(max-width: 1280px) 100vw, 1200px"
@@ -141,11 +142,7 @@ export default async function GalleryDetailPage({ params }: GalleryDetailPagePro
                   </span>
 
                   <span className="text-xs font-mono text-[#A4B0A8]">
-                    {new Date(item.createdAt).toLocaleDateString("en-US", {
-                      month: "long",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
+                    {formatBnDate(item.createdAt)}
                   </span>
                 </div>
 
@@ -159,7 +156,7 @@ export default async function GalleryDetailPage({ params }: GalleryDetailPagePro
                   <Button
                     className="bg-[#202E27] border border-white/10 text-white font-mono text-xs uppercase tracking-wider px-5 py-2.5 rounded-xl hover:border-[#B9F66B]/50 transition-colors cursor-pointer"
                   >
-                    View More Moments
+                    আরও মুহূর্ত দেখুন
                   </Button>
                 </Link>
               </div>
@@ -168,7 +165,7 @@ export default async function GalleryDetailPage({ params }: GalleryDetailPagePro
             {item.description && (
               <div className="space-y-2">
                 <h3 className="text-xs font-mono font-bold text-[#B9F66B] uppercase tracking-wider">
-                  MOMENT CAPTION &amp; CONTEXT
+                  মুহূর্তের ক্যাপশন ও বিবরণ
                 </h3>
                 <p className="text-sm sm:text-base text-white/90 leading-relaxed whitespace-pre-wrap">
                   {item.description}
@@ -178,8 +175,8 @@ export default async function GalleryDetailPage({ params }: GalleryDetailPagePro
 
             {/* Audit details */}
             <div className="pt-4 border-t border-white/[0.06] flex items-center justify-between text-xs font-mono text-[#A4B0A8]">
-              <span>Media ID: {item._id}</span>
-              <span>Published to Official Archive</span>
+              <span>মিডিয়া আইডি: {item._id}</span>
+              <span>অফিসিয়াল আর্কাইভে প্রকাশিত</span>
             </div>
           </div>
         </div>

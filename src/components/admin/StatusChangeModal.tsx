@@ -3,6 +3,7 @@
 import { CheckCircle2, XCircle, RotateCcw, X } from "lucide-react";
 import { Button } from "@heroui/react";
 import { RegistrationDocument, RegistrationStatus } from "../../lib/api-client";
+import { getBnPosition } from "../../lib/bn-utils";
 
 interface StatusChangeModalProps {
   isOpen: boolean;
@@ -29,37 +30,37 @@ export default function StatusChangeModal({
   const getModalConfig = () => {
     if (isApprove) {
       return {
-        title: "APPROVE APPLICANT ADMISSION",
-        subtitle: "Accept candidate for official academy trials",
+        title: "ভর্তি আবেদন অনুমোদন",
+        subtitle: "অফিসিয়াল একাডেমি ট্রায়ালের জন্য প্রার্থীকে অনুমোদন দিন",
         icon: <CheckCircle2 className="w-5 h-5 text-[#B9F66B]" />,
         iconBg: "bg-[#B9F66B]/20 border-[#B9F66B]/30",
         confirmBtn: "bg-[#B9F66B] hover:bg-[#a8ec56] text-[#101A17] font-black",
-        confirmLabel: "CONFIRM ACCEPTANCE",
+        confirmLabel: "অনুমোদন নিশ্চিত করুন",
         description:
-          "Are you sure you want to approve this applicant? Their status will be marked as accepted, qualifying them for age-group roster placement and academy trial scheduling.",
+          "আপনি কি নিশ্চিত যে আপনি এই আবেদনকারীকে অনুমোদন করতে চান? প্রার্থীর স্ট্যাটাস অনুমোদিত হিসেবে চিহ্নিত হবে এবং তিনি একাডেমি ট্রায়ালে অংশ নেওয়ার যোগ্য বিবেচিত হবেন।",
       };
     }
     if (isReject) {
       return {
-        title: "REJECT APPLICATION",
-        subtitle: "Decline candidate enrollment for this season",
+        title: "আবেদন প্রত্যাখ্যান",
+        subtitle: "এই মৌসুমের জন্য প্রার্থীর ভর্তি প্রত্যাখ্যান করুন",
         icon: <XCircle className="w-5 h-5 text-rose-400" />,
         iconBg: "bg-rose-500/20 border-rose-500/30",
         confirmBtn: "bg-rose-500 hover:bg-rose-600 text-white font-black",
-        confirmLabel: "CONFIRM REJECTION",
+        confirmLabel: "প্রত্যাখ্যান নিশ্চিত করুন",
         description:
-          "Are you sure you want to mark this application as rejected? The applicant will be archived as ineligible for the current trial batch.",
+          "আপনি কি নিশ্চিত যে আপনি এই আবেদনটি প্রত্যাখ্যান করতে চান? আবেদনকারীকে বর্তমান ট্রায়াল ব্যাচের জন্য অনুপযুক্ত হিসেবে সংরক্ষণ করা হবে।",
       };
     }
     return {
-      title: "REVERT TO PENDING REVIEW",
-      subtitle: "Move application back to evaluation queue",
+      title: "অপেক্ষমাণ তালিকায় ফিরিয়ে নিন",
+      subtitle: "আবেদনটি পুনরায় মূল্যায়ন সারিতে ফিরিয়ে নিন",
       icon: <RotateCcw className="w-5 h-5 text-amber-300" />,
       iconBg: "bg-amber-400/20 border-amber-400/30",
       confirmBtn: "bg-amber-400 hover:bg-amber-500 text-[#101A17] font-black",
-      confirmLabel: "REVERT TO PENDING",
+      confirmLabel: "অপেক্ষমাণে ফিরিয়ে নিন",
       description:
-        "Are you sure you want to reset this application to pending review? It will reappear in the active evaluation queue.",
+        "আপনি কি নিশ্চিত যে আপনি এই আবেদনটি অপেক্ষমাণ পর্যালোচনায় ফিরিয়ে নিতে চান? এটি সক্রিয় মূল্যায়ন তালিকায় পুনরায় প্রদর্শিত হবে।",
     };
   };
 
@@ -106,14 +107,14 @@ export default function StatusChangeModal({
           {/* Candidate Card */}
           <div className="p-3.5 rounded-xl bg-[#101A17] border border-white/10 space-y-1">
             <span className="text-[10px] font-mono text-[#A4B0A8] uppercase tracking-wider block">
-              CANDIDATE
+              প্রার্থী
             </span>
             <div className="flex items-center justify-between">
               <span className="text-sm font-black text-white uppercase">
                 {registration.fullName}
               </span>
               <span className="text-xs font-mono text-[#B9F66B]">
-                {registration.position}
+                {getBnPosition(registration.position)}
               </span>
             </div>
             <span className="text-xs text-[#A4B0A8] block font-mono">
@@ -130,7 +131,7 @@ export default function StatusChangeModal({
             isDisabled={isUpdating}
             className="bg-transparent border border-white/10 text-[#A4B0A8] hover:text-white hover:border-white/20 text-xs font-mono uppercase tracking-wider px-4 py-2.5 rounded-xl transition-colors cursor-pointer"
           >
-            Cancel
+            বাতিল
           </Button>
 
           <Button
@@ -142,7 +143,7 @@ export default function StatusChangeModal({
             {isUpdating ? (
               <>
                 <div className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                <span>UPDATING...</span>
+                <span>আপডেট হচ্ছে...</span>
               </>
             ) : (
               <span>{config.confirmLabel}</span>

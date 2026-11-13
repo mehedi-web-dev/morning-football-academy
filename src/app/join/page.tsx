@@ -25,6 +25,7 @@ import {
   RegistrationDocument,
   ApiError,
 } from "../../lib/api-client";
+import { toBnNum, getBnPosition } from "../../lib/bn-utils";
 
 const POSITION_OPTIONS = [
   "Goalkeeper",
@@ -91,71 +92,71 @@ export default function JoinPage() {
     // 1. Full Name: min 2, max 100
     const cleanName = fullName.trim();
     if (!cleanName) {
-      errors.fullName = "Please enter your full name.";
+      errors.fullName = "দয়া করে আপনার পুরো নাম লিখুন।";
     } else if (cleanName.length < 2) {
-      errors.fullName = "Full name must be at least 2 characters.";
+      errors.fullName = "পুরো নাম অন্তত ২ অক্ষরের হতে হবে।";
     } else if (cleanName.length > 100) {
-      errors.fullName = "Full name cannot exceed 100 characters.";
+      errors.fullName = "পুরো নাম ১০০ অক্ষরের বেশি হতে পারবে না।";
     }
 
     // 2. Email: valid email regex
     const cleanEmail = email.trim();
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!cleanEmail) {
-      errors.email = "Please enter your email address.";
+      errors.email = "দয়া করে আপনার ইমেইল ঠিকানা দিন।";
     } else if (!emailRegex.test(cleanEmail)) {
-      errors.email = "Please enter a valid email address (e.g. name@example.com).";
+      errors.email = "সঠিক ইমেইল ঠিকানা প্রদান করুন (যেমন: name@example.com)।";
     }
 
     // 3. Phone: min 6, max 20
     const cleanPhone = phone.trim();
     if (!cleanPhone) {
-      errors.phone = "Please enter a contact phone number.";
+      errors.phone = "দয়া করে যোগাযোগের ফোন নম্বর দিন।";
     } else if (cleanPhone.length < 6) {
-      errors.phone = "Phone number must be at least 6 digits.";
+      errors.phone = "ফোন নম্বর অন্তত ৬ ডিজিটের হতে হবে।";
     } else if (cleanPhone.length > 20) {
-      errors.phone = "Phone number cannot exceed 20 characters.";
+      errors.phone = "ফোন নম্বর ২০ অক্ষরের বেশি হতে পারবে না।";
     }
 
     // 4. Date of Birth: valid date in the past
     if (!dateOfBirth) {
-      errors.dateOfBirth = "Please select your date of birth.";
+      errors.dateOfBirth = "দয়া করে আপনার জন্মতারিখ নির্বাচন করুন।";
     } else {
       const birthDate = new Date(dateOfBirth);
       const today = new Date();
       if (isNaN(birthDate.getTime())) {
-        errors.dateOfBirth = "Please enter a valid date.";
+        errors.dateOfBirth = "সঠিক জন্মতারিখ প্রদান করুন।";
       } else if (birthDate >= today) {
-        errors.dateOfBirth = "Date of birth must be in the past.";
+        errors.dateOfBirth = "জন্মতারিখ অবশ্যই অতীতের হতে হবে।";
       } else if (calculatedAge !== null && (calculatedAge < 5 || calculatedAge > 40)) {
         errors.dateOfBirth =
-          "Please verify your birth date. Academy enrollment is typically for ages 6 to 35.";
+          "জন্মতারিখ পুনরায় যাচাই করুন। একাডেমিতে সাধারণত ৬ থেকে ৩৫ বছর বয়সীদের ভর্তি নেওয়া হয়।";
       }
     }
 
     // 5. Position: min 2, max 50
     const finalPosition = isCustomPosition ? customPosition.trim() : position.trim();
     if (!finalPosition) {
-      errors.position = "Please select or enter your preferred position.";
+      errors.position = "দয়া করে পছন্দের পজিশন নির্বাচন বা উল্লেখ করুন।";
     } else if (finalPosition.length < 2) {
-      errors.position = "Position must be at least 2 characters.";
+      errors.position = "পজিশন অন্তত ২ অক্ষরের হতে হবে।";
     } else if (finalPosition.length > 50) {
-      errors.position = "Position cannot exceed 50 characters.";
+      errors.position = "পজিশন ৫০ অক্ষরের বেশি হতে পারবে না।";
     }
 
     // 6. Football Experience: min 2, max 500
     const cleanExp = experience.trim();
     if (!cleanExp) {
-      errors.experience = "Please summarize your football playing experience.";
+      errors.experience = "দয়া করে আপনার ফুটবল খেলার অভিজ্ঞতার বিবরণ দিন।";
     } else if (cleanExp.length < 2) {
-      errors.experience = "Experience details must be at least 2 characters.";
+      errors.experience = "অভিজ্ঞতার বিবরণ অন্তত ২ অক্ষরের হতে হবে।";
     } else if (cleanExp.length > 500) {
-      errors.experience = "Experience cannot exceed 500 characters.";
+      errors.experience = "অভিজ্ঞতার বিবরণ ৫০০ অক্ষরের বেশি হতে পারবে না।";
     }
 
     // 7. Message: max 1000 (optional)
     if (message.trim().length > 1000) {
-      errors.message = "Personal message cannot exceed 1000 characters.";
+      errors.message = "ব্যক্তিগত বার্তা ১০০০ অক্ষরের বেশি হতে পারবে না।";
     }
 
     setFieldErrors(errors);
@@ -195,13 +196,13 @@ export default function JoinPage() {
         if (err.statusCode === 400 && typeof err.details === "object" && err.details) {
           const det = err.details as Record<string, string>;
           setFieldErrors(det);
-          setSubmitError(err.message || "Please fix validation errors below.");
+          setSubmitError(err.message || "অনুগ্রহ করে নিচের ভুল তথ্য সংশোধন করুন।");
         } else {
           setSubmitError(err.message);
         }
       } else {
         setSubmitError(
-          "Unable to submit your application. Please check your network connection and try again."
+          "আবেদন জমা দেওয়া সম্ভব হয়নি। ইন্টারনেট সংযোগ যাচাই করে আবার চেষ্টা করুন।"
         );
       }
     } finally {
@@ -247,35 +248,34 @@ export default function JoinPage() {
           <div className="flex justify-center">
             <Chip className="bg-[#18251F]/90 backdrop-blur-md text-[#B9F66B] border border-[#B9F66B]/40 font-black tracking-[0.22em] text-[10px] sm:text-[11px] uppercase px-3.5 py-1 shadow-[0_0_15px_rgba(185,246,107,0.2)]">
               <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B] shadow-[0_0_8px_#B9F66B] mr-2 inline-block animate-pulse" />
-              ACADEMY ENROLLMENT 2026/2027
+              একাডেমি ভর্তি ২০২৬/২০২৭
             </Chip>
           </div>
 
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white uppercase leading-[1.1]">
-            JOIN MORNING FOOTBALL{" "}
+            মর্নিং ফুটবল একাডেমিতে{" "}
             <span className="text-[#B9F66B] drop-shadow-[0_0_25px_rgba(185,246,107,0.35)]">
-              ACADEMY.
+              ভর্তি হন।
             </span>
           </h1>
 
           <p className="text-sm sm:text-base lg:text-lg text-[#A4B0A8] max-w-2xl mx-auto leading-relaxed">
-            Take the first step toward elite athletic development. Submit your player application
-            below to be reviewed by our coaching staff for upcoming trial sessions.
+            শীর্ষস্থানীয় ক্রীড়াবিদ হিসেবে নিজেকে গড়ে তুলতে প্রথম পদক্ষেপ গ্রহণ করুন। আসন্ন একাডেমি ট্রায়ালের জন্য নিচে আপনার খেলোয়াড় আবেদন জমা দিন।
           </p>
 
           {/* Quick Pillars Badges */}
           <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 pt-2 text-[11px] font-mono text-[#A4B0A8]">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#18251F] border border-white/10">
               <Trophy className="w-3.5 h-3.5 text-[#B9F66B]" />
-              <span>ELITE DEVELOPMENT PATHWAYS</span>
+              <span>উন্নত প্রশিক্ষণ পদ্ধতি</span>
             </span>
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#18251F] border border-white/10">
               <Sparkles className="w-3.5 h-3.5 text-[#B9F66B]" />
-              <span>LICENSED TECHNICAL COACHES</span>
+              <span>লাইসেন্সপ্রাপ্ত টেকনিক্যাল কোচ</span>
             </span>
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#18251F] border border-white/10">
               <Shield className="w-3.5 h-3.5 text-[#B9F66B]" />
-              <span>U13 TO SENIOR SQUADS</span>
+              <span>অনূর্ধ্ব-১৩ থেকে সিনিয়র স্কোয়াড</span>
             </span>
           </div>
         </div>
@@ -298,16 +298,15 @@ export default function JoinPage() {
 
             <div className="space-y-2 relative z-10">
               <span className="px-3 py-1 rounded-full bg-[#B9F66B]/15 text-[#B9F66B] border border-[#B9F66B]/30 font-mono text-[11px] font-black uppercase tracking-wider inline-block">
-                APPLICATION SUBMITTED SUCCESSFULLY
+                আবেদন সফলভাবে গৃহীত হয়েছে
               </span>
               <h2 className="text-2xl sm:text-4xl font-black text-white uppercase tracking-tight">
-                WELCOME, {submittedCandidate.fullName}!
+                স্বাগতম, {submittedCandidate.fullName}!
               </h2>
               <p className="text-xs sm:text-sm text-[#A4B0A8] max-w-xl mx-auto leading-relaxed">
-                Your academy trial application has been registered with status{" "}
-                <strong className="text-amber-300 font-mono uppercase">PENDING REVIEW</strong>.
-                Our coaching staff will review your background and contact you regarding
-                trial session dates.
+                আপনার একাডেমি ট্রায়াল আবেদন সফলভাবে নিবন্ধিত হয়েছে এবং বর্তমান স্ট্যাটাস:{" "}
+                <strong className="text-amber-300 font-mono uppercase">পর্যালোচনাধীন</strong>।
+                আমাদের অভিজ্ঞ কোচিং প্যানেল আপনার প্রোফাইল যাচাই করে ট্রায়াল সেশনের নির্দিষ্ট তারিখ জানিয়ে দ্রুত যোগাযোগ করবেন।
               </p>
             </div>
 
@@ -315,17 +314,17 @@ export default function JoinPage() {
             <div className="p-5 sm:p-6 rounded-2xl bg-[#101A17] border border-white/10 text-left space-y-3 relative z-10">
               <div className="flex items-center justify-between border-b border-white/5 pb-2.5">
                 <span className="text-[11px] font-mono text-[#A4B0A8] uppercase">
-                  APPLICATION SUMMARY
+                  আবেদনের সারসংক্ষেপ
                 </span>
                 <span className="text-[11px] font-mono text-[#B9F66B]">
-                  ID: {submittedCandidate._id}
+                  আইডি: {submittedCandidate._id}
                 </span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                 <div>
                   <span className="text-[10px] font-mono text-[#A4B0A8]/80 uppercase block">
-                    CANDIDATE
+                    প্রার্থী
                   </span>
                   <span className="font-bold text-white uppercase">
                     {submittedCandidate.fullName}
@@ -333,15 +332,15 @@ export default function JoinPage() {
                 </div>
                 <div>
                   <span className="text-[10px] font-mono text-[#A4B0A8]/80 uppercase block">
-                    PREFERRED POSITION
+                    পছন্দের পজিশন
                   </span>
                   <span className="font-bold text-[#B9F66B] uppercase">
-                    {submittedCandidate.position}
+                    {getBnPosition(submittedCandidate.position)}
                   </span>
                 </div>
                 <div>
                   <span className="text-[10px] font-mono text-[#A4B0A8]/80 uppercase block">
-                    EMAIL
+                    ইমেইল
                   </span>
                   <span className="font-mono text-white/90">
                     {submittedCandidate.email}
@@ -349,7 +348,7 @@ export default function JoinPage() {
                 </div>
                 <div>
                   <span className="text-[10px] font-mono text-[#A4B0A8]/80 uppercase block">
-                    PHONE
+                    ফোন
                   </span>
                   <span className="font-mono text-white/90">
                     {submittedCandidate.phone}
@@ -362,23 +361,21 @@ export default function JoinPage() {
             <div className="p-5 rounded-2xl bg-[#202E27] border border-white/10 text-left space-y-3 relative z-10">
               <h3 className="text-xs font-black uppercase text-white tracking-wider flex items-center gap-2">
                 <Info className="w-4 h-4 text-[#B9F66B]" />
-                <span>WHAT HAPPENS NEXT?</span>
+                <span>পরবর্তী ধাপসমূহ</span>
               </h3>
 
               <div className="space-y-2 text-xs text-[#A4B0A8] leading-relaxed">
                 <p>
-                  <strong className="text-white">1. Technical Evaluation:</strong> Our coaches
-                  will screen your playing background against current squad vacancies within 3-5
-                  business days.
+                  <strong className="text-white">১. কারিগরি মূল্যায়ন:</strong> আমাদের কোচিং দল
+                  আগামী ৩-৫ কার্যদিবসের মধ্যে বর্তমান স্কোয়াডের শূন্যপদের সাথে আপনার খেলার পটভূমি পর্যালোচনা করবেন।
                 </p>
                 <p>
-                  <strong className="text-white">2. Trial Invitation:</strong> Eligible
-                  candidates will receive an email and SMS with date, venue floodlight timing,
-                  and training kit requirements.
+                  <strong className="text-white">২. ট্রায়াল আমন্ত্রণ:</strong> উপযুক্ত বিবেচিত
+                  প্রার্থীদের ইমেইল এবং ফোনে এসএমএস পাঠিয়ে ট্রায়ালের সময়সূচি ও প্রয়োজনীয় কিট সংক্রান্ত নির্দেশনা প্রদান করা হবে।
                 </p>
                 <p>
-                  <strong className="text-white">3. On-Pitch Assessment:</strong> Join us for
-                  technical drills, small-sided games, and speed/agility evaluations.
+                  <strong className="text-white">৩. মাঠের পারফরম্যান্স যাচাই:</strong> সরাসরি মাঠে টেকনিক্যাল ড্রিল,
+                  স্মল-সাইডেড ম্যাচ এবং গতি ও ফিটনেস অ্যাসেসমেন্টে অংশ নিন।
                 </p>
               </div>
             </div>
@@ -387,7 +384,7 @@ export default function JoinPage() {
             <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3.5 relative z-10">
               <Link href="/" className="w-full sm:w-auto">
                 <Button className="w-full sm:w-auto bg-[#B9F66B] text-[#101A17] font-black text-xs uppercase tracking-wider px-6 py-3 rounded-full hover:bg-[#a8ec56] transition-all shadow-md cursor-pointer flex items-center justify-center gap-2">
-                  <span>RETURN TO HOMEPAGE</span>
+                  <span>হোমপেজে ফিরে যান</span>
                   <ArrowRight className="w-4 h-4" />
                 </Button>
               </Link>
@@ -398,7 +395,7 @@ export default function JoinPage() {
                 className="w-full sm:w-auto bg-transparent border border-white/15 text-white hover:border-[#B9F66B]/50 hover:text-[#B9F66B] font-mono text-xs uppercase tracking-wider px-6 py-3 rounded-full transition-colors cursor-pointer flex items-center justify-center gap-2"
               >
                 <RotateCcw className="w-4 h-4" />
-                <span>SUBMIT ANOTHER APPLICATION</span>
+                <span>নতুন আরেকটি আবেদন করুন</span>
               </Button>
             </div>
           </div>
@@ -411,34 +408,34 @@ export default function JoinPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div className="p-4 rounded-2xl bg-[#18251F] border border-white/10 space-y-1">
                 <div className="flex items-center justify-between text-[#B9F66B] font-mono text-[10px] font-bold uppercase tracking-wider">
-                  <span>STEP 01</span>
+                  <span>ধাপ ০১</span>
                   <User className="w-3.5 h-3.5" />
                 </div>
-                <h3 className="text-sm font-black text-white uppercase">SUBMIT APPLICATION</h3>
+                <h3 className="text-sm font-black text-white uppercase">আবেদন জমা দিন</h3>
                 <p className="text-[11px] text-[#A4B0A8] leading-tight">
-                  Provide your playing background, preferred role, and contact information.
+                  আপনার খেলার অভিজ্ঞতা, পছন্দের পজিশন ও যোগাযোগের তথ্য প্রদান করুন।
                 </p>
               </div>
 
               <div className="p-4 rounded-2xl bg-[#18251F] border border-white/10 space-y-1">
                 <div className="flex items-center justify-between text-[#B9F66B] font-mono text-[10px] font-bold uppercase tracking-wider">
-                  <span>STEP 02</span>
+                  <span>ধাপ ০২</span>
                   <Clock className="w-3.5 h-3.5" />
                 </div>
-                <h3 className="text-sm font-black text-white uppercase">COACHING REVIEW</h3>
+                <h3 className="text-sm font-black text-white uppercase">কোচিং পর্যালোচনা</h3>
                 <p className="text-[11px] text-[#A4B0A8] leading-tight">
-                  Our technical staff evaluates each applicant for age-group squad placement.
+                  আমাদের কারিগরি দল প্রতিটি আবেদন যাচাই করে বয়স ভিত্তিক স্কোয়াড নির্ধারণ করবেন।
                 </p>
               </div>
 
               <div className="p-4 rounded-2xl bg-[#18251F] border border-white/10 space-y-1">
                 <div className="flex items-center justify-between text-[#B9F66B] font-mono text-[10px] font-bold uppercase tracking-wider">
-                  <span>STEP 03</span>
+                  <span>ধাপ ০৩</span>
                   <Trophy className="w-3.5 h-3.5" />
                 </div>
-                <h3 className="text-sm font-black text-white uppercase">TRIAL INVITATION</h3>
+                <h3 className="text-sm font-black text-white uppercase">ট্রায়াল আমন্ত্রণ</h3>
                 <p className="text-[11px] text-[#A4B0A8] leading-tight">
-                  Selected candidates are invited for full on-pitch trial sessions under floodlights.
+                  নির্বাচিত প্রার্থীদের ফ্লাডলাইটের নিচে পূর্ণাঙ্গ মাঠের ট্রায়াল সেশনে আমন্ত্রণ জানানো হবে।
                 </p>
               </div>
             </div>
@@ -447,11 +444,11 @@ export default function JoinPage() {
             <div className="rounded-3xl bg-[#18251F] border border-white/10 p-6 sm:p-10 shadow-xl space-y-6">
               <div className="border-b border-white/10 pb-4 space-y-1">
                 <h2 className="text-xl sm:text-2xl font-black text-white uppercase tracking-tight">
-                  PLAYER APPLICATION FORM
+                  খেলোয়াড় ভর্তি ও ট্রায়াল আবেদন ফরম
                 </h2>
                 <p className="text-xs sm:text-sm text-[#A4B0A8]">
-                  All fields marked with <span className="text-[#B9F66B]">*</span> are required.
-                  Your information is kept secure and reviewed strictly by our academy staff.
+                  <span className="text-[#B9F66B]">*</span> চিহ্নিত প্রতিটি তথ্য দেওয়া আবশ্যক।
+                  আপনার তথ্য সম্পূর্ণ সুরক্ষিত থাকবে এবং কেবল একাডেমি কর্তৃপক্ষ কর্তৃক পর্যালোচিত হবে।
                 </p>
               </div>
 
@@ -461,7 +458,7 @@ export default function JoinPage() {
                   <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
                   <div className="space-y-0.5">
                     <span className="text-xs font-bold text-red-300">
-                      Application Submission Error
+                      আবেদন জমাদানে ত্রুটি
                     </span>
                     <p className="text-xs text-red-300/90">{submitError}</p>
                   </div>
@@ -475,7 +472,7 @@ export default function JoinPage() {
                     htmlFor="fullName"
                     className="text-xs font-mono text-[#A4B0A8] uppercase tracking-wider block mb-1.5"
                   >
-                    FULL NAME <span className="text-[#B9F66B]">*</span>
+                    পুরো নাম <span className="text-[#B9F66B]">*</span>
                   </label>
                   <div className="relative">
                     <User className="w-4 h-4 text-[#A4B0A8] absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -490,7 +487,7 @@ export default function JoinPage() {
                         }
                       }}
                       disabled={isSubmitting}
-                      placeholder="e.g. Liam Vance"
+                      placeholder="যেমন: তানভীর আহমেদ"
                       className={`w-full bg-[#101A17] border rounded-xl pl-10 pr-4 py-3 text-xs sm:text-sm text-white placeholder-[#A4B0A8]/50 focus:outline-none transition-colors ${
                         fieldErrors.fullName
                           ? "border-red-500 focus:border-red-500"
@@ -513,7 +510,7 @@ export default function JoinPage() {
                       htmlFor="email"
                       className="text-xs font-mono text-[#A4B0A8] uppercase tracking-wider block mb-1.5"
                     >
-                      EMAIL ADDRESS <span className="text-[#B9F66B]">*</span>
+                      ইমেইল ঠিকানা <span className="text-[#B9F66B]">*</span>
                     </label>
                     <div className="relative">
                       <Mail className="w-4 h-4 text-[#A4B0A8] absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -528,7 +525,7 @@ export default function JoinPage() {
                           }
                         }}
                         disabled={isSubmitting}
-                        placeholder="e.g. liam.vance@example.com"
+                        placeholder="যেমন: tanvir@example.com"
                         className={`w-full bg-[#101A17] border rounded-xl pl-10 pr-4 py-3 text-xs sm:text-sm text-white placeholder-[#A4B0A8]/50 focus:outline-none transition-colors ${
                           fieldErrors.email
                             ? "border-red-500 focus:border-red-500"
@@ -542,7 +539,7 @@ export default function JoinPage() {
                       </p>
                     ) : (
                       <span className="text-[10px] font-mono text-[#A4B0A8]/70 mt-1 block">
-                        Trial invitations will be sent to this email
+                        ট্রায়াল আমন্ত্রণের বিস্তারিত এই ইমেইলে পাঠানো হবে
                       </span>
                     )}
                   </div>
@@ -553,7 +550,7 @@ export default function JoinPage() {
                       htmlFor="phone"
                       className="text-xs font-mono text-[#A4B0A8] uppercase tracking-wider block mb-1.5"
                     >
-                      CONTACT PHONE <span className="text-[#B9F66B]">*</span>
+                      যোগাযোগের ফোন নম্বর <span className="text-[#B9F66B]">*</span>
                     </label>
                     <div className="relative">
                       <Phone className="w-4 h-4 text-[#A4B0A8] absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -568,7 +565,7 @@ export default function JoinPage() {
                           }
                         }}
                         disabled={isSubmitting}
-                        placeholder="e.g. +44 7911 123456"
+                        placeholder="যেমন: +৮৮০ ১৭XXXXXXXX"
                         className={`w-full bg-[#101A17] border rounded-xl pl-10 pr-4 py-3 text-xs sm:text-sm text-white placeholder-[#A4B0A8]/50 focus:outline-none transition-colors ${
                           fieldErrors.phone
                             ? "border-red-500 focus:border-red-500"
@@ -582,7 +579,7 @@ export default function JoinPage() {
                       </p>
                     ) : (
                       <span className="text-[10px] font-mono text-[#A4B0A8]/70 mt-1 block">
-                        Player or parent/guardian contact number
+                        খেলোয়াড় অথবা অভিভাবকের ফোন নম্বর
                       </span>
                     )}
                   </div>
@@ -597,11 +594,11 @@ export default function JoinPage() {
                         htmlFor="dateOfBirth"
                         className="text-xs font-mono text-[#A4B0A8] uppercase tracking-wider block"
                       >
-                        DATE OF BIRTH <span className="text-[#B9F66B]">*</span>
+                        জন্মতারিখ <span className="text-[#B9F66B]">*</span>
                       </label>
                       {calculatedAge !== null && (
                         <span className="text-[11px] font-mono font-bold text-[#B9F66B]">
-                          Age: {calculatedAge} years old
+                          বয়স: {toBnNum(calculatedAge)} বছর
                         </span>
                       )}
                     </div>
@@ -639,14 +636,14 @@ export default function JoinPage() {
                         htmlFor="position"
                         className="text-xs font-mono text-[#A4B0A8] uppercase tracking-wider block"
                       >
-                        PREFERRED POSITION <span className="text-[#B9F66B]">*</span>
+                        পছন্দের পজিশন <span className="text-[#B9F66B]">*</span>
                       </label>
                       <button
                         type="button"
                         onClick={() => setIsCustomPosition(!isCustomPosition)}
                         className="text-[10px] font-mono text-[#B9F66B] hover:underline cursor-pointer"
                       >
-                        {isCustomPosition ? "Choose Preset" : "+ Other Position"}
+                        {isCustomPosition ? "পূর্বনির্ধারিত তালিকা" : "+ অন্যান্য পজিশন"}
                       </button>
                     </div>
 
@@ -662,7 +659,7 @@ export default function JoinPage() {
                           }
                         }}
                         disabled={isSubmitting}
-                        placeholder="e.g. Left Wing Back / Inverted Winger"
+                        placeholder="যেমন: লেফট উইং ব্যাক / ইনভার্টেড উইঙ্গার"
                         className={`w-full bg-[#101A17] border rounded-xl px-4 py-3 text-xs sm:text-sm text-white placeholder-[#A4B0A8]/50 focus:outline-none transition-colors ${
                           fieldErrors.position
                             ? "border-red-500 focus:border-red-500"
@@ -684,7 +681,7 @@ export default function JoinPage() {
                       >
                         {POSITION_OPTIONS.map((pos) => (
                           <option key={pos} value={pos}>
-                            {pos}
+                            {getBnPosition(pos)}
                           </option>
                         ))}
                       </select>
@@ -705,14 +702,14 @@ export default function JoinPage() {
                       htmlFor="experience"
                       className="text-xs font-mono text-[#A4B0A8] uppercase tracking-wider block"
                     >
-                      FOOTBALL PLAYING EXPERIENCE <span className="text-[#B9F66B]">*</span>
+                      ফুটবল খেলার অভিজ্ঞতা <span className="text-[#B9F66B]">*</span>
                     </label>
                     <span
                       className={`text-[10px] font-mono ${
                         experience.length > 450 ? "text-amber-300" : "text-[#A4B0A8]/60"
                       }`}
                     >
-                      {experience.length} / 500 characters
+                      {toBnNum(experience.length)} / ৫০০ অক্ষর
                     </span>
                   </div>
                   <textarea
@@ -727,7 +724,7 @@ export default function JoinPage() {
                     }}
                     disabled={isSubmitting}
                     maxLength={500}
-                    placeholder="Describe your current club, school team, football academies attended, preferred foot, and recent competitive achievements..."
+                    placeholder="আপনার বর্তমান বা পূর্ববর্তী ক্লাব, স্কুল দল, ফুটবল একাডেমি, পছন্দের পা (বাম/ডান), এবং সাম্প্রতিক সাফল্য সম্পর্কে লিখুন..."
                     className={`w-full bg-[#101A17] border rounded-xl p-3.5 text-xs sm:text-sm text-white placeholder-[#A4B0A8]/50 focus:outline-none transition-colors resize-none leading-relaxed ${
                       fieldErrors.experience
                         ? "border-red-500 focus:border-red-500"
@@ -748,11 +745,11 @@ export default function JoinPage() {
                       htmlFor="message"
                       className="text-xs font-mono text-[#A4B0A8] uppercase tracking-wider block"
                     >
-                      PERSONAL STATEMENT{" "}
-                      <span className="text-[#A4B0A8]/60 font-normal">(OPTIONAL)</span>
+                      ব্যক্তিগত বার্তা{" "}
+                      <span className="text-[#A4B0A8]/60 font-normal">(ঐচ্ছিক)</span>
                     </label>
                     <span className="text-[10px] font-mono text-[#A4B0A8]/60">
-                      {message.length} / 1000 characters
+                      {toBnNum(message.length)} / ১০০০ অক্ষর
                     </span>
                   </div>
                   <textarea
@@ -762,16 +759,15 @@ export default function JoinPage() {
                     onChange={(e) => setMessage(e.target.value)}
                     disabled={isSubmitting}
                     maxLength={1000}
-                    placeholder="Tell our coaching team about your athletic goals, personal motivations, or why you want to represent Morning Football Academy..."
+                    placeholder="আপনার ফুটবলীয় লক্ষ্য, স্বপ্ন এবং কেন আপনি মর্নিং ফুটবল একাডেমিতে যোগ দিতে চান তা আমাদের জানান..."
                     className="w-full bg-[#101A17] border border-white/10 rounded-xl p-3.5 text-xs sm:text-sm text-white placeholder-[#A4B0A8]/50 focus:outline-none focus:border-[#B9F66B]/60 transition-colors resize-none leading-relaxed"
                   />
                 </div>
 
                 {/* 6. Terms Notice */}
                 <div className="p-4 rounded-xl bg-[#101A17] border border-white/5 text-[11px] text-[#A4B0A8] leading-relaxed">
-                  By submitting this registration, you confirm that the candidate information
-                  provided is accurate. Candidates under 18 must have guardian consent for trial
-                  participation.
+                  এই আবেদন জমা দেওয়ার মাধ্যমে আপনি নিশ্চিত করছেন যে প্রদত্ত সকল তথ্য সঠিক ও সত্য।
+                  ১৮ বছরের কম বয়সী প্রার্থীদের ক্ষেত্রে ট্রায়ালে অংশগ্রহণে অভিভাবকের সম্মতি থাকতে হবে।
                 </div>
 
                 {/* 7. Submit Action Button */}
@@ -784,11 +780,11 @@ export default function JoinPage() {
                     {isSubmitting ? (
                       <>
                         <div className="w-4 h-4 border-2 border-[#101A17] border-t-transparent rounded-full animate-spin" />
-                        <span>SUBMITTING TRIAL APPLICATION...</span>
+                        <span>ট্রায়াল আবেদন জমা হচ্ছে...</span>
                       </>
                     ) : (
                       <>
-                        <span>SUBMIT TRIAL APPLICATION</span>
+                        <span>ট্রায়াল আবেদন জমা দিন</span>
                         <ArrowRight className="w-4 h-4" />
                       </>
                     )}

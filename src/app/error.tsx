@@ -26,13 +26,13 @@ export default function RootError({
 
         <div className="space-y-2">
           <span className="text-[10px] font-mono tracking-[0.24em] text-red-400 uppercase block">
-            TEMPORARY SYSTEM INTERRUPTION
+            সাময়িক সিস্টেম বিভ্রাট
           </span>
           <h1 className="text-2xl font-black uppercase tracking-tight text-white">
-            Something Went Wrong
+            একটি সমস্যা দেখা দিয়েছে
           </h1>
           <p className="text-xs sm:text-sm text-[#A4B0A8] leading-relaxed">
-            An unexpected error occurred while loading this page. Our technical team has been notified.
+            এই পৃষ্ঠাটি লোড করার সময় একটি সমস্যা দেখা দিয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন অথবা হোমপেজে ফিরে যান।
           </p>
         </div>
 
@@ -42,7 +42,7 @@ export default function RootError({
             className="w-full sm:w-auto bg-[#B9F66B] text-[#0A0A0A] font-black text-xs uppercase tracking-wider px-6 py-2.5 rounded-full hover:bg-[#cbfd82] transition-colors cursor-pointer inline-flex items-center justify-center gap-2"
           >
             <RefreshCw className="w-4 h-4" />
-            <span>Try Again</span>
+            <span>আবার চেষ্টা করুন</span>
           </Button>
 
           <Link href="/">
@@ -50,7 +50,7 @@ export default function RootError({
               className="w-full sm:w-auto bg-white/10 text-white font-bold text-xs uppercase tracking-wider px-6 py-2.5 rounded-full hover:bg-white/20 transition-colors cursor-pointer inline-flex items-center justify-center gap-2 border border-white/15"
             >
               <Home className="w-4 h-4" />
-              <span>Back to Home</span>
+              <span>হোমপেজে ফিরে যান</span>
             </Button>
           </Link>
         </div>

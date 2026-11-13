@@ -12,10 +12,10 @@ export default function ResultNotFound() {
 
         <div className="space-y-2">
           <h1 className="text-2xl font-black uppercase tracking-tight text-white">
-            Result Not Found
+            ফলাফল পাওয়া যায়নি
           </h1>
           <p className="text-xs sm:text-sm text-[#A4B0A8] leading-relaxed">
-            The requested match report does not exist or has been removed from the academy database.
+            অনুরোধকৃত ম্যাচের ফলাফল বিবরণটি পাওয়া যায়নি বা একাডেমি ডাটাবেস থেকে সরানো হয়েছে।
           </p>
         </div>
 
@@ -25,7 +25,7 @@ export default function ResultNotFound() {
               className="bg-[#B9F66B] text-[#0A0A0A] font-black text-xs uppercase tracking-wider px-6 py-2.5 rounded-full hover:bg-[#cbfd82] transition-colors cursor-pointer inline-flex items-center gap-2"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span>Back to Results</span>
+              <span>ফলাফল তালিকায় ফিরে যান</span>
             </Button>
           </Link>
         </div>

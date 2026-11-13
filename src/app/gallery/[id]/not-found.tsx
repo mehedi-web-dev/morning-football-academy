@@ -12,10 +12,10 @@ export default function GalleryNotFound() {
 
         <div className="space-y-2">
           <h1 className="text-2xl font-black uppercase tracking-tight text-white">
-            Media Item Not Found
+            ছবি বা মিডিয়া পাওয়া যায়নি
           </h1>
           <p className="text-xs sm:text-sm text-[#A4B0A8] leading-relaxed">
-            The requested gallery moment does not exist or has not been published to the official academy archive.
+            অনুরোধকৃত ছবি বা অ্যালবামটি পাওয়া যায়নি অথবা একাডেমি আর্কাইভে প্রকাশিত হয়নি।
           </p>
         </div>
 
@@ -25,7 +25,7 @@ export default function GalleryNotFound() {
               className="bg-[#B9F66B] text-[#0A0A0A] font-black text-xs uppercase tracking-wider px-6 py-2.5 rounded-full hover:bg-[#cbfd82] transition-colors cursor-pointer inline-flex items-center gap-2"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span>Back to Gallery</span>
+              <span>গ্যালারিতে ফিরে যান</span>
             </Button>
           </Link>
         </div>

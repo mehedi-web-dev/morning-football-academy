@@ -36,12 +36,12 @@ const PRESET_CATEGORIES = [
 ];
 
 const LOCAL_PRESET_IMAGES = [
-  { label: "Squad Lineup", url: "/images/team.jpeg" },
-  { label: "Stadium Arena", url: "/images/stadium-hero.jpg" },
-  { label: "Goalkeeper", url: "/images/players/player-4.jpg" },
-  { label: "Tactical Drills", url: "/images/players/player-3.jpg" },
-  { label: "Future Talent", url: "/images/players/player-1.jpg" },
-  { label: "Derby Celebration", url: "/images/players/test.jpg" },
+  { label: "দলের লাইনআপ", url: "/images/team.jpeg" },
+  { label: "স্টেডিয়াম এরিনা", url: "/images/stadium-hero.jpg" },
+  { label: "গোলরক্ষক", url: "/images/players/player-4.jpg" },
+  { label: "কৌশলগত ড্রিল", url: "/images/players/player-3.jpg" },
+  { label: "ভবিষ্যৎ প্রতিভা", url: "/images/players/player-1.jpg" },
+  { label: "ডার্বি উদযাপন", url: "/images/players/test.jpg" },
 ];
 
 /**
@@ -93,24 +93,24 @@ function GalleryFormInner({
     const errors: Record<string, string> = {};
 
     if (!title.trim() || title.trim().length < 2) {
-      errors.title = "Title must be at least 2 characters.";
+      errors.title = "শিরোনাম কমপক্ষে ২ অক্ষরের হতে হবে।";
     } else if (title.trim().length > 150) {
-      errors.title = "Title cannot exceed 150 characters.";
+      errors.title = "শিরোনাম ১৫০ অক্ষরের বেশি হতে পারবে না।";
     }
 
     if (description.trim().length > 1000) {
-      errors.description = "Description cannot exceed 1000 characters.";
+      errors.description = "বিবরণ ১০০০ অক্ষরের বেশি হতে পারবে না।";
     }
 
     if (!mediaUrl.trim()) {
-      errors.mediaUrl = "Media URL or local asset path is required.";
+      errors.mediaUrl = "মিডিয়া ইউআরএল বা লোকাল পাথ প্রদান করা আবশ্যক।";
     }
 
     const finalCategory = isCustomCategory ? customCategory.trim() : category;
     if (!finalCategory || finalCategory.length < 2) {
-      errors.category = "Category must be at least 2 characters.";
+      errors.category = "ক্যাটাগরি কমপক্ষে ২ অক্ষরের হতে হবে।";
     } else if (finalCategory.length > 50) {
-      errors.category = "Category cannot exceed 50 characters.";
+      errors.category = "ক্যাটাগরি ৫০ অক্ষরের বেশি হতে পারবে না।";
     }
 
     setFieldErrors(errors);
@@ -154,15 +154,15 @@ function GalleryFormInner({
         if (err.statusCode === 400 && typeof err.details === "object" && err.details) {
           const det = err.details as Record<string, string>;
           setFieldErrors(det);
-          setFormError(err.message || "Please fix validation errors in the form.");
+          setFormError(err.message || "ফর্মের ভুলগুলো সংশোধন করুন।");
         } else {
           setFormError(err.message);
         }
       } else {
         setFormError(
           isEdit
-            ? "An unexpected error occurred while updating the gallery item."
-            : "An unexpected error occurred while creating the gallery item."
+            ? "গ্যালারি মিডিয়া আপডেট করার সময় একটি ত্রুটি ঘটেছে।"
+            : "গ্যালারি মিডিয়া তৈরি করার সময় একটি ত্রুটি ঘটেছে।"
         );
       }
     } finally {
@@ -185,12 +185,12 @@ function GalleryFormInner({
             </div>
             <div>
               <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-tight">
-                {isEdit ? "EDIT GALLERY MEDIA." : "ADD GALLERY MEDIA."}
+                {isEdit ? "গ্যালারি মিডিয়া সম্পাদনা" : "নতুন মিডিয়া যুক্ত করুন"}
               </h2>
               <p className="text-[11px] text-[#A4B0A8] font-mono">
                 {isEdit
-                  ? `Updating media asset: ${galleryItemToEdit?.title}`
-                  : "Curate official matchday photo, squad portrait, or video highlight"}
+                  ? `মিডিয়া আপডেট হচ্ছে: ${galleryItemToEdit?.title}`
+                  : "অফিসিয়াল ম্যাচ ডে ফটো, স্কোয়াড পোর্ট্রেট বা ভিডিও হাইলাইট যুক্ত করুন"}
               </p>
             </div>
           </div>
@@ -214,7 +214,7 @@ function GalleryFormInner({
               <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
               <div className="space-y-0.5">
                 <span className="text-xs font-bold text-red-300">
-                  Submission Failed
+                  সংরক্ষণ ব্যর্থ হয়েছে
                 </span>
                 <p className="text-xs text-red-300/90">{formError}</p>
               </div>
@@ -224,7 +224,7 @@ function GalleryFormInner({
           {/* 1. Media Type Selector */}
           <div>
             <label className="text-[11px] font-mono text-[#A4B0A8] uppercase tracking-wider block mb-2">
-              MEDIA TYPE <span className="text-[#B9F66B]">*</span>
+              মিডিয়ার ধরন <span className="text-[#B9F66B]">*</span>
             </label>
             <div className="grid grid-cols-2 gap-3">
               <button
@@ -237,7 +237,7 @@ function GalleryFormInner({
                 }`}
               >
                 <ImageIcon className="w-4 h-4" />
-                <span>PHOTOGRAPH / IMAGE</span>
+                <span>ছবি / ফটোগ্রাফ</span>
               </button>
 
               <button
@@ -250,7 +250,7 @@ function GalleryFormInner({
                 }`}
               >
                 <Video className="w-4 h-4" />
-                <span>VIDEO REEL / CLIP</span>
+                <span>ভিডিও রিল / ক্লিপ</span>
               </button>
             </div>
           </div>
@@ -263,7 +263,7 @@ function GalleryFormInner({
                 htmlFor="media-title"
                 className="text-[11px] font-mono text-[#A4B0A8] uppercase tracking-wider block mb-1.5"
               >
-                TITLE <span className="text-[#B9F66B]">*</span>
+                শিরোনাম <span className="text-[#B9F66B]">*</span>
               </label>
               <input
                 id="media-title"
@@ -275,7 +275,7 @@ function GalleryFormInner({
                     setFieldErrors((prev) => ({ ...prev, title: "" }));
                   }
                 }}
-                placeholder="e.g. Squad Lineup Autumn Season"
+                placeholder="যেমন: শরৎকালীন স্কোয়াড লাইনআপ"
                 className={`w-full bg-[#101A17] border rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-[#A4B0A8]/50 focus:outline-none transition-colors ${
                   fieldErrors.title
                     ? "border-red-500/70 focus:border-red-500"
@@ -296,14 +296,14 @@ function GalleryFormInner({
                   htmlFor="media-category"
                   className="text-[11px] font-mono text-[#A4B0A8] uppercase tracking-wider block"
                 >
-                  CATEGORY <span className="text-[#B9F66B]">*</span>
+                  ক্যাটাগরি <span className="text-[#B9F66B]">*</span>
                 </label>
                 <button
                   type="button"
                   onClick={() => setIsCustomCategory(!isCustomCategory)}
                   className="text-[10px] font-mono text-[#B9F66B] hover:underline cursor-pointer"
                 >
-                  {isCustomCategory ? "Choose Preset" : "+ Custom"}
+                  {isCustomCategory ? "প্রিসেট নির্বাচন করুন" : "+ কাস্টম"}
                 </button>
               </div>
 
@@ -317,7 +317,7 @@ function GalleryFormInner({
                       setFieldErrors((prev) => ({ ...prev, category: "" }));
                     }
                   }}
-                  placeholder="e.g. TOURNAMENT HIGHLIGHTS"
+                  placeholder="যেমন: TOURNAMENT HIGHLIGHTS"
                   className={`w-full bg-[#101A17] border rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-[#A4B0A8]/50 focus:outline-none transition-colors ${
                     fieldErrors.category
                       ? "border-red-500/70 focus:border-red-500"
@@ -359,10 +359,10 @@ function GalleryFormInner({
                 htmlFor="media-url"
                 className="text-[11px] font-mono text-[#A4B0A8] uppercase tracking-wider block"
               >
-                MEDIA URL / PATH <span className="text-[#B9F66B]">*</span>
+                মিডিয়া ইউআরএল / পাথ <span className="text-[#B9F66B]">*</span>
               </label>
               <span className="text-[10px] font-mono text-[#A4B0A8]/70">
-                Direct URL or /images/... path
+                সরাসরি ইউআরএল বা /images/... পাথ
               </span>
             </div>
 
@@ -379,7 +379,7 @@ function GalleryFormInner({
                     setFieldErrors((prev) => ({ ...prev, mediaUrl: "" }));
                   }
                 }}
-                placeholder="https://... or /images/team.jpeg"
+                placeholder="https://... অথবা /images/team.jpeg"
                 className={`w-full bg-[#101A17] border rounded-xl pl-9 pr-3.5 py-2.5 text-xs text-white placeholder-[#A4B0A8]/50 focus:outline-none transition-colors ${
                   fieldErrors.mediaUrl
                     ? "border-red-500/70 focus:border-red-500"
@@ -397,7 +397,7 @@ function GalleryFormInner({
             {mediaType === "image" && (
               <div className="mt-2 flex flex-wrap items-center gap-1.5">
                 <span className="text-[10px] font-mono text-[#A4B0A8]/60 uppercase mr-1">
-                  Presets:
+                  প্রিসেট:
                 </span>
                 {LOCAL_PRESET_IMAGES.map((preset) => (
                   <button
@@ -427,7 +427,7 @@ function GalleryFormInner({
                 htmlFor="thumbnail-url"
                 className="text-[11px] font-mono text-[#A4B0A8] uppercase tracking-wider block mb-1.5"
               >
-                THUMBNAIL URL <span className="text-[#A4B0A8]/60 font-normal">(OPTIONAL POSTER)</span>
+                থাম্বনেইল ইউআরএল <span className="text-[#A4B0A8]/60 font-normal">(ঐচ্ছিক পোস্টার)</span>
               </label>
               <div className="relative">
                 <ImageIcon className="w-3.5 h-3.5 text-[#A4B0A8] absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -436,7 +436,7 @@ function GalleryFormInner({
                   type="text"
                   value={thumbnailUrl}
                   onChange={(e) => setThumbnailUrl(e.target.value)}
-                  placeholder="e.g. /images/stadium-hero.jpg or https://..."
+                  placeholder="যেমন: /images/stadium-hero.jpg অথবা https://..."
                   className="w-full bg-[#101A17] border border-white/10 rounded-xl pl-9 pr-3.5 py-2.5 text-xs text-white placeholder-[#A4B0A8]/50 focus:outline-none focus:border-[#B9F66B]/50 transition-colors"
                 />
               </div>
@@ -449,10 +449,10 @@ function GalleryFormInner({
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-mono text-[#B9F66B] uppercase tracking-wider flex items-center gap-1.5 font-bold">
                   <Eye className="w-3.5 h-3.5" />
-                  <span>LIVE MEDIA PREVIEW</span>
+                  <span>লাইভ মিডিয়া প্রিভিউ</span>
                 </span>
                 <span className="text-[10px] font-mono text-[#A4B0A8] uppercase">
-                  {mediaType}
+                  {mediaType === "image" ? "ছবি" : "ভিডিও"}
                 </span>
               </div>
 
@@ -462,7 +462,7 @@ function GalleryFormInner({
                     <div className="text-center p-4 space-y-1">
                       <AlertCircle className="w-6 h-6 text-amber-400 mx-auto" />
                       <p className="text-xs text-[#A4B0A8]">
-                        Unable to load image from provided URL. Please verify the link.
+                        প্রদত্ত ইউআরএল থেকে ছবি লোড করা যাচ্ছে না। দয়া করে লিঙ্কটি যাচাই করুন।
                       </p>
                     </div>
                   ) : (
@@ -488,7 +488,7 @@ function GalleryFormInner({
                       <Video className="w-5 h-5" />
                     </div>
                     <span className="relative z-10 text-xs font-mono text-white font-bold">
-                      VIDEO ASSET READY
+                      ভিডিও প্রস্তুত আছে
                     </span>
                     <span className="relative z-10 text-[10px] font-mono text-[#A4B0A8] truncate max-w-xs mt-0.5">
                       {mediaUrl}
@@ -505,15 +505,15 @@ function GalleryFormInner({
               htmlFor="media-description"
               className="text-[11px] font-mono text-[#A4B0A8] uppercase tracking-wider block mb-1.5"
             >
-              DESCRIPTION / CAPTION{" "}
-              <span className="text-[#A4B0A8]/60 font-normal">(OPTIONAL)</span>
+              বিবরণ / ক্যাপশন{" "}
+              <span className="text-[#A4B0A8]/60 font-normal">(ঐচ্ছিক)</span>
             </label>
             <textarea
               id="media-description"
               rows={3}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Provide background context, match tournament details, or athletic focus..."
+              placeholder="প্রেক্ষাপট, ম্যাচ টুর্নামেন্টের বিবরণ বা অনুশীলনের লক্ষ্য উল্লেখ করুন..."
               className="w-full bg-[#101A17] border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-[#A4B0A8]/50 focus:outline-none focus:border-[#B9F66B]/50 transition-colors resize-none leading-relaxed"
             />
           </div>
@@ -522,12 +522,12 @@ function GalleryFormInner({
           <div className="p-4 rounded-xl bg-[#101A17] border border-white/10 flex items-center justify-between gap-4">
             <div className="space-y-0.5">
               <span className="text-xs font-black text-white uppercase tracking-tight block">
-                PUBLISH STATUS
+                প্রকাশনা স্ট্যাটাস
               </span>
               <p className="text-[11px] text-[#A4B0A8] leading-tight">
                 {isPublished
-                  ? "Asset is published and visible on the academy gallery showcase."
-                  : "Draft mode: Hidden from public showcase until officially approved."}
+                  ? "মিডিয়াটি প্রকাশিত এবং একাডেমির পাবলিক গ্যালারিতে দৃশ্যমান।"
+                  : "খসড়া মোড: আনুষ্ঠানিকভাবে অনুমোদিত না হওয়া পর্যন্ত সর্বসাধারণের জন্য লুকানো থাকবে।"}
               </p>
             </div>
 
@@ -554,7 +554,7 @@ function GalleryFormInner({
               isDisabled={isSubmitting}
               className="bg-transparent border border-white/10 text-[#A4B0A8] hover:text-white hover:border-white/20 text-xs font-mono uppercase tracking-wider px-4 py-2.5 rounded-xl transition-colors cursor-pointer"
             >
-              Cancel
+              বাতিল
             </Button>
 
             <Button
@@ -565,12 +565,12 @@ function GalleryFormInner({
               {isSubmitting ? (
                 <>
                   <div className="w-3.5 h-3.5 border-2 border-[#101A17] border-t-transparent rounded-full animate-spin" />
-                  <span>SAVING...</span>
+                  <span>সংরক্ষণ করা হচ্ছে...</span>
                 </>
               ) : (
                 <>
                   <CheckCircle2 className="w-4 h-4" />
-                  <span>{isEdit ? "SAVE CHANGES" : "PUBLISH ASSET"}</span>
+                  <span>{isEdit ? "পরিবর্তন সংরক্ষণ করুন" : "মিডিয়া প্রকাশ করুন"}</span>
                 </>
               )}
             </Button>

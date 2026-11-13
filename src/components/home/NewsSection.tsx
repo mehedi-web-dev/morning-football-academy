@@ -47,7 +47,7 @@ function FeaturedArticleCard({ article }: { article: NewsArticle }) {
           </div>
 
           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#B9F66B]/15 border border-[#B9F66B]/30 text-[10px] font-mono font-black text-[#B9F66B] uppercase tracking-wider">
-            FEATURED
+            প্রধান সংবাদ
           </span>
         </div>
 
@@ -57,7 +57,7 @@ function FeaturedArticleCard({ article }: { article: NewsArticle }) {
             <Clock className="w-3.5 h-3.5 text-[#B9F66B]" />
             <span>{article.readTime}</span>
             <span className="text-white/20">•</span>
-            <span>BY {article.author.name.toUpperCase()}</span>
+            <span>প্রতিবেদক: {article.author.name}</span>
           </div>
 
           <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white uppercase tracking-tight leading-tight group-hover:text-[#B9F66B] transition-colors duration-300">
@@ -70,11 +70,11 @@ function FeaturedArticleCard({ article }: { article: NewsArticle }) {
 
           <div className="pt-2 flex items-center justify-between border-t border-white/10">
             <span className="inline-flex items-center gap-2 text-xs sm:text-sm font-black tracking-[0.16em] uppercase text-[#B9F66B]">
-              <span>FEATURE STORY</span>
+              <span>বিশেষ প্রতিবেদন</span>
             </span>
 
             <span className="text-[11px] font-mono text-[#A4B0A8]/60 uppercase tracking-widest">
-              DEMO ARTICLE
+              নমুনা প্রতিবেদন
             </span>
           </div>
         </div>
@@ -152,11 +152,11 @@ function SupportingArticleCard({ article }: { article: NewsArticle }) {
         {/* Read More Link */}
         <div className="pt-2 border-t border-white/[0.08] flex items-center justify-between">
           <span className="inline-flex items-center gap-1.5 text-xs font-black tracking-[0.14em] uppercase text-[#B9F66B]">
-            <span>ACADEMY DISPATCH</span>
+            <span>একাডেমি বুলেটিন</span>
           </span>
 
           <span className="text-[10px] font-mono text-[#A4B0A8]/50 uppercase tracking-wider">
-            DEMO
+            নমুনা
           </span>
         </div>
       </div>
@@ -191,12 +191,12 @@ export default function NewsSection() {
                 className="bg-[#18251F] text-[#B9F66B] border border-[#B9F66B]/30 font-black tracking-[0.24em] text-[11px] uppercase px-3 py-1"
               >
                 <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B] shadow-[0_0_8px_#B9F66B] mr-1.5 inline-block" />
-                CLUB JOURNAL
+                ক্লাব জার্নাল
               </Chip>
 
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 text-xs font-mono text-[#A4B0A8] uppercase tracking-wider">
                 <Newspaper className="w-3.5 h-3.5 text-[#B9F66B]" />
-                PRESS & DISPATCHES
+                সংবাদ ও প্রতিবেদন
               </span>
             </div>
 
@@ -205,12 +205,12 @@ export default function NewsSection() {
               id="news-section-heading"
               className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white uppercase"
             >
-              LATEST NEWS.
+              সর্বশেষ সংবাদ
             </h2>
 
             {/* Description */}
             <p className="text-sm sm:text-base text-[#A4B0A8] max-w-2xl leading-relaxed">
-              Stories, updates, and moments from our journey.
+              আমাদের অগ্রযাত্রা, একাডেমি কার্যক্রম ও ফুটবল মাঠের রোমাঞ্চকর সব গল্প ও আপডেট।
             </p>
           </div>
         </div>
@@ -233,8 +233,7 @@ export default function NewsSection() {
         {/* 3. Demonstration Content Disclaimer Footer */}
         <div className="pt-2 text-center border-t border-white/[0.06]">
           <p className="text-[11px] text-[#A4B0A8]/60 uppercase tracking-widest font-mono">
-            * Demonstration articles created for interface evaluation. Official club press
-            announcements and match day programs will be broadcast through this portal.
+            * ইন্টারফেস মূল্যায়নের জন্য তৈরি নমুনা সংবাদ প্রতিবেদন। ক্লাবের আনুষ্ঠানিক প্রেস বিজ্ঞপ্তি ও ম্যাচ ডে রিপোর্ট এই পোর্টালে সরাসরি প্রকাশিত হবে।
           </p>
         </div>
       </div>

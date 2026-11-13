@@ -50,7 +50,7 @@ export default function JoinAcademy() {
             className="bg-[#18251F]/90 backdrop-blur-md text-[#B9F66B] border border-[#B9F66B]/40 font-black tracking-[0.26em] text-[11px] sm:text-xs uppercase px-4 py-1.5 shadow-[0_0_20px_rgba(185,246,107,0.2)]"
           >
             <span className="w-2 h-2 rounded-full bg-[#B9F66B] shadow-[0_0_8px_#B9F66B] mr-2 inline-block animate-pulse" />
-            JOIN THE MOVEMENT
+            আমাদের সাথে যুক্ত হোন
           </Chip>
         </div>
 
@@ -60,16 +60,15 @@ export default function JoinAcademy() {
             id="join-academy-heading"
             className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-white uppercase leading-[1.06] drop-shadow-lg"
           >
-            YOUR JOURNEY{" "}
+            আপনার ফুটবল যাত্রার{" "}
             <span className="text-[#B9F66B] drop-shadow-[0_0_35px_rgba(185,246,107,0.45)]">
-              STARTS HERE.
+              শুরু এখানেই
             </span>
           </h2>
 
           {/* Description */}
           <p className="text-base sm:text-lg lg:text-xl text-[#A4B0A8] max-w-2xl mx-auto leading-relaxed font-normal">
-            Have the passion to play? Join Morning Football Academy and become part of our football
-            journey. Develop your skills, build confidence, and grow together.
+            ফুটবলের প্রতি গভীর ভালোবাসা আছে? Morning Football Academy-তে যোগ দিন এবং আমাদের ফুটবল পরিবারের অংশীদার হোন। আপনার প্রতিভা শাণিত করুন, আত্মবিশ্বাস বাড়ান এবং একসাথে এগিয়ে চলুন।
           </p>
         </div>
 
@@ -77,15 +76,15 @@ export default function JoinAcademy() {
         <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 pt-2 text-xs font-mono text-[#A4B0A8]">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#18251F]/80 backdrop-blur-sm border border-white/10">
             <Trophy className="w-3.5 h-3.5 text-[#B9F66B]" />
-            <span>ELITE COACHING</span>
+            <span>আধুনিক কোচিং</span>
           </span>
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#18251F]/80 backdrop-blur-sm border border-white/10">
             <Sparkles className="w-3.5 h-3.5 text-[#B9F66B]" />
-            <span>MODERN FACILITIES</span>
+            <span>উন্নত সুযোগ-সুবিধা</span>
           </span>
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#18251F]/80 backdrop-blur-sm border border-white/10">
             <ShieldCheck className="w-3.5 h-3.5 text-[#B9F66B]" />
-            <span>PLAYER PATHWAYS</span>
+            <span>খেলোয়াড় বিকাশ</span>
           </span>
         </div>
 
@@ -97,7 +96,7 @@ export default function JoinAcademy() {
               variant="primary"
               className="w-full sm:w-auto bg-[#B9F66B] text-[#0A0A0A] font-black text-xs sm:text-sm tracking-[0.18em] uppercase rounded-full px-8 sm:px-10 py-4 hover:bg-[#cbfd82] active:scale-95 transition-all duration-300 shadow-[0_0_24px_rgba(185,246,107,0.35)] hover:shadow-[0_0_36px_rgba(185,246,107,0.6)] cursor-pointer flex items-center justify-center gap-2.5"
             >
-              <span>JOIN THE ACADEMY</span>
+              <span>একাডেমিতে ভর্তি আবেদন</span>
               <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1.5" />
             </Button>
           </Link>
@@ -109,7 +108,7 @@ export default function JoinAcademy() {
               className="w-full sm:w-auto bg-white/[0.04] backdrop-blur-md border border-white/20 hover:border-[#B9F66B]/50 hover:bg-[#B9F66B]/10 text-white hover:text-[#B9F66B] font-black text-xs sm:text-sm tracking-[0.18em] uppercase rounded-full px-8 sm:px-10 py-4 active:scale-95 transition-all duration-300 cursor-pointer flex items-center justify-center gap-2.5"
             >
               <Mail className="w-4 h-4 text-[#B9F66B]" />
-              <span>CONTACT US</span>
+              <span>যোগাযোগ করুন</span>
             </Button>
           </Link>
         </div>

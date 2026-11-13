@@ -39,10 +39,10 @@ export default function AdminGuard({ children }: AdminGuardProps) {
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 text-xs font-mono font-bold tracking-[0.2em] uppercase text-[#B9F66B]">
               <Loader2 className="w-4 h-4 animate-spin text-[#B9F66B]" />
-              <span>VERIFYING ADMIN PRIVILEGES</span>
+              <span>অ্যাডমিন অনুমতি যাচাই করা হচ্ছে...</span>
             </div>
             <p className="text-xs text-[#A4B0A8]">
-              Connecting to Morning Football Academy authentication service...
+              অথেন্টিকেশন সার্ভারের সাথে সংযোগ স্থাপন করা হচ্ছে...
             </p>
           </div>
         </div>
@@ -59,10 +59,10 @@ export default function AdminGuard({ children }: AdminGuardProps) {
           </div>
           <div className="space-y-1">
             <h3 className="text-base font-black uppercase tracking-tight text-white">
-              ACCESS RESTRICTED
+              প্রবেশাধিকার সংরক্ষিত
             </h3>
             <p className="text-xs text-[#A4B0A8]">
-              Unauthorized access. Redirecting to staff login portal...
+              অননুমোদিত প্রবেশাধিকার। লগইন পোর্টালে পাঠানো হচ্ছে...
             </p>
           </div>
         </div>

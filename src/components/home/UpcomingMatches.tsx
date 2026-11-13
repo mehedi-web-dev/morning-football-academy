@@ -58,7 +58,7 @@ export default function UpcomingMatches() {
       })
       .catch(() => {
         if (!abortSignal?.aborted) {
-          setError("Failed to load match fixtures and results from database.");
+          setError("ডাটাবেস থেকে ম্যাচ ফিক্সচার ও ফলাফল লোড করতে ব্যর্থ হয়েছে।");
           setIsLoading(false);
         }
       });
@@ -93,16 +93,16 @@ export default function UpcomingMatches() {
           <div className="space-y-3">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#18251F] border border-white/10 text-[11px] font-black tracking-[0.24em] text-[#B9F66B] uppercase">
               <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B] shadow-[0_0_8px_#B9F66B]" />
-              MATCH CENTER
+              ম্যাচ সেন্টার
             </div>
             <h2
               id="upcoming-matches-heading"
               className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white uppercase"
             >
-              THE NEXT CHALLENGE
+              পরবর্তী চ্যালেঞ্জ
             </h2>
             <p className="text-sm sm:text-base text-[#A4B0A8] max-w-xl leading-relaxed">
-              Every match is another opportunity to prove ourselves. Follow our upcoming academy fixtures and match results.
+              প্রতিটি ম্যাচ আমাদের শ্রেষ্ঠত্ব প্রমাণের নতুন সুযোগ। আমাদের একাডেমি দলের আসন্ন ফিক্সচার ও সর্বশেষ ফলাফল দেখুন।
             </p>
           </div>
 
@@ -111,7 +111,7 @@ export default function UpcomingMatches() {
               href="/matches"
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/[0.04] border border-white/15 hover:border-[#B9F66B]/50 hover:bg-[#B9F66B]/10 text-xs font-bold tracking-[0.14em] uppercase text-white hover:text-[#B9F66B] transition-all duration-300 group cursor-pointer"
             >
-              <span>View All Fixtures</span>
+              <span>সকল ফিক্সচার দেখুন</span>
               <ArrowRight className="w-3.5 h-3.5 text-[#B9F66B] transition-transform duration-300 group-hover:translate-x-1" />
             </Link>
           </div>
@@ -127,7 +127,7 @@ export default function UpcomingMatches() {
               className="bg-[#202E27] border border-white/10 text-white font-mono text-xs uppercase tracking-wider px-4 py-2 rounded-xl hover:border-[#B9F66B]/50 transition-colors cursor-pointer inline-flex items-center gap-2"
             >
               <RefreshCw className="w-3.5 h-3.5" />
-              <span>Retry</span>
+              <span>আবার চেষ্টা করুন</span>
             </Button>
           </div>
         ) : isLoading ? (
@@ -197,7 +197,7 @@ export default function UpcomingMatches() {
                     />
                     <div className="space-y-1">
                       <span className="text-[10px] sm:text-[11px] font-bold tracking-[0.2em] uppercase text-[#B9F66B]">
-                        HOME TEAM
+                        হোম টিম
                       </span>
                       <h3 className="text-lg sm:text-2xl font-black text-white uppercase tracking-tight">
                         {featuredMatch.homeAway === "home"
@@ -236,7 +236,7 @@ export default function UpcomingMatches() {
                     />
                     <div className="space-y-1">
                       <span className="text-[10px] sm:text-[11px] font-bold tracking-[0.2em] uppercase text-[#A4B0A8]">
-                        AWAY TEAM
+                        অ্যাওয়ে টিম
                       </span>
                       <h3 className="text-lg sm:text-2xl font-black text-white uppercase tracking-tight">
                         {featuredMatch.homeAway === "away"
@@ -254,7 +254,7 @@ export default function UpcomingMatches() {
                   <div className="flex items-center gap-2">
                     <Calendar className="w-4 h-4 text-[#B9F66B]" />
                     <span>
-                      Date:{" "}
+                      তারিখ:{" "}
                       <strong className="text-white font-bold">
                         {formatMatchDate(featuredMatch.matchDate)}
                       </strong>
@@ -263,7 +263,7 @@ export default function UpcomingMatches() {
                   <div className="flex items-center gap-2">
                     <Clock className="w-4 h-4 text-[#B9F66B]" />
                     <span>
-                      Kickoff:{" "}
+                      সময়:{" "}
                       <strong className="text-white font-bold">
                         {formatKickOffTime(featuredMatch.kickOffTime)}
                       </strong>
@@ -272,7 +272,7 @@ export default function UpcomingMatches() {
                   <div className="flex items-center gap-2">
                     <MapPin className="w-4 h-4 text-[#B9F66B]" />
                     <span>
-                      Venue:{" "}
+                      ভেন্যু:{" "}
                       <strong className="text-white font-bold">
                         {featuredMatch.venue}
                       </strong>
@@ -287,7 +287,7 @@ export default function UpcomingMatches() {
                   <Button
                     className="w-full sm:w-auto bg-[#B9F66B] text-[#0A0A0A] font-black text-xs tracking-[0.16em] uppercase rounded-full px-7 py-3 hover:bg-[#cbfd82] active:scale-95 transition-all duration-300 shadow-[0_0_15px_rgba(185,246,107,0.25)] hover:shadow-[0_0_24px_rgba(185,246,107,0.45)] cursor-pointer flex items-center justify-center gap-2"
                   >
-                    <span>MATCH DETAILS</span>
+                    <span>ম্যাচের বিস্তারিত</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </Button>
                 </Link>
@@ -300,10 +300,10 @@ export default function UpcomingMatches() {
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-black tracking-[0.2em] text-white uppercase flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B]" />
-                    UPCOMING FIXTURES
+                    আসন্ন ফিক্সচারসমূহ
                   </h3>
                   <span className="text-[11px] font-mono text-[#A4B0A8] uppercase">
-                    Official Match Schedule
+                    অফিসিয়াল ম্যাচ সূচি
                   </span>
                 </div>
 
@@ -324,10 +324,10 @@ export default function UpcomingMatches() {
 
             <div className="space-y-2 max-w-md mx-auto">
               <h3 className="text-lg font-black text-white uppercase tracking-tight">
-                No Upcoming Matches Scheduled
+                কোনো আসন্ন ম্যাচ নির্ধারিত নেই
               </h3>
               <p className="text-xs sm:text-sm text-[#A4B0A8] leading-relaxed">
-                The academy coaching team is currently confirming the next tournament fixtures and friendly matchups. Please check back soon or browse our full match archive.
+                একাডেমি কোচিং টিম শীঘ্রই পরবর্তী টুর্নামেন্ট ও প্রীতি ম্যাচের সূচি চূড়ান্ত করবে। অনুগ্রহ করে পরবর্তীতে দেখুন অথবা পূর্ববর্তী ম্যাচ ফলাফল দেখুন।
               </p>
             </div>
 
@@ -336,7 +336,7 @@ export default function UpcomingMatches() {
                 href="/matches"
                 className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#B9F66B] text-[#0A0A0A] font-black text-xs uppercase tracking-wider hover:bg-[#cbfd82] transition-colors cursor-pointer"
               >
-                <span>VIEW MATCH ARCHIVE</span>
+                <span>ম্যাচ সূচি ও আর্কাইভ দেখুন</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
@@ -350,11 +350,11 @@ export default function UpcomingMatches() {
               <div className="flex items-center gap-2">
                 <Activity className="w-4 h-4 text-[#B9F66B]" />
                 <h3 className="text-sm sm:text-base font-black tracking-[0.2em] text-white uppercase">
-                  RECENT MATCH RESULTS
+                  সাম্প্রতিক ম্যাচের ফলাফল
                 </h3>
               </div>
               <p className="text-xs text-[#A4B0A8]">
-                Official final scores and outcomes from our latest academy matches.
+                আমাদের একাডেমি দলের সর্বশেষ সমাপ্ত ম্যাচসমূহের চূড়ান্ত স্কোর ও ফলাফল।
               </p>
             </div>
 
@@ -363,7 +363,7 @@ export default function UpcomingMatches() {
                 href="/results"
                 className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#B9F66B] text-[#0A0A0A] font-black text-xs uppercase tracking-wider hover:bg-[#cbfd82] transition-colors cursor-pointer"
               >
-                <span>VIEW ALL RESULTS</span>
+                <span>সকল ফলাফল দেখুন</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
@@ -382,17 +382,17 @@ export default function UpcomingMatches() {
                 <Activity className="w-5 h-5 text-[#B9F66B]" />
               </div>
               <p className="text-sm font-bold text-white uppercase tracking-wider">
-                No Results Recorded Yet
+                এখনও কোনো ফলাফল রেকর্ড করা হয়নি
               </p>
               <p className="text-xs text-[#A4B0A8] max-w-md mx-auto leading-relaxed">
-                Official sanctioned match reports and final scores will appear here after upcoming academy fixtures are concluded.
+                আসন্ন একাডেমি ম্যাচগুলো শেষ হওয়ার পর এখানে অফিসিয়াল ফলাফল ও স্কোরবোর্ড প্রকাশিত হবে।
               </p>
             </div>
           )}
 
           <div className="pt-2 text-center">
             <p className="text-[11px] text-[#A4B0A8]/60 uppercase tracking-widest font-mono">
-              Live tournament fixtures and scoreline records updated directly from the Morning Football Academy database.
+              Morning Football Academy ডাটাবেস থেকে সরাসরি হালনাগাদকৃত ম্যাচ ফিক্সচার ও স্কোরলাইন রেকর্ড।
             </p>
           </div>
         </div>

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ArrowRight, User } from "lucide-react";
 import { PlayerDocument } from "../../lib/api-client";
 import { getShortPosition } from "../../lib/player-utils";
+import { toBnNum, getBnPosition } from "../../lib/bn-utils";
 
 export { getShortPosition };
 
@@ -22,14 +23,14 @@ export default function PublicPlayerCard({ player }: { player: PlayerDocument })
     <Link
       href={profileUrl}
       className="group relative flex flex-col rounded-2xl bg-[#18181B] border border-white/10 overflow-hidden transition-all duration-300 hover:border-[#B9F66B]/50 hover:shadow-[0_20px_40px_rgba(0,0,0,0.6)] hover:-translate-y-1.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B9F66B]"
-      aria-label={`View profile for ${player.fullName}, #${player.jerseyNumber} ${player.position}`}
+      aria-label={`${player.fullName}-এর প্রোফাইল দেখুন, #${toBnNum(player.jerseyNumber)} ${getBnPosition(player.position)}`}
     >
       {/* 1. Portrait Container with 3:4 Aspect Ratio */}
       <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#111111] flex items-center justify-center">
         {player.photo && !imageError ? (
           <Image
             src={player.photo}
-            alt={`${player.fullName} - ${player.position} #${player.jerseyNumber} of Morning Football Academy`}
+            alt={`${player.fullName} - ${getBnPosition(player.position)} #${toBnNum(player.jerseyNumber)}, Morning Football Academy`}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-108"
@@ -42,10 +43,10 @@ export default function PublicPlayerCard({ player }: { player: PlayerDocument })
               <User className="w-10 h-10 opacity-80" />
             </div>
             <span className="text-3xl font-black font-mono text-white/30 group-hover:text-[#B9F66B]/50 transition-colors">
-              #{player.jerseyNumber}
+              #{toBnNum(player.jerseyNumber)}
             </span>
             <span className="text-[10px] font-mono text-[#A4B0A8]/60 uppercase tracking-widest mt-1">
-              {player.position}
+              {getBnPosition(player.position)}
             </span>
           </div>
         )}
@@ -67,7 +68,7 @@ export default function PublicPlayerCard({ player }: { player: PlayerDocument })
         {/* Top-Right: Jersey Number Watermark */}
         <div className="absolute top-2 right-3 z-10 select-none pointer-events-none">
           <span className="text-4xl sm:text-5xl font-black font-mono tracking-tighter text-white/20 group-hover:text-[#B9F66B] group-hover:drop-shadow-[0_0_15px_rgba(185,246,107,0.4)] transition-all duration-300">
-            {player.jerseyNumber}
+            {toBnNum(player.jerseyNumber)}
           </span>
         </div>
 
@@ -76,11 +77,13 @@ export default function PublicPlayerCard({ player }: { player: PlayerDocument })
           {/* Nationality & Position */}
           <div className="space-y-0.5">
             <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-bold tracking-[0.2em] text-[#A4B0A8] uppercase">
-              <span>{player.position}</span>
+              <span>{getBnPosition(player.position)}</span>
               {player.nationality && (
                 <>
                   <span className="text-white/30">•</span>
-                  <span className="text-[#B9F66B]">{player.nationality}</span>
+                  <span className="text-[#B9F66B]">
+                    {player.nationality === "Bangladesh" ? "বাংলাদেশ" : player.nationality}
+                  </span>
                 </>
               )}
             </div>
@@ -93,12 +96,12 @@ export default function PublicPlayerCard({ player }: { player: PlayerDocument })
           {/* Action Row */}
           <div className="mt-3 pt-3 border-t border-white/10 flex items-center justify-between">
             <span className="text-xs font-bold tracking-wider text-[#B9F66B] uppercase flex items-center gap-1.5 group-hover:gap-2.5 transition-all">
-              <span>View Profile</span>
+              <span>প্রোফাইল দেখুন</span>
               <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
             </span>
 
             <span className="text-[11px] font-mono font-bold text-white/40 group-hover:text-white/70 transition-colors">
-              #{player.jerseyNumber}
+              #{toBnNum(player.jerseyNumber)}
             </span>
           </div>
         </div>

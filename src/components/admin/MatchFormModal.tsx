@@ -26,11 +26,11 @@ interface MatchFormModalProps {
 }
 
 const MATCH_STATUS_OPTIONS: { label: string; value: MatchStatus }[] = [
-  { label: "Upcoming Fixture", value: "upcoming" },
-  { label: "Live in Progress", value: "live" },
-  { label: "Full Time / Completed", value: "completed" },
-  { label: "Postponed", value: "postponed" },
-  { label: "Cancelled", value: "cancelled" },
+  { label: "আসন্ন ফিক্সচার", value: "upcoming" },
+  { label: "লাইভ চলছে", value: "live" },
+  { label: "পূর্ণ সময় / সমাপ্ত", value: "completed" },
+  { label: "স্থগিত", value: "postponed" },
+  { label: "বাতিল", value: "cancelled" },
 ];
 
 const COMPETITION_PRESETS = [
@@ -89,29 +89,29 @@ function MatchFormInner({
     const errors: Record<string, string> = {};
 
     if (!opponent.trim() || opponent.trim().length < 2) {
-      errors.opponent = "Opponent name must be at least 2 characters long.";
+      errors.opponent = "প্রতিপক্ষ ক্লাবের নাম কমপক্ষে ২ অক্ষরের হতে হবে।";
     }
 
     if (!competition.trim() || competition.trim().length < 2) {
-      errors.competition = "Competition name must be at least 2 characters long.";
+      errors.competition = "টুর্নামেন্ট বা প্রতিযোগিতার নাম কমপক্ষে ২ অক্ষরের হতে হবে।";
     }
 
     if (!venue.trim() || venue.trim().length < 2) {
-      errors.venue = "Match venue must be at least 2 characters long.";
+      errors.venue = "ম্যাচ ভেন্যু কমপক্ষে ২ অক্ষরের হতে হবে।";
     }
 
     if (!matchDate) {
-      errors.matchDate = "Match date is required.";
+      errors.matchDate = "ম্যাচের তারিখ নির্বাচন করা আবশ্যক।";
     } else {
       const parsedDate = new Date(matchDate);
       if (isNaN(parsedDate.getTime())) {
-        errors.matchDate = "Invalid date format.";
+        errors.matchDate = "অকার্যকর তারিখ ফরম্যাট।";
       }
     }
 
     // HH:mm regex
     if (!kickOffTime.trim() || !/^([01]\d|2[0-3]):([0-5]\d)$/.test(kickOffTime.trim())) {
-      errors.kickOffTime = "Kickoff time must be in 24-hour HH:mm format (e.g. 15:00 or 10:30).";
+      errors.kickOffTime = "কিক-অফ সময় ২৪-ঘণ্টা HH:mm ফরম্যাটে হতে হবে (যেমনঃ 15:00 বা 10:30)।";
     }
 
     setFieldErrors(errors);
@@ -161,7 +161,7 @@ function MatchFormInner({
           setFieldErrors(serverErrors);
         }
       } else {
-        setFormError("Failed to save match schedule. Please check server connection.");
+        setFormError("ম্যাচ সূচি সংরক্ষণ করতে ব্যর্থ হয়েছে। অনুগ্রহ করে সার্ভার সংযোগ পরীক্ষা করুন।");
       }
     } finally {
       setIsSubmitting(false);
@@ -181,12 +181,12 @@ function MatchFormInner({
               id="match-form-title"
               className="text-base sm:text-xl font-black text-white uppercase tracking-tight"
             >
-              {isEdit ? "Edit Match Fixture" : "Schedule New Fixture"}
+              {isEdit ? "ম্যাচ ফিক্সচার সম্পাদনা" : "নতুন ফিক্সচার নির্ধারণ"}
             </h2>
             <span className="text-[11px] font-mono text-[#A4B0A8] block">
               {isEdit
-                ? `Updating match details vs ${matchToEdit?.opponent}`
-                : "Register an upcoming match or tournament fixture in MongoDB"}
+                ? `${matchToEdit?.opponent}-এর বিরুদ্ধে ম্যাচের তথ্য আপডেট করা হচ্ছে`
+                : "ডাটাবেসে নতুন ম্যাচ বা টুর্নামেন্ট ফিক্সচার যোগ করুন"}
             </span>
           </div>
         </div>
@@ -216,19 +216,19 @@ function MatchFormInner({
         <div className="space-y-4">
           <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-[#B9F66B] flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B]" />
-            1. OPPONENT & TOURNAMENT
+            ১. প্রতিপক্ষ ও প্রতিযোগিতা
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Opponent */}
             <div className="space-y-1">
               <label className="text-xs font-mono uppercase text-[#A4B0A8] tracking-wider block">
-                Opponent Club Name <span className="text-red-400">*</span>
+                প্রতিপক্ষ ক্লাবের নাম <span className="text-red-400">*</span>
               </label>
               <input
                 type="text"
                 required
-                placeholder="e.g. City Rovers Academy"
+                placeholder="যেমনঃ City Rovers Academy"
                 value={opponent}
                 onChange={(e) => setOpponent(e.target.value)}
                 className={`w-full bg-[#101A17] border rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-white/20 focus:outline-none transition-colors ${
@@ -247,11 +247,11 @@ function MatchFormInner({
             {/* Opponent Logo (Optional) */}
             <div className="space-y-1">
               <label className="text-xs font-mono uppercase text-[#A4B0A8] tracking-wider block">
-                Opponent Logo URL (Optional)
+                প্রতিপক্ষ লোগো ইউআরএল (ঐচ্ছিক)
               </label>
               <input
                 type="text"
-                placeholder="e.g. /images/opponents/rovers.png"
+                placeholder="যেমনঃ /images/opponents/rovers.png"
                 value={opponentLogo}
                 onChange={(e) => setOpponentLogo(e.target.value)}
                 className="w-full bg-[#101A17] border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-white/20 focus:outline-none focus:border-[#B9F66B]/60 transition-colors"
@@ -261,12 +261,12 @@ function MatchFormInner({
             {/* Competition with Presets */}
             <div className="space-y-1.5 sm:col-span-2">
               <label className="text-xs font-mono uppercase text-[#A4B0A8] tracking-wider block">
-                Competition / Tournament <span className="text-red-400">*</span>
+                প্রতিযোগিতা / টুর্নামেন্ট <span className="text-red-400">*</span>
               </label>
               <input
                 type="text"
                 required
-                placeholder="e.g. Academy Youth League"
+                placeholder="যেমনঃ Academy Youth League"
                 value={competition}
                 onChange={(e) => setCompetition(e.target.value)}
                 className={`w-full bg-[#101A17] border rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-white/20 focus:outline-none transition-colors ${
@@ -283,7 +283,7 @@ function MatchFormInner({
 
               {/* Presets */}
               <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                <span className="text-[10px] font-mono text-[#A4B0A8]">Presets:</span>
+                <span className="text-[10px] font-mono text-[#A4B0A8]">প্রিসেট:</span>
                 {COMPETITION_PRESETS.map((comp) => (
                   <button
                     key={comp}
@@ -303,14 +303,14 @@ function MatchFormInner({
         <div className="space-y-4 pt-2 border-t border-white/10">
           <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-[#B9F66B] flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B]" />
-            2. SCHEDULE & LOGISTICS
+            ২. সূচি ও ভেন্যু
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Match Date */}
             <div className="space-y-1">
               <label className="text-xs font-mono uppercase text-[#A4B0A8] tracking-wider block">
-                Match Date <span className="text-red-400">*</span>
+                ম্যাচের তারিখ <span className="text-red-400">*</span>
               </label>
               <input
                 type="date"
@@ -333,7 +333,7 @@ function MatchFormInner({
             {/* Kick-off Time */}
             <div className="space-y-1">
               <label className="text-xs font-mono uppercase text-[#A4B0A8] tracking-wider block">
-                Kickoff Time (HH:mm, 24-hr) <span className="text-red-400">*</span>
+                কিক-অফ সময় (HH:mm, ২৪-ঘণ্টা) <span className="text-red-400">*</span>
               </label>
               <input
                 type="text"
@@ -357,12 +357,12 @@ function MatchFormInner({
             {/* Venue */}
             <div className="space-y-1.5 sm:col-span-2">
               <label className="text-xs font-mono uppercase text-[#A4B0A8] tracking-wider block">
-                Match Venue <span className="text-red-400">*</span>
+                ম্যাচ ভেন্যু <span className="text-red-400">*</span>
               </label>
               <input
                 type="text"
                 required
-                placeholder="e.g. Main Stadium Arena"
+                placeholder="যেমনঃ Main Stadium Arena"
                 value={venue}
                 onChange={(e) => setVenue(e.target.value)}
                 className={`w-full bg-[#101A17] border rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-white/20 focus:outline-none transition-colors ${
@@ -379,7 +379,7 @@ function MatchFormInner({
 
               {/* Venue Presets */}
               <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                <span className="text-[10px] font-mono text-[#A4B0A8]">Presets:</span>
+                <span className="text-[10px] font-mono text-[#A4B0A8]">প্রিসেট:</span>
                 {VENUE_PRESETS.map((v) => (
                   <button
                     key={v}
@@ -396,7 +396,7 @@ function MatchFormInner({
             {/* Home / Away Toggle */}
             <div className="space-y-1.5">
               <label className="text-xs font-mono uppercase text-[#A4B0A8] tracking-wider block">
-                Venue Location <span className="text-red-400">*</span>
+                ভেন্যু নির্ধারণ <span className="text-red-400">*</span>
               </label>
               <div className="grid grid-cols-2 gap-2">
                 <button
@@ -408,7 +408,7 @@ function MatchFormInner({
                       : "bg-[#101A17] text-[#A4B0A8] border-white/10 hover:text-white"
                   }`}
                 >
-                  HOME GAME
+                  হোম ম্যাচ
                 </button>
                 <button
                   type="button"
@@ -419,7 +419,7 @@ function MatchFormInner({
                       : "bg-[#101A17] text-[#A4B0A8] border-white/10 hover:text-white"
                   }`}
                 >
-                  AWAY GAME
+                  অ্যাওয়ে ম্যাচ
                 </button>
               </div>
             </div>
@@ -427,7 +427,7 @@ function MatchFormInner({
             {/* Match Status */}
             <div className="space-y-1.5">
               <label className="text-xs font-mono uppercase text-[#A4B0A8] tracking-wider block">
-                Match Status <span className="text-red-400">*</span>
+                ম্যাচ স্ট্যাটাস <span className="text-red-400">*</span>
               </label>
               <select
                 value={status}
@@ -453,7 +453,7 @@ function MatchFormInner({
             isDisabled={isSubmitting}
             className="px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-xs font-mono text-white hover:bg-white/[0.08] transition-colors cursor-pointer"
           >
-            CANCEL
+            বাতিল
           </Button>
 
           <Button
@@ -462,16 +462,16 @@ function MatchFormInner({
             className="px-5 py-2.5 rounded-xl bg-[#B9F66B] hover:bg-[#a8ec56] text-[#101A17] font-black text-xs uppercase tracking-wider transition-all shadow-md cursor-pointer flex items-center gap-2"
           >
             {isSubmitting ? (
-              <span>SAVING...</span>
+              <span>সংরক্ষণ করা হচ্ছে...</span>
             ) : isEdit ? (
               <>
                 <CheckCircle2 className="w-4 h-4" />
-                <span>UPDATE FIXTURE</span>
+                <span>আপডেট সংরক্ষণ করুন</span>
               </>
             ) : (
               <>
                 <Sparkles className="w-4 h-4" />
-                <span>SCHEDULE MATCH</span>
+                <span>ম্যাচ নির্ধারণ করুন</span>
               </>
             )}
           </Button>

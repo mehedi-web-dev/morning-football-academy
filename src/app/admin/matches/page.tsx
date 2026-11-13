@@ -30,40 +30,29 @@ import {
   MatchStatus,
   ApiError,
 } from "../../../lib/api-client";
+import {
+  toBnNum,
+  formatBnDate,
+  formatBnKickOffTime,
+  getBnMatchStatus,
+} from "../../../lib/bn-utils";
 import MatchFormModal from "../../../components/admin/MatchFormModal";
 import DeleteMatchModal from "../../../components/admin/DeleteMatchModal";
 
 const STATUS_FILTERS: { label: string; value: string }[] = [
-  { label: "ALL STATUS", value: "ALL" },
-  { label: "UPCOMING", value: "upcoming" },
-  { label: "LIVE", value: "live" },
-  { label: "COMPLETED", value: "completed" },
-  { label: "POSTPONED", value: "postponed" },
-  { label: "CANCELLED", value: "cancelled" },
+  { label: "সকল স্ট্যাটাস", value: "ALL" },
+  { label: "আসন্ন", value: "upcoming" },
+  { label: "লাইভ", value: "live" },
+  { label: "সমাপ্ত", value: "completed" },
+  { label: "স্থগিত", value: "postponed" },
+  { label: "বাতিল", value: "cancelled" },
 ];
 
 const HOME_AWAY_FILTERS: { label: string; value: string }[] = [
-  { label: "ALL VENUES", value: "ALL" },
-  { label: "HOME ONLY", value: "home" },
-  { label: "AWAY ONLY", value: "away" },
+  { label: "সকল ভেন্যু", value: "ALL" },
+  { label: "কেবল হোম", value: "home" },
+  { label: "কেবল অ্যাওয়ে", value: "away" },
 ];
-
-/**
- * Format match fixture date
- */
-function formatMatchDate(dateStr: string): string {
-  try {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString("en-US", {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  } catch {
-    return dateStr;
-  }
-}
 
 /**
  * Match status badge styling
@@ -74,38 +63,38 @@ function getStatusBadge(status: MatchStatus) {
       return (
         <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#B9F66B]/15 text-[#B9F66B] border border-[#B9F66B]/30 text-[10px] font-mono font-bold uppercase tracking-wider">
           <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B]" />
-          UPCOMING
+          আসন্ন
         </span>
       );
     case "live":
       return (
         <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-red-500/20 text-red-300 border border-red-500/40 text-[10px] font-mono font-bold uppercase tracking-wider animate-pulse">
           <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping" />
-          LIVE NOW
+          লাইভ চলছে
         </span>
       );
     case "completed":
       return (
         <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/10 text-white/80 border border-white/20 text-[10px] font-mono font-bold uppercase tracking-wider">
-          COMPLETED
+          সমাপ্ত
         </span>
       );
     case "postponed":
       return (
         <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 text-[10px] font-mono font-bold uppercase tracking-wider">
-          POSTPONED
+          স্থগিত
         </span>
       );
     case "cancelled":
       return (
         <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-500/15 text-rose-300 border border-rose-500/30 text-[10px] font-mono font-bold uppercase tracking-wider">
-          CANCELLED
+          বাতিল
         </span>
       );
     default:
       return (
         <span className="px-2.5 py-0.5 rounded-full bg-white/5 text-white/60 text-[10px] font-mono uppercase">
-          {status}
+          {getBnMatchStatus(status)}
         </span>
       );
   }
@@ -188,7 +177,7 @@ export default function AdminMatchesPage() {
               setError(err.message);
               setIsAuthError(err.isAuthError);
             } else {
-              setError("Failed to fetch match fixtures from database.");
+              setError("ডাটাবেস থেকে ম্যাচ ফিক্সচার লোড করতে ব্যর্থ হয়েছে।");
             }
             setIsLoading(false);
           }
@@ -229,8 +218,8 @@ export default function AdminMatchesPage() {
     setNotification({
       type: "success",
       message: isEdit
-        ? `Fixture vs ${savedMatch.opponent} updated successfully.`
-        : `Fixture vs ${savedMatch.opponent} scheduled successfully.`,
+        ? `${savedMatch.opponent}-এর বিরুদ্ধে ফিক্সচার সফলভাবে আপডেট করা হয়েছে।`
+        : `${savedMatch.opponent}-এর বিরুদ্ধে ফিক্সচার সফলভাবে নির্ধারণ করা হয়েছে।`,
     });
     handleRefresh();
   };
@@ -249,7 +238,7 @@ export default function AdminMatchesPage() {
       await apiClient.matches.delete(matchToDelete._id);
       setNotification({
         type: "success",
-        message: `Fixture vs ${matchToDelete.opponent} deleted successfully.`,
+        message: `${matchToDelete.opponent}-এর বিরুদ্ধে ফিক্সচার সফলভাবে মুছে ফেলা হয়েছে।`,
       });
       setMatchToDelete(null);
       if (matches.length === 1 && page > 1) {
@@ -259,7 +248,7 @@ export default function AdminMatchesPage() {
       }
     } catch (err: unknown) {
       const msg =
-        err instanceof ApiError ? err.message : "Failed to delete match fixture.";
+        err instanceof ApiError ? err.message : "ম্যাচ ফিক্সচার মুছে ফেলতে ব্যর্থ হয়েছে।";
       setNotification({ type: "error", message: msg });
     } finally {
       setIsDeleting(false);
@@ -287,18 +276,18 @@ export default function AdminMatchesPage() {
           <div className="flex items-center gap-2">
             <Chip className="bg-[#18251F] text-[#B9F66B] border border-[#B9F66B]/30 font-black tracking-[0.2em] text-[10px] uppercase px-2.5 py-0.5">
               <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B] shadow-[0_0_8px_#B9F66B] mr-1.5 inline-block" />
-              FIXTURE SCHEDULE
+              ফিক্সচার সূচি
             </Chip>
             <span className="text-[11px] font-mono text-[#A4B0A8]">
-              {totalCount} MATCHES IN DATABASE
+              {toBnNum(totalCount)}টি ম্যাচ ডাটাবেসে সংরক্ষিত
             </span>
           </div>
 
           <h2 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight mt-1">
-            MATCH FIXTURES.
+            ম্যাচ ফিক্সচার।
           </h2>
           <p className="text-xs sm:text-sm text-[#A4B0A8]">
-            Plan upcoming matches, assign home/away venues, set kickoff times, and oversee matchday rosters.
+            আসন্ন ম্যাচের পরিকল্পনা, হোম/অ্যাওয়ে ভেন্যু নির্ধারণ, কিক-অফ সময় ও ম্যাচ ডে স্কোয়াড পরিচালনা করুন।
           </p>
         </div>
 
@@ -308,7 +297,7 @@ export default function AdminMatchesPage() {
             className="bg-[#B9F66B] hover:bg-[#a8ec56] text-[#101A17] font-black text-xs uppercase tracking-wider px-4 py-2.5 rounded-xl transition-all shadow-md cursor-pointer flex items-center gap-2"
           >
             <Plus className="w-4 h-4" />
-            <span>SCHEDULE MATCH</span>
+            <span>নতুন ম্যাচ নির্ধারণ করুন</span>
           </Button>
         </div>
       </div>
@@ -352,7 +341,7 @@ export default function AdminMatchesPage() {
             <Search className="w-4 h-4 text-[#A4B0A8] absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Filter by opponent club..."
+              placeholder="প্রতিপক্ষ ক্লাব দিয়ে ফিল্টার করুন..."
               value={opponentSearch}
               onChange={(e) => setOpponentSearch(e.target.value)}
               className="w-full bg-[#101A17] border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-[#A4B0A8]/60 focus:outline-none focus:border-[#B9F66B]/60 transition-colors"
@@ -364,7 +353,7 @@ export default function AdminMatchesPage() {
             <Shield className="w-4 h-4 text-[#A4B0A8] absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Search by tournament / league..."
+              placeholder="টুর্নামেন্ট বা লিগের নাম খুঁজুন..."
               value={competitionSearch}
               onChange={(e) => {
                 setCompetitionSearch(e.target.value);
@@ -383,12 +372,12 @@ export default function AdminMatchesPage() {
                 setLimit(Number(e.target.value));
                 setPage(1);
               }}
-              className="bg-[#101A17] border border-white/10 text-xs text-[#A4B0A8] rounded-xl px-3 py-2 focus:outline-none focus:border-[#B9F66B]/50"
+              className="bg-[#101A17] border border-white/10 text-xs text-[#A4B0A8] rounded-xl px-3 py-2 focus:outline-none focus:border-[#B9F66B]/50 font-mono"
               aria-label="Items per page"
             >
-              <option value={8}>8 per page</option>
-              <option value={12}>12 per page</option>
-              <option value={24}>24 per page</option>
+              <option value={8}>প্রতি পৃষ্ঠায় {toBnNum(8)}টি</option>
+              <option value={12}>প্রতি পৃষ্ঠায় {toBnNum(12)}টি</option>
+              <option value={24}>প্রতি পৃষ্ঠায় {toBnNum(24)}টি</option>
             </select>
 
             {/* Toggle Date Range Filters */}
@@ -410,7 +399,7 @@ export default function AdminMatchesPage() {
               variant="outline"
               onPress={handleRefresh}
               className="p-2.5 rounded-xl bg-[#101A17] border border-white/10 text-[#A4B0A8] hover:text-[#B9F66B] hover:border-[#B9F66B]/40 transition-colors cursor-pointer"
-              aria-label="Refresh fixtures"
+              aria-label="ফিক্সচার তালিকা রিফ্রেশ করুন"
             >
               <RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
             </Button>
@@ -471,7 +460,7 @@ export default function AdminMatchesPage() {
           <div className="p-3.5 rounded-xl bg-[#101A17] border border-white/10 grid grid-cols-1 sm:grid-cols-3 gap-3 items-end animate-fade-in">
             <div className="space-y-1">
               <label className="text-[10px] font-mono uppercase text-[#A4B0A8] block">
-                From Date
+                শুরুর তারিখ
               </label>
               <input
                 type="date"
@@ -486,7 +475,7 @@ export default function AdminMatchesPage() {
 
             <div className="space-y-1">
               <label className="text-[10px] font-mono uppercase text-[#A4B0A8] block">
-                To Date
+                শেষের তারিখ
               </label>
               <input
                 type="date"
@@ -509,7 +498,7 @@ export default function AdminMatchesPage() {
                 }}
                 className="w-full bg-white/[0.04] border border-white/10 text-xs font-mono text-[#A4B0A8] hover:text-white py-2 rounded-xl"
               >
-                RESET DATES
+                তারিখ রিসেট করুন
               </Button>
             </div>
           </div>
@@ -542,7 +531,7 @@ export default function AdminMatchesPage() {
           </div>
           <div className="space-y-1">
             <h3 className="text-base font-black uppercase tracking-tight text-white">
-              Unable to Load Match Fixtures
+              ম্যাচ ফিক্সচার লোড করা সম্ভব হয়নি
             </h3>
             <p className="text-xs text-[#A4B0A8] max-w-md mx-auto">{error}</p>
           </div>
@@ -553,7 +542,7 @@ export default function AdminMatchesPage() {
                 className="bg-[#B9F66B] hover:bg-[#a8ec56] text-[#101A17] font-black text-xs uppercase px-4 py-2 rounded-xl cursor-pointer flex items-center gap-2"
               >
                 <LogIn className="w-4 h-4" />
-                <span>SIGN IN AGAIN</span>
+                <span>আবার সাইন ইন করুন</span>
               </Link>
             ) : (
               <Button
@@ -562,7 +551,7 @@ export default function AdminMatchesPage() {
                 className="bg-white/[0.04] border border-white/10 hover:border-[#B9F66B]/50 text-white hover:text-[#B9F66B] font-mono text-xs uppercase px-4 py-2 rounded-xl cursor-pointer flex items-center gap-2"
               >
                 <RefreshCw className="w-4 h-4" />
-                <span>RETRY QUERY</span>
+                <span>পুনরায় চেষ্টা করুন</span>
               </Button>
             )}
           </div>
@@ -576,13 +565,13 @@ export default function AdminMatchesPage() {
           <div className="space-y-1 max-w-md mx-auto">
             <h3 className="text-base font-black uppercase tracking-tight text-white">
               {competitionSearch || opponentSearch || selectedStatus !== "ALL" || selectedHomeAway !== "ALL" || fromDate || toDate
-                ? "No Fixtures Match Current Filters"
-                : "No Match Fixtures in Database"}
+                ? "বর্তমান ফিল্টারের সাথে কোনো ফিক্সচার মেলেনি"
+                : "ডাটাবেসে কোনো ম্যাচ ফিক্সচার নেই"}
             </h3>
             <p className="text-xs text-[#A4B0A8]">
               {competitionSearch || opponentSearch || selectedStatus !== "ALL" || selectedHomeAway !== "ALL" || fromDate || toDate
-                ? "Try clearing your tournament or opponent search, or reset the date and venue filters."
-                : "The academy database currently has zero scheduled fixtures. Click 'Schedule Match' to plan your first fixture."}
+                ? "টুর্নামেন্ট বা প্রতিপক্ষের অনুসন্ধান সাফ করুন, অথবা তারিখ ও ভেন্যু ফিল্টার রিসেট করুন।"
+                : "একাডেমি ডাটাবেসে বর্তমানে কোনো নির্ধারিত ম্যাচ নেই। প্রথম ফিক্সচার তৈরি করতে 'নতুন ম্যাচ নির্ধারণ করুন' বাটনে ক্লিক করুন।"}
             </p>
           </div>
           <div className="pt-2 flex justify-center gap-3">
@@ -600,7 +589,7 @@ export default function AdminMatchesPage() {
                 }}
                 className="bg-white/[0.04] border border-white/10 text-xs font-mono text-white hover:text-[#B9F66B] px-4 py-2 rounded-xl"
               >
-                CLEAR ALL FILTERS
+                সকল ফিল্টার সাফ করুন
               </Button>
             ) : (
               <Button
@@ -608,7 +597,7 @@ export default function AdminMatchesPage() {
                 className="bg-[#B9F66B] hover:bg-[#a8ec56] text-[#101A17] font-black text-xs uppercase tracking-wider px-5 py-2.5 rounded-xl cursor-pointer flex items-center gap-2"
               >
                 <Plus className="w-4 h-4" />
-                <span>SCHEDULE FIRST FIXTURE</span>
+                <span>প্রথম ফিক্সচার নির্ধারণ করুন</span>
               </Button>
             )}
           </div>
@@ -634,12 +623,12 @@ export default function AdminMatchesPage() {
 
                   <div className="flex items-center gap-1.5 text-xs text-white font-bold">
                     <Calendar className="w-3.5 h-3.5 text-[#A4B0A8] shrink-0" />
-                    <span>{formatMatchDate(match.matchDate)}</span>
+                    <span>{formatBnDate(match.matchDate)}</span>
                   </div>
 
                   <div className="flex items-center gap-1.5 text-[11px] font-mono text-[#A4B0A8]">
                     <Clock className="w-3 h-3 text-[#A4B0A8] shrink-0" />
-                    <span>{match.kickOffTime}</span>
+                    <span>{formatBnKickOffTime(match.kickOffTime)}</span>
                   </div>
                 </div>
 
@@ -650,7 +639,7 @@ export default function AdminMatchesPage() {
                       Morning Football Academy
                     </span>
                     <span className="text-xs font-mono font-bold text-[#B9F66B] px-1.5 py-0.5 rounded bg-[#101A17] border border-white/10">
-                      VS
+                      বনাম
                     </span>
                     <span className="text-sm sm:text-base font-black text-white uppercase tracking-tight">
                       {match.opponent}
@@ -672,7 +661,7 @@ export default function AdminMatchesPage() {
                           : "bg-white/5 text-[#A4B0A8] border border-white/10"
                       }`}
                     >
-                      {match.homeAway === "home" ? "HOME VENUE" : "AWAY VENUE"}
+                      {match.homeAway === "home" ? "হোম ভেন্যু" : "অ্যাওয়ে ভেন্যু"}
                     </span>
                   </div>
                 </div>
@@ -687,20 +676,20 @@ export default function AdminMatchesPage() {
                     variant="outline"
                     onPress={() => handleOpenEdit(match)}
                     className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-white/[0.04] border border-white/10 text-xs font-mono text-[#A4B0A8] hover:text-[#B9F66B] hover:border-[#B9F66B]/50 transition-colors cursor-pointer flex items-center gap-1"
-                    aria-label={`Edit fixture vs ${match.opponent}`}
+                    aria-label={`${match.opponent}-এর বিরুদ্ধে ফিক্সচার সম্পাদনা`}
                   >
                     <Edit2 className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">EDIT</span>
+                    <span className="hidden sm:inline">সম্পাদনা</span>
                   </Button>
 
                   <Button
                     variant="outline"
                     onPress={() => handleOpenDelete(match)}
                     className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-white/[0.04] border border-white/10 text-xs font-mono text-[#A4B0A8] hover:text-red-400 hover:border-red-500/40 hover:bg-red-500/10 transition-colors cursor-pointer flex items-center gap-1"
-                    aria-label={`Delete fixture vs ${match.opponent}`}
+                    aria-label={`${match.opponent}-এর বিরুদ্ধে ফিক্সচার মুছুন`}
                   >
                     <Trash2 className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">DELETE</span>
+                    <span className="hidden sm:inline">মুছুন</span>
                   </Button>
                 </div>
               </div>
@@ -713,16 +702,16 @@ export default function AdminMatchesPage() {
       {totalPages > 1 && (
         <div className="p-4 rounded-2xl bg-[#18251F] border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-mono">
           <div className="text-[#A4B0A8]">
-            Showing{" "}
+            প্রদর্শিত হচ্ছে{" "}
             <span className="text-white font-bold">
-              {Math.min((page - 1) * limit + 1, totalCount)}
+              {toBnNum(Math.min((page - 1) * limit + 1, totalCount))}
             </span>{" "}
-            to{" "}
+            থেকে{" "}
             <span className="text-white font-bold">
-              {Math.min(page * limit, totalCount)}
-            </span>{" "}
-            of <span className="text-[#B9F66B] font-bold">{totalCount}</span>{" "}
-            fixtures
+              {toBnNum(Math.min(page * limit, totalCount))}
+            </span>
+            , সর্বমোট{" "}
+            <span className="text-[#B9F66B] font-bold">{toBnNum(totalCount)}</span>টি ফিক্সচার
           </div>
 
           <div className="flex items-center gap-2">
@@ -733,11 +722,11 @@ export default function AdminMatchesPage() {
               className="px-3 py-1.5 rounded-xl bg-[#101A17] border border-white/10 text-white disabled:opacity-40 cursor-pointer flex items-center gap-1"
             >
               <ChevronLeft className="w-3.5 h-3.5" />
-              <span>PREV</span>
+              <span>পূর্ববর্তী</span>
             </Button>
 
             <span className="px-3 py-1 rounded-xl bg-[#202E27] border border-white/10 text-white font-bold">
-              {page} / {totalPages}
+              {toBnNum(page)} / {toBnNum(totalPages)}
             </span>
 
             <Button
@@ -746,7 +735,7 @@ export default function AdminMatchesPage() {
               onPress={() => setPage((prev) => Math.min(prev + 1, totalPages))}
               className="px-3 py-1.5 rounded-xl bg-[#101A17] border border-white/10 text-white disabled:opacity-40 cursor-pointer flex items-center gap-1"
             >
-              <span>NEXT</span>
+              <span>পরবর্তী</span>
               <ChevronRight className="w-3.5 h-3.5" />
             </Button>
           </div>

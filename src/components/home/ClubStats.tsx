@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Users, Activity, Target, Flame } from "lucide-react";
+import { toBnNum } from "../../lib/bn-utils";
 
 /**
  * DEMO DATA NOTICE:
@@ -24,38 +25,38 @@ export const DEMO_CLUB_STATS: ClubStatItem[] = [
     id: "squad-players",
     target: 25,
     suffix: "+",
-    label: "SQUAD PLAYERS",
-    sublabel: "Active Roster",
+    label: "স্কোয়াড খেলোয়াড়",
+    sublabel: "সক্রিয় দল",
     icon: Users,
-    description: "Young athletes training across our youth development squads",
+    description: "আমাদের যুব প্রশিক্ষণ কার্যক্রমে নিয়মিত অংশ নেওয়া প্রতিভাবান খেলোয়াড়",
   },
   {
     id: "matches-played",
     target: 10,
     suffix: "+",
-    label: "MATCHES PLAYED",
-    sublabel: "Competitions",
+    label: "ম্যাচ অনুষ্ঠিত",
+    sublabel: "প্রতিযোগিতা",
     icon: Activity,
-    description: "Competitive fixtures and friendly tournament appearances",
+    description: "প্রতিযোগিতামূলক টুর্নামেন্ট ও প্রীতি ম্যাচে একাডেমি দলের অংশগ্রহণ",
   },
   {
     id: "total-goals",
     target: 15,
     suffix: "+",
-    label: "TOTAL GOALS",
-    sublabel: "Scored",
+    label: "মোট গোল",
+    sublabel: "অর্জন",
     icon: Target,
-    description: "Total goals scored across league and friendly encounters",
+    description: "লীগ ও বিভিন্ন টুর্নামেন্টে একাডেমি দলের করা মোট গোল",
   },
   {
     id: "years-passion",
     target: 1,
     suffix: "+",
     padZero: true,
-    label: "YEARS OF PASSION",
-    sublabel: "Foundation",
+    label: "ফুটবল সাধনার বছর",
+    sublabel: "প্রতিষ্ঠা",
     icon: Flame,
-    description: "Dedicated seasons nurturing grassroots football culture",
+    description: "তৃণমূল ফুটবলের উন্নয়নে অবিরাম একাডেমি কার্যক্রম",
   },
 ];
 
@@ -123,7 +124,7 @@ function StatCard({
       <div>
         <div className="flex items-baseline gap-0.5">
           <span className="text-3xl sm:text-5xl lg:text-6xl font-black font-mono tracking-tight text-[#B9F66B] leading-none">
-            {displayValue}
+            {toBnNum(displayValue)}
           </span>
           <span className="text-xl sm:text-3xl lg:text-4xl font-extrabold text-[#B9F66B]/80 font-mono">
             {item.suffix}
@@ -189,19 +190,18 @@ export default function ClubStats() {
         <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-14 lg:mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#18181B] border border-white/10 text-[11px] font-black tracking-[0.24em] text-[#B9F66B] uppercase mb-4">
             <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B] shadow-[0_0_8px_#B9F66B]" />
-            OUR NUMBERS
+            আমাদের পরিসংখ্যান
           </div>
 
           <h2
             id="club-stats-heading"
             className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white uppercase"
           >
-            BUILT THROUGH PASSION.
+            কঠোর সাধনায় অর্জিত সাফল্য
           </h2>
 
           <p className="text-sm sm:text-base text-[#A4B0A8] mt-4 leading-relaxed">
-            Every number represents dedication, teamwork, and our commitment to
-            football.
+            প্রতিটি সংখ্যা খেলোয়াড়দের অক্লান্ত পরিশ্রম, দলগত একতা ও ফুটবলের প্রতি নিবেদনের প্রমাণ।
           </p>
         </div>
 
@@ -215,7 +215,7 @@ export default function ClubStats() {
         {/* Subtle Demonstration Disclaimer */}
         <div className="mt-8 text-center">
           <p className="text-[11px] text-[#A4B0A8]/60 uppercase tracking-widest font-mono">
-            * Demonstration statistics for platform showcase purposes
+            * একাডেমি প্রদর্শনীর সাধারণ তথ্য
           </p>
         </div>
       </div>

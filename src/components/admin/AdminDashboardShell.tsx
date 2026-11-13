@@ -34,7 +34,7 @@ export default function AdminDashboardShell({
     return pathname.startsWith(item.href);
   });
 
-  const pageTitle = currentNav?.label || "Admin Console";
+  const pageTitle = currentNav?.label || "অ্যাডমিন কনসোল";
 
   return (
     <AdminGuard>
@@ -56,8 +56,8 @@ export default function AdminDashboardShell({
             title={pageTitle}
             subtitle={
               pathname === "/admin"
-                ? "Overview & System Analytics"
-                : `Morning Football Academy ${pageTitle} Management`
+                ? "সারসংক্ষেপ ও সিস্টেম অ্যানালিটিক্স"
+                : `মর্নিং ফুটবল একাডেমি ${pageTitle} ব্যবস্থাপনা`
             }
           />
 

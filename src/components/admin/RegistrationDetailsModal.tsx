@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { Button } from "@heroui/react";
 import { RegistrationDocument, RegistrationStatus } from "../../lib/api-client";
+import { toBnNum, formatBnDate, getBnPosition } from "../../lib/bn-utils";
 
 interface RegistrationDetailsModalProps {
   isOpen: boolean;
@@ -51,14 +52,9 @@ function calculateAge(dobStr: string): number {
  * Format date for display
  */
 function formatDate(dateStr?: string): string {
-  if (!dateStr) return "N/A";
+  if (!dateStr) return "অজানা";
   try {
-    const d = new Date(dateStr);
-    return d.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
+    return formatBnDate(dateStr);
   } catch {
     return dateStr;
   }
@@ -68,16 +64,9 @@ function formatDate(dateStr?: string): string {
  * Format datetime for submission timestamp
  */
 function formatDateTime(dateStr?: string): string {
-  if (!dateStr) return "N/A";
+  if (!dateStr) return "অজানা";
   try {
-    const d = new Date(dateStr);
-    return d.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    return formatBnDate(dateStr);
   } catch {
     return dateStr;
   }
@@ -92,21 +81,21 @@ function getStatusBadge(status: RegistrationStatus) {
       return (
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400/15 text-amber-300 border border-amber-400/30 text-xs font-mono font-black uppercase tracking-wider">
           <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-          PENDING REVIEW
+          অপেক্ষমাণ পর্যালোচনা
         </span>
       );
     case "approved":
       return (
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#B9F66B]/15 text-[#B9F66B] border border-[#B9F66B]/30 text-xs font-mono font-black uppercase tracking-wider">
           <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B]" />
-          ACCEPTED / APPROVED
+          অনুমোদিত / গৃহীত
         </span>
       );
     case "rejected":
       return (
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-500/15 text-rose-400 border border-rose-500/30 text-xs font-mono font-black uppercase tracking-wider">
           <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
-          REJECTED
+          প্রত্যাখ্যাত
         </span>
       );
   }
@@ -144,7 +133,7 @@ export default function RegistrationDetailsModal({
                 {getStatusBadge(registration.status)}
               </div>
               <p className="text-[11px] text-[#A4B0A8] font-mono mt-0.5">
-                Applicant ID: {registration._id}
+                আবেদনকারী আইডি: {registration._id}
               </p>
             </div>
           </div>
@@ -166,12 +155,12 @@ export default function RegistrationDetailsModal({
             {/* Preferred Position */}
             <div className="p-3.5 rounded-xl bg-[#101A17] border border-white/10 space-y-1">
               <span className="text-[10px] font-mono text-[#A4B0A8] uppercase tracking-wider block">
-                PREFERRED POSITION
+                পছন্দের পজিশন
               </span>
               <div className="flex items-center gap-2">
                 <Shield className="w-4 h-4 text-[#B9F66B]" />
                 <span className="text-sm font-black text-white uppercase">
-                  {registration.position}
+                  {getBnPosition(registration.position)}
                 </span>
               </div>
             </div>
@@ -179,14 +168,14 @@ export default function RegistrationDetailsModal({
             {/* Date of Birth & Age */}
             <div className="p-3.5 rounded-xl bg-[#101A17] border border-white/10 space-y-1">
               <span className="text-[10px] font-mono text-[#A4B0A8] uppercase tracking-wider block">
-                DATE OF BIRTH & AGE
+                জন্ম তারিখ ও বয়স
               </span>
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-[#B9F66B]" />
                 <span className="text-sm font-black text-white">
                   {formatDate(registration.dateOfBirth)}{" "}
                   <span className="text-xs font-mono font-normal text-[#B9F66B]">
-                    ({age} years old)
+                    ({toBnNum(age)} বছর)
                   </span>
                 </span>
               </div>
@@ -195,7 +184,7 @@ export default function RegistrationDetailsModal({
             {/* Email Address */}
             <div className="p-3.5 rounded-xl bg-[#101A17] border border-white/10 space-y-1">
               <span className="text-[10px] font-mono text-[#A4B0A8] uppercase tracking-wider block">
-                EMAIL ADDRESS
+                ইমেইল ঠিকানা
               </span>
               <a
                 href={`mailto:${registration.email}`}
@@ -210,7 +199,7 @@ export default function RegistrationDetailsModal({
             {/* Phone Number */}
             <div className="p-3.5 rounded-xl bg-[#101A17] border border-white/10 space-y-1">
               <span className="text-[10px] font-mono text-[#A4B0A8] uppercase tracking-wider block">
-                PHONE NUMBER
+                ফোন নম্বর
               </span>
               <a
                 href={`tel:${registration.phone}`}
@@ -227,7 +216,7 @@ export default function RegistrationDetailsModal({
           <div className="space-y-1.5">
             <span className="text-[11px] font-mono text-[#A4B0A8] uppercase tracking-wider block flex items-center gap-1.5">
               <Shield className="w-3.5 h-3.5 text-[#B9F66B]" />
-              <span>FOOTBALL BACKGROUND & PLAYING EXPERIENCE</span>
+              <span>ফুটবল অভিজ্ঞতা ও খেলার ইতিহাস</span>
             </span>
             <div className="p-4 rounded-xl bg-[#101A17] border border-white/10 text-xs sm:text-sm text-white/90 leading-relaxed whitespace-pre-wrap">
               {registration.experience}
@@ -239,7 +228,7 @@ export default function RegistrationDetailsModal({
             <div className="space-y-1.5">
               <span className="text-[11px] font-mono text-[#A4B0A8] uppercase tracking-wider block flex items-center gap-1.5">
                 <FileText className="w-3.5 h-3.5 text-[#B9F66B]" />
-                <span>APPLICANT PERSONAL STATEMENT</span>
+                <span>আবেদনকারীর বক্তব্য / বার্তা</span>
               </span>
               <div className="p-4 rounded-xl bg-[#101A17] border border-white/10 text-xs sm:text-sm text-white/80 italic leading-relaxed whitespace-pre-wrap">
                 &ldquo;{registration.message}&rdquo;
@@ -251,10 +240,10 @@ export default function RegistrationDetailsModal({
           <div className="p-3.5 rounded-xl bg-[#202E27]/50 border border-white/5 flex flex-wrap items-center justify-between gap-3 text-[11px] font-mono text-[#A4B0A8]">
             <div className="flex items-center gap-1.5">
               <Clock className="w-3.5 h-3.5 text-[#B9F66B]" />
-              <span>Applied: {formatDateTime(registration.createdAt)}</span>
+              <span>আবেদনের তারিখ: {formatDateTime(registration.createdAt)}</span>
             </div>
             {registration.updatedAt && (
-              <span>Last Evaluated: {formatDateTime(registration.updatedAt)}</span>
+              <span>সর্বশেষ মূল্যায়ন: {formatDateTime(registration.updatedAt)}</span>
             )}
           </div>
         </div>
@@ -268,7 +257,7 @@ export default function RegistrationDetailsModal({
             className="p-2 sm:px-3 sm:py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-xs font-mono text-red-400 hover:text-white hover:bg-red-500 hover:border-red-500 transition-colors cursor-pointer flex items-center gap-1.5"
           >
             <Trash2 className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">DELETE APPLICANT</span>
+            <span className="hidden sm:inline">আবেদন মুছুন</span>
           </button>
 
           {/* Right Actions: Workflow Status Change */}
@@ -279,7 +268,7 @@ export default function RegistrationDetailsModal({
                 className="bg-[#B9F66B] hover:bg-[#a8ec56] text-[#101A17] font-black text-xs uppercase tracking-wider px-4 py-2 rounded-xl transition-all shadow-md cursor-pointer flex items-center gap-1.5"
               >
                 <CheckCircle2 className="w-4 h-4" />
-                <span>ACCEPT / APPROVE</span>
+                <span>অনুমোদন করুন</span>
               </Button>
             )}
 
@@ -289,7 +278,7 @@ export default function RegistrationDetailsModal({
                 className="bg-rose-500/15 hover:bg-rose-500 text-rose-300 hover:text-white border border-rose-500/30 text-xs font-mono uppercase tracking-wider px-4 py-2 rounded-xl transition-colors cursor-pointer flex items-center gap-1.5"
               >
                 <XCircle className="w-4 h-4" />
-                <span>REJECT</span>
+                <span>প্রত্যাখ্যান করুন</span>
               </Button>
             )}
 
@@ -299,7 +288,7 @@ export default function RegistrationDetailsModal({
                 className="bg-white/5 hover:bg-white/10 text-[#A4B0A8] hover:text-white border border-white/10 text-xs font-mono uppercase tracking-wider px-3.5 py-2 rounded-xl transition-colors cursor-pointer flex items-center gap-1.5"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">SET PENDING</span>
+                <span className="hidden sm:inline">অপেক্ষমাণ রাখুন</span>
               </Button>
             )}
 
@@ -307,7 +296,7 @@ export default function RegistrationDetailsModal({
               onPress={onClose}
               className="bg-[#202E27] border border-white/10 text-white hover:border-white/20 text-xs font-mono uppercase tracking-wider px-4 py-2 rounded-xl transition-colors cursor-pointer"
             >
-              CLOSE
+              বন্ধ করুন
             </Button>
           </div>
         </div>

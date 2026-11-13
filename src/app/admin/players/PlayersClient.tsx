@@ -27,21 +27,22 @@ import {
   PaginationMeta,
   ApiError,
 } from "../../../lib/api-client";
+import { toBnNum, formatBnDate, getBnPosition } from "../../../lib/bn-utils";
 import PlayerFormModal from "../../../components/admin/PlayerFormModal";
 import DeletePlayerModal from "../../../components/admin/DeletePlayerModal";
 
 const POSITION_OPTIONS = [
-  "ALL",
-  "Forward",
-  "Midfielder",
-  "Defender",
-  "Goalkeeper",
+  { label: "সকল পজিশন", value: "ALL" },
+  { label: "ফরোয়ার্ড", value: "Forward" },
+  { label: "মিডফিল্ডার", value: "Midfielder" },
+  { label: "ডিফেন্ডার", value: "Defender" },
+  { label: "গোলরক্ষক", value: "Goalkeeper" },
 ] as const;
 
 const STATUS_OPTIONS = [
-  { label: "ALL STATUS", value: "ALL" },
-  { label: "ACTIVE SQUAD", value: "ACTIVE" },
-  { label: "INACTIVE", value: "INACTIVE" },
+  { label: "সকল স্ট্যাটাস", value: "ALL" },
+  { label: "সক্রিয় স্কোয়াড", value: "ACTIVE" },
+  { label: "নিষ্ক্রিয়", value: "INACTIVE" },
 ] as const;
 
 /**
@@ -53,12 +54,8 @@ function formatPlayerBirth(dateStr: string): string {
     const ageDiff = Date.now() - date.getTime();
     const ageDate = new Date(ageDiff);
     const age = Math.abs(ageDate.getUTCFullYear() - 1970);
-    const formatted = date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-    return `${formatted} (${age} yrs)`;
+    const formatted = formatBnDate(dateStr);
+    return `${formatted} (${toBnNum(age)} বছর)`;
   } catch {
     return dateStr;
   }
@@ -153,7 +150,7 @@ export default function AdminPlayersPage() {
               setError(err.message);
               setIsAuthError(err.isAuthError);
             } else {
-              setError("Failed to fetch players roster from database.");
+              setError("ডাটাবেস থেকে খেলোয়াড় তালিকা লোড করতে ব্যর্থ হয়েছে।");
             }
             setIsLoading(false);
           }
@@ -194,8 +191,8 @@ export default function AdminPlayersPage() {
     setNotification({
       type: "success",
       message: isEdit
-        ? `Player ${savedPlayer.fullName} updated successfully.`
-        : `Player ${savedPlayer.fullName} added to academy roster.`,
+        ? `খেলোয়াড় ${savedPlayer.fullName}-এর তথ্য সফলভাবে আপডেট করা হয়েছে।`
+        : `খেলোয়াড় ${savedPlayer.fullName}-কে একাডেমি স্কোয়াডে যুক্ত করা হয়েছে।`,
     });
     handleRefresh();
   };
@@ -214,7 +211,7 @@ export default function AdminPlayersPage() {
       await apiClient.players.delete(playerToDelete._id);
       setNotification({
         type: "success",
-        message: `Player ${playerToDelete.fullName} deleted successfully.`,
+        message: `খেলোয়াড় ${playerToDelete.fullName}-কে সফলভাবে মুছে ফেলা হয়েছে।`,
       });
       setPlayerToDelete(null);
       // If deleting the last item on a page > 1, decrement page
@@ -225,7 +222,7 @@ export default function AdminPlayersPage() {
       }
     } catch (err: unknown) {
       const msg =
-        err instanceof ApiError ? err.message : "Failed to delete player record.";
+        err instanceof ApiError ? err.message : "খেলোয়াড়ের রেকর্ড মুছে ফেলতে ব্যর্থ হয়েছে।";
       setNotification({ type: "error", message: msg });
     } finally {
       setIsDeleting(false);
@@ -243,18 +240,18 @@ export default function AdminPlayersPage() {
           <div className="flex items-center gap-2">
             <Chip className="bg-[#18251F] text-[#B9F66B] border border-[#B9F66B]/30 font-black tracking-[0.2em] text-[10px] uppercase px-2.5 py-0.5">
               <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B] shadow-[0_0_8px_#B9F66B] mr-1.5 inline-block" />
-              SQUAD ROSTER
+              স্কোয়াড রোস্টার
             </Chip>
             <span className="text-[11px] font-mono text-[#A4B0A8]">
-              {totalCount} PLAYERS IN DATABASE
+              {toBnNum(totalCount)} জন খেলোয়াড় ডাটাবেসে নিবন্ধিত
             </span>
           </div>
 
           <h2 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight mt-1">
-            PLAYERS DIRECTORY.
+            খেলোয়াড় তালিকা।
           </h2>
           <p className="text-xs sm:text-sm text-[#A4B0A8]">
-            Manage academy talent, squad allocation, player profiles, and biometric tracking.
+            একাডেমি প্রতিভা, স্কোয়াড বণ্টন, খেলোয়াড় প্রোফাইল এবং তথ্য পরিচালনা করুন।
           </p>
         </div>
 
@@ -264,7 +261,7 @@ export default function AdminPlayersPage() {
             className="bg-[#B9F66B] hover:bg-[#a8ec56] text-[#101A17] font-black text-xs uppercase tracking-wider px-4 py-2.5 rounded-xl transition-all shadow-md cursor-pointer flex items-center gap-2"
           >
             <UserPlus className="w-4 h-4" />
-            <span>ADD PLAYER</span>
+            <span>নতুন খেলোয়াড় যুক্ত করুন</span>
           </Button>
         </div>
       </div>
@@ -308,7 +305,7 @@ export default function AdminPlayersPage() {
             <Search className="w-4 h-4 text-[#A4B0A8] absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Search players by full name..."
+              placeholder="খেলোয়াড়ের পুরো নাম দিয়ে খুঁজুন..."
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);
@@ -327,12 +324,12 @@ export default function AdminPlayersPage() {
                 setLimit(Number(e.target.value));
                 setPage(1);
               }}
-              className="bg-[#101A17] border border-white/10 text-xs text-[#A4B0A8] rounded-xl px-3 py-2 focus:outline-none focus:border-[#B9F66B]/50"
+              className="bg-[#101A17] border border-white/10 text-xs text-[#A4B0A8] rounded-xl px-3 py-2 focus:outline-none focus:border-[#B9F66B]/50 font-mono"
               aria-label="Items per page"
             >
-              <option value={8}>8 per page</option>
-              <option value={12}>12 per page</option>
-              <option value={24}>24 per page</option>
+              <option value={8}>প্রতি পৃষ্ঠায় {toBnNum(8)} জন</option>
+              <option value={12}>প্রতি পৃষ্ঠায় {toBnNum(12)} জন</option>
+              <option value={24}>প্রতি পৃষ্ঠায় {toBnNum(24)} জন</option>
             </select>
 
             {/* Refresh Button */}
@@ -340,7 +337,7 @@ export default function AdminPlayersPage() {
               variant="outline"
               onPress={handleRefresh}
               className="p-2.5 rounded-xl bg-[#101A17] border border-white/10 text-[#A4B0A8] hover:text-[#B9F66B] hover:border-[#B9F66B]/40 transition-colors cursor-pointer"
-              aria-label="Refresh player roster"
+              aria-label="খেলোয়াড় তালিকা রিফ্রেশ করুন"
             >
               <RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
             </Button>
@@ -355,7 +352,7 @@ export default function AdminPlayersPage() {
                     ? "bg-[#B9F66B] text-[#101A17]"
                     : "text-[#A4B0A8] hover:text-white"
                 }`}
-                aria-label="Grid view"
+                aria-label="গ্রিড ভিউ"
               >
                 <LayoutGrid className="w-4 h-4" />
               </button>
@@ -367,7 +364,7 @@ export default function AdminPlayersPage() {
                     ? "bg-[#B9F66B] text-[#101A17]"
                     : "text-[#A4B0A8] hover:text-white"
                 }`}
-                aria-label="Table view"
+                aria-label="টেবিল ভিউ"
               >
                 <List className="w-4 h-4" />
               </button>
@@ -381,13 +378,13 @@ export default function AdminPlayersPage() {
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
             <Filter className="w-3.5 h-3.5 text-[#A4B0A8] mr-1 shrink-0 hidden md:block" />
             {POSITION_OPTIONS.map((pos) => {
-              const isSelected = selectedPosition === pos;
+              const isSelected = selectedPosition === pos.value;
               return (
                 <button
-                  key={pos}
+                  key={pos.value}
                   type="button"
                   onClick={() => {
-                    setSelectedPosition(pos);
+                    setSelectedPosition(pos.value);
                     setPage(1);
                   }}
                   className={`px-3 py-1.5 rounded-xl text-xs font-mono uppercase tracking-wider transition-colors shrink-0 ${
@@ -396,7 +393,7 @@ export default function AdminPlayersPage() {
                       : "bg-[#202E27] text-[#A4B0A8] hover:text-white border border-white/5"
                   }`}
                 >
-                  {pos}
+                  {pos.label}
                 </button>
               );
             })}
@@ -455,7 +452,7 @@ export default function AdminPlayersPage() {
           </div>
           <div className="space-y-1">
             <h3 className="text-base font-black uppercase tracking-tight text-white">
-              Unable to Load Players Roster
+              খেলোয়াড় তালিকা লোড করা সম্ভব হয়নি
             </h3>
             <p className="text-xs text-[#A4B0A8] max-w-md mx-auto">{error}</p>
           </div>
@@ -466,7 +463,7 @@ export default function AdminPlayersPage() {
                 className="bg-[#B9F66B] hover:bg-[#a8ec56] text-[#101A17] font-black text-xs uppercase px-4 py-2 rounded-xl cursor-pointer flex items-center gap-2"
               >
                 <LogIn className="w-4 h-4" />
-                <span>SIGN IN AGAIN</span>
+                <span>আবার সাইন ইন করুন</span>
               </Link>
             ) : (
               <Button
@@ -475,7 +472,7 @@ export default function AdminPlayersPage() {
                 className="bg-white/[0.04] border border-white/10 hover:border-[#B9F66B]/50 text-white hover:text-[#B9F66B] font-mono text-xs uppercase px-4 py-2 rounded-xl cursor-pointer flex items-center gap-2"
               >
                 <RefreshCw className="w-4 h-4" />
-                <span>RETRY QUERY</span>
+                <span>পুনরায় চেষ্টা করুন</span>
               </Button>
             )}
           </div>
@@ -489,13 +486,13 @@ export default function AdminPlayersPage() {
           <div className="space-y-1 max-w-md mx-auto">
             <h3 className="text-base font-black uppercase tracking-tight text-white">
               {search || selectedPosition !== "ALL" || selectedStatus !== "ALL"
-                ? "No Players Found Matching Filters"
-                : "No Players Registered in Database"}
+                ? "ফিল্টারের সাথে কোনো খেলোয়াড় মেলেনি"
+                : "ডাটাবেসে কোনো খেলোয়াড় নিবন্ধিত নেই"}
             </h3>
             <p className="text-xs text-[#A4B0A8]">
               {search || selectedPosition !== "ALL" || selectedStatus !== "ALL"
-                ? "Try clearing your search terms or adjusting the position and status filters."
-                : "The academy database currently has zero player records. Click 'Add Player' to register your first squad member."}
+                ? "আপনার অনুসন্ধান পরিবর্তন করুন বা পজিশন ও স্ট্যাটাস ফিল্টার সমন্বয় করুন।"
+                : "একাডেমি ডাটাবেসে বর্তমানে কোনো খেলোয়াড়ের রেকর্ড নেই। আপনার প্রথম স্কোয়াড সদস্য যুক্ত করতে 'নতুন খেলোয়াড় যুক্ত করুন' বাটনে ক্লিক করুন।"}
             </p>
           </div>
           <div className="pt-2 flex justify-center gap-3">
@@ -510,7 +507,7 @@ export default function AdminPlayersPage() {
                 }}
                 className="bg-white/[0.04] border border-white/10 text-xs font-mono text-white hover:text-[#B9F66B] px-4 py-2 rounded-xl"
               >
-                CLEAR ALL FILTERS
+                সকল ফিল্টার সাফ করুন
               </Button>
             ) : (
               <Button
@@ -518,7 +515,7 @@ export default function AdminPlayersPage() {
                 className="bg-[#B9F66B] hover:bg-[#a8ec56] text-[#101A17] font-black text-xs uppercase tracking-wider px-5 py-2.5 rounded-xl cursor-pointer flex items-center gap-2"
               >
                 <UserPlus className="w-4 h-4" />
-                <span>REGISTER FIRST PLAYER</span>
+                <span>প্রথম খেলোয়াড় নিবন্ধন করুন</span>
               </Button>
             )}
           </div>
@@ -546,7 +543,7 @@ export default function AdminPlayersPage() {
 
                   {/* Jersey Number Badge */}
                   <div className="absolute top-3 right-3 px-2.5 py-1 rounded-lg bg-[#101A17]/90 backdrop-blur-md border border-[#B9F66B]/40 text-[#B9F66B] font-mono font-black text-sm shadow-md">
-                    #{player.jerseyNumber}
+                    #{toBnNum(player.jerseyNumber)}
                   </div>
 
                   {/* Position Badge */}
@@ -556,7 +553,7 @@ export default function AdminPlayersPage() {
                         player.position
                       )}`}
                     >
-                      {player.position}
+                      {getBnPosition(player.position)}
                     </span>
                   </div>
 
@@ -574,7 +571,7 @@ export default function AdminPlayersPage() {
                           player.isActive ? "bg-[#B9F66B]" : "bg-red-400"
                         }`}
                       />
-                      {player.isActive ? "ACTIVE" : "INACTIVE"}
+                      {player.isActive ? "সক্রিয়" : "নিষ্ক্রিয়"}
                     </span>
                   </div>
                 </div>
@@ -587,12 +584,12 @@ export default function AdminPlayersPage() {
 
                   <div className="space-y-1 text-xs text-[#A4B0A8]">
                     <div className="flex items-center justify-between font-mono text-[11px]">
-                      <span>Nationality:</span>
+                      <span>জাতীয়তা:</span>
                       <span className="text-white font-bold">{player.nationality}</span>
                     </div>
 
                     <div className="flex items-center justify-between font-mono text-[11px]">
-                      <span>Born:</span>
+                      <span>জন্মতারিখ:</span>
                       <span className="text-white/80">
                         {formatPlayerBirth(player.dateOfBirth)}
                       </span>
@@ -600,9 +597,9 @@ export default function AdminPlayersPage() {
 
                     {player.height && (
                       <div className="flex items-center justify-between font-mono text-[11px]">
-                        <span>Physical:</span>
+                        <span>শারীরিক গঠন:</span>
                         <span className="text-white/80">
-                          {player.height} {player.weight ? `• ${player.weight}` : ""}
+                          {toBnNum(player.height)} {player.weight ? `• ${toBnNum(player.weight)}` : ""}
                         </span>
                       </div>
                     )}
@@ -611,21 +608,21 @@ export default function AdminPlayersPage() {
                   {/* Career Stats Preview */}
                   <div className="pt-2 grid grid-cols-3 gap-1 border-t border-white/5 text-center font-mono">
                     <div className="p-1 rounded bg-[#18251F]">
-                      <span className="text-[9px] text-[#A4B0A8] block">APPS</span>
+                      <span className="text-[9px] text-[#A4B0A8] block">ম্যাচ</span>
                       <span className="text-xs font-bold text-white">
-                        {player.statistics?.appearances ?? 0}
+                        {toBnNum(player.statistics?.appearances ?? 0)}
                       </span>
                     </div>
                     <div className="p-1 rounded bg-[#18251F]">
-                      <span className="text-[9px] text-[#B9F66B] block">GOALS</span>
+                      <span className="text-[9px] text-[#B9F66B] block">গোল</span>
                       <span className="text-xs font-bold text-[#B9F66B]">
-                        {player.statistics?.goals ?? 0}
+                        {toBnNum(player.statistics?.goals ?? 0)}
                       </span>
                     </div>
                     <div className="p-1 rounded bg-[#18251F]">
-                      <span className="text-[9px] text-sky-400 block">ASSTS</span>
+                      <span className="text-[9px] text-sky-400 block">অ্যাসিস্ট</span>
                       <span className="text-xs font-bold text-sky-400">
-                        {player.statistics?.assists ?? 0}
+                        {toBnNum(player.statistics?.assists ?? 0)}
                       </span>
                     </div>
                   </div>
@@ -640,7 +637,7 @@ export default function AdminPlayersPage() {
                   className="px-3 py-1.5 rounded-xl bg-white/[0.04] border border-white/10 text-xs font-mono text-[#A4B0A8] hover:text-[#B9F66B] hover:border-[#B9F66B]/50 transition-colors cursor-pointer flex items-center gap-1.5"
                 >
                   <Edit2 className="w-3.5 h-3.5" />
-                  <span>EDIT</span>
+                  <span>সম্পাদনা</span>
                 </Button>
 
                 <Button
@@ -649,7 +646,7 @@ export default function AdminPlayersPage() {
                   className="px-3 py-1.5 rounded-xl bg-white/[0.04] border border-white/10 text-xs font-mono text-[#A4B0A8] hover:text-red-400 hover:border-red-500/40 hover:bg-red-500/10 transition-colors cursor-pointer flex items-center gap-1.5"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
-                  <span>DELETE</span>
+                  <span>মুছুন</span>
                 </Button>
               </div>
             </div>
@@ -662,14 +659,14 @@ export default function AdminPlayersPage() {
             <table className="w-full text-left text-xs">
               <thead className="bg-[#18251F] text-[#A4B0A8] font-mono uppercase text-[10px] tracking-wider border-b border-white/10">
                 <tr>
-                  <th className="py-3 px-4">Player</th>
-                  <th className="py-3 px-3">Number</th>
-                  <th className="py-3 px-3">Position</th>
-                  <th className="py-3 px-3">Nationality</th>
-                  <th className="py-3 px-3">Birth Date</th>
-                  <th className="py-3 px-3">Career Stats</th>
-                  <th className="py-3 px-3">Status</th>
-                  <th className="py-3 px-4 text-right">Actions</th>
+                  <th className="py-3 px-4">খেলোয়াড়</th>
+                  <th className="py-3 px-3">জার্সি</th>
+                  <th className="py-3 px-3">পজিশন</th>
+                  <th className="py-3 px-3">জাতীয়তা</th>
+                  <th className="py-3 px-3">জন্মতারিখ</th>
+                  <th className="py-3 px-3">পরিসংখ্যান</th>
+                  <th className="py-3 px-3">স্ট্যাটাস</th>
+                  <th className="py-3 px-4 text-right">অ্যাকশন</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5 text-[#A4B0A8]">
@@ -697,7 +694,7 @@ export default function AdminPlayersPage() {
                       </div>
                     </td>
                     <td className="py-3 px-3 font-mono font-bold text-[#B9F66B]">
-                      #{player.jerseyNumber}
+                      #{toBnNum(player.jerseyNumber)}
                     </td>
                     <td className="py-3 px-3">
                       <span
@@ -705,7 +702,7 @@ export default function AdminPlayersPage() {
                           player.position
                         )}`}
                       >
-                        {player.position}
+                        {getBnPosition(player.position)}
                       </span>
                     </td>
                     <td className="py-3 px-3 text-white font-medium">
@@ -715,13 +712,13 @@ export default function AdminPlayersPage() {
                       {formatPlayerBirth(player.dateOfBirth)}
                     </td>
                     <td className="py-3 px-3 font-mono text-[11px] text-white">
-                      {player.statistics?.appearances ?? 0} apps •{" "}
+                      {toBnNum(player.statistics?.appearances ?? 0)} ম্যাচ •{" "}
                       <span className="text-[#B9F66B]">
-                        {player.statistics?.goals ?? 0}g
+                        {toBnNum(player.statistics?.goals ?? 0)} গোল
                       </span>{" "}
                       •{" "}
                       <span className="text-sky-400">
-                        {player.statistics?.assists ?? 0}a
+                        {toBnNum(player.statistics?.assists ?? 0)} অ্যাসিস্ট
                       </span>
                     </td>
                     <td className="py-3 px-3">
@@ -732,7 +729,7 @@ export default function AdminPlayersPage() {
                             : "bg-red-500/15 text-red-300 border border-red-500/30"
                         }`}
                       >
-                        {player.isActive ? "ACTIVE" : "INACTIVE"}
+                        {player.isActive ? "সক্রিয়" : "নিষ্ক্রিয়"}
                       </span>
                     </td>
                     <td className="py-3 px-4 text-right">
@@ -741,7 +738,7 @@ export default function AdminPlayersPage() {
                           type="button"
                           onClick={() => handleOpenEdit(player)}
                           className="p-1.5 rounded-lg bg-white/[0.04] text-[#A4B0A8] hover:text-[#B9F66B] hover:bg-white/[0.08] transition-colors"
-                          aria-label={`Edit ${player.fullName}`}
+                          aria-label={`সম্পাদনা ${player.fullName}`}
                         >
                           <Edit2 className="w-3.5 h-3.5" />
                         </button>
@@ -749,7 +746,7 @@ export default function AdminPlayersPage() {
                           type="button"
                           onClick={() => handleOpenDelete(player)}
                           className="p-1.5 rounded-lg bg-white/[0.04] text-[#A4B0A8] hover:text-red-400 hover:bg-red-500/10 transition-colors"
-                          aria-label={`Delete ${player.fullName}`}
+                          aria-label={`মুছুন ${player.fullName}`}
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -767,16 +764,17 @@ export default function AdminPlayersPage() {
       {totalPages > 1 && (
         <div className="p-4 rounded-2xl bg-[#18251F] border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-mono">
           <div className="text-[#A4B0A8]">
-            Showing{" "}
+            প্রদর্শিত হচ্ছে{" "}
             <span className="text-white font-bold">
-              {Math.min((page - 1) * limit + 1, totalCount)}
+              {toBnNum(Math.min((page - 1) * limit + 1, totalCount))}
             </span>{" "}
-            to{" "}
+            থেকে{" "}
             <span className="text-white font-bold">
-              {Math.min(page * limit, totalCount)}
-            </span>{" "}
-            of <span className="text-[#B9F66B] font-bold">{totalCount}</span>{" "}
-            players
+              {toBnNum(Math.min(page * limit, totalCount))}
+            </span>
+            , সর্বমোট{" "}
+            <span className="text-[#B9F66B] font-bold">{toBnNum(totalCount)}</span>{" "}
+            জন খেলোয়াড়
           </div>
 
           <div className="flex items-center gap-2">
@@ -787,11 +785,11 @@ export default function AdminPlayersPage() {
               className="px-3 py-1.5 rounded-xl bg-[#101A17] border border-white/10 text-white disabled:opacity-40 cursor-pointer flex items-center gap-1"
             >
               <ChevronLeft className="w-3.5 h-3.5" />
-              <span>PREV</span>
+              <span>পূর্ববর্তী</span>
             </Button>
 
             <span className="px-3 py-1 rounded-xl bg-[#202E27] border border-white/10 text-white font-bold">
-              {page} / {totalPages}
+              {toBnNum(page)} / {toBnNum(totalPages)}
             </span>
 
             <Button
@@ -800,7 +798,7 @@ export default function AdminPlayersPage() {
               onPress={() => setPage((prev) => Math.min(prev + 1, totalPages))}
               className="px-3 py-1.5 rounded-xl bg-[#101A17] border border-white/10 text-white disabled:opacity-40 cursor-pointer flex items-center gap-1"
             >
-              <span>NEXT</span>
+              <span>পরবর্তী</span>
               <ChevronRight className="w-3.5 h-3.5" />
             </Button>
           </div>

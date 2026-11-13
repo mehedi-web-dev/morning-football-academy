@@ -160,7 +160,7 @@ export default function PublicMatchCard({
             </span>
           </div>
           <span className="text-[10px] font-bold tracking-wider text-[#A4B0A8]/80 uppercase shrink-0">
-            HOME
+            হোম
           </span>
         </div>
 
@@ -182,7 +182,7 @@ export default function PublicMatchCard({
             </span>
           </div>
           <span className="text-[10px] font-bold tracking-wider text-[#A4B0A8]/80 uppercase shrink-0">
-            AWAY
+            অ্যাওয়ে
           </span>
         </div>
       </div>
@@ -217,7 +217,7 @@ export default function PublicMatchCard({
           href={matchDetailUrl}
           className="inline-flex items-center gap-1 font-bold text-xs uppercase tracking-wider text-white hover:text-[#B9F66B] transition-colors shrink-0 group-hover:translate-x-0.5 duration-200"
         >
-          <span>Details</span>
+          <span>ম্যাচের বিবরণ</span>
           <ArrowRight className="w-3.5 h-3.5 text-[#B9F66B]" />
         </Link>
       </div>

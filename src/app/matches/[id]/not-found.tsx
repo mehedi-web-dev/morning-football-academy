@@ -12,10 +12,10 @@ export default function MatchNotFound() {
 
         <div className="space-y-2">
           <h1 className="text-2xl font-black uppercase tracking-tight text-white">
-            Match Not Found
+            ম্যাচ পাওয়া যায়নি
           </h1>
           <p className="text-xs sm:text-sm text-[#A4B0A8] leading-relaxed">
-            The requested match fixture does not exist or has been removed from the schedule.
+            অনুরোধকৃত ম্যাচ ফিক্সচারটি পাওয়া যায়নি বা সময়সূচি থেকে সরানো হয়েছে।
           </p>
         </div>
 
@@ -25,7 +25,7 @@ export default function MatchNotFound() {
               className="bg-[#B9F66B] text-[#0A0A0A] font-black text-xs uppercase tracking-wider px-6 py-2.5 rounded-full hover:bg-[#cbfd82] transition-colors cursor-pointer inline-flex items-center gap-2"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span>Back to Fixtures</span>
+              <span>ফিক্সচার তালিকায় ফিরে যান</span>
             </Button>
           </Link>
         </div>

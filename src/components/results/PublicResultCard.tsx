@@ -5,6 +5,7 @@ import { Calendar, MapPin, ArrowRight, Shield } from "lucide-react";
 import { ResultDocument } from "../../lib/api-client";
 import { formatMatchDate } from "../../lib/match-utils";
 import { calculateOutcome, getOutcomeMeta } from "../../lib/result-utils";
+import { toBnNum } from "../../lib/bn-utils";
 import { TeamEmblem } from "../matches/PublicMatchCard";
 
 interface PublicResultCardProps {
@@ -48,7 +49,7 @@ export default function PublicResultCard({ result }: PublicResultCardProps) {
             </span>
           </div>
           <span className="text-lg font-black font-mono text-white shrink-0 px-2.5 py-0.5 rounded-lg bg-white/[0.04] border border-white/10">
-            {result.homeScore}
+            {toBnNum(result.homeScore)}
           </span>
         </div>
 
@@ -61,7 +62,7 @@ export default function PublicResultCard({ result }: PublicResultCardProps) {
             </span>
           </div>
           <span className="text-lg font-black font-mono text-white/90 shrink-0 px-2.5 py-0.5 rounded-lg bg-white/[0.04] border border-white/10">
-            {result.awayScore}
+            {toBnNum(result.awayScore)}
           </span>
         </div>
       </div>
@@ -86,7 +87,7 @@ export default function PublicResultCard({ result }: PublicResultCardProps) {
           href={detailUrl}
           className="inline-flex items-center gap-1 font-bold text-xs uppercase tracking-wider text-white hover:text-[#B9F66B] transition-colors shrink-0 group-hover:translate-x-0.5 duration-200"
         >
-          <span>Report</span>
+          <span>ম্যাচ রিপোর্ট</span>
           <ArrowRight className="w-3.5 h-3.5 text-[#B9F66B]" />
         </Link>
       </div>

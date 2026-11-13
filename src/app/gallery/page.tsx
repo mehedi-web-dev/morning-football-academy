@@ -19,6 +19,7 @@ import {
   GalleryMediaType,
   PaginationMeta,
 } from "../../lib/api-client";
+import { toBnNum } from "../../lib/bn-utils";
 import PublicGalleryCard from "../../components/gallery/PublicGalleryCard";
 
 const CATEGORY_PRESETS = [
@@ -31,10 +32,23 @@ const CATEGORY_PRESETS = [
   "ACADEMY LIFE",
 ];
 
+function getBnCategoryLabel(cat: string): string {
+  const map: Record<string, string> = {
+    ALL: "সকল অ্যালবাম",
+    "MATCH DAY": "ম্যাচ ডে",
+    TRAINING: "অনুশীলন",
+    "TEAM MOMENTS": "দলের মুহূর্ত",
+    STADIUM: "স্টেডিয়াম",
+    CELEBRATIONS: "উদযাপন",
+    "ACADEMY LIFE": "একাডেমি জীবন",
+  };
+  return map[cat] || cat;
+}
+
 const MEDIA_TYPE_TABS: { label: string; value: "ALL" | GalleryMediaType }[] = [
-  { label: "ALL MEDIA", value: "ALL" },
-  { label: "PHOTOS", value: "image" },
-  { label: "VIDEOS", value: "video" },
+  { label: "সকল মিডিয়া", value: "ALL" },
+  { label: "ছবি", value: "image" },
+  { label: "ভিডিও", value: "video" },
 ];
 
 export default function GalleryPage() {
@@ -73,7 +87,7 @@ export default function GalleryPage() {
       })
       .catch(() => {
         if (!abortSignal?.aborted) {
-          setError("Failed to load gallery items from database.");
+          setError("ডাটাবেজ থেকে গ্যালারি আইটেম লোড করতে ব্যর্থ হয়েছে।");
           setIsLoading(false);
         }
       });
@@ -152,15 +166,15 @@ export default function GalleryPage() {
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#18251F] border border-[#B9F66B]/30 text-xs font-mono font-bold tracking-[0.24em] text-[#B9F66B] uppercase shadow-[0_0_15px_rgba(185,246,107,0.15)]">
             <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B] shadow-[0_0_8px_#B9F66B]" />
-            ACADEMY MEDIA ARCHIVE
+            একাডেমি মিডিয়া আর্কাইভ
           </div>
 
           <div className="space-y-4 max-w-3xl">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black uppercase tracking-tight text-white leading-none">
-              OFFICIAL <span className="text-[#B9F66B]">GALLERY.</span>
+              অফিসিয়াল <span className="text-[#B9F66B]">গ্যালারি।</span>
             </h1>
             <p className="text-sm sm:text-base text-[#A4B0A8] leading-relaxed">
-              Experience the energy, discipline, and triumph of Morning Football Academy. Browse high-resolution match photography, training sessions, and tournament highlights.
+              মর্নিং ফুটবল একাডেমির রোমাঞ্চ, নিয়মানুবর্তিতা ও গৌরবময় মুহূর্তসমূহ। উচ্চমানের ম্যাচ ফটোগ্রাফি, প্রশিক্ষণ সেশন এবং টুর্নামেন্টের স্মরণীয় মুহূর্ত দেখুন।
             </p>
           </div>
 
@@ -169,8 +183,8 @@ export default function GalleryPage() {
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#18251F] border border-white/10 text-xs font-mono text-[#A4B0A8]">
               <Layers className="w-4 h-4 text-[#B9F66B]" />
               <span>
-                Published Media:{" "}
-                <strong className="text-white font-bold">{totalCount}</strong>
+                প্রকাশিত মিডিয়া:{" "}
+                <strong className="text-white font-bold">{toBnNum(totalCount)}টি</strong>
               </span>
             </div>
 
@@ -180,7 +194,7 @@ export default function GalleryPage() {
               className="bg-[#18251F] border border-white/10 text-white font-mono text-xs uppercase tracking-wider px-4 py-2 rounded-xl hover:border-[#B9F66B]/50 transition-colors cursor-pointer inline-flex items-center gap-2"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin text-[#B9F66B]" : ""}`} />
-              <span>Refresh Gallery</span>
+              <span>গ্যালারি রিফ্রেশ</span>
             </Button>
           </div>
         </div>
@@ -195,7 +209,7 @@ export default function GalleryPage() {
             <div className="flex items-center gap-2">
               <span className="text-xs font-mono text-[#A4B0A8] uppercase tracking-wider mr-1 hidden sm:inline-flex items-center gap-1.5">
                 <Filter className="w-3.5 h-3.5 text-[#B9F66B]" />
-                TYPE:
+                ধরন:
               </span>
 
               {MEDIA_TYPE_TABS.map((tab) => {
@@ -221,7 +235,7 @@ export default function GalleryPage() {
               <Search className="w-4 h-4 text-[#A4B0A8] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="text"
-                placeholder="Search captions or titles..."
+                placeholder="ক্যাপশন বা শিরোনাম অনুসন্ধান..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-9 pr-3 py-1.5 rounded-xl bg-[#202E27] border border-white/10 text-xs text-white placeholder-[#A4B0A8]/60 focus:outline-none focus:border-[#B9F66B]/50 transition-colors"
@@ -244,7 +258,7 @@ export default function GalleryPage() {
                         : "bg-[#202E27] text-[#A4B0A8] hover:text-white border border-white/5"
                     }`}
                   >
-                    {cat}
+                    {getBnCategoryLabel(cat)}
                   </button>
                 );
               })}
@@ -254,7 +268,7 @@ export default function GalleryPage() {
               onClick={handleResetFilters}
               className="text-xs font-mono text-[#A4B0A8] hover:text-white underline underline-offset-4 cursor-pointer shrink-0 ml-auto"
             >
-              Reset Filters
+              ফিল্টার রিসেট করুন
             </button>
           </div>
         </div>
@@ -269,7 +283,7 @@ export default function GalleryPage() {
               className="bg-[#202E27] border border-white/10 text-white font-mono text-xs uppercase tracking-wider px-5 py-2 rounded-xl hover:border-[#B9F66B]/50 transition-colors cursor-pointer inline-flex items-center gap-2"
             >
               <RefreshCw className="w-3.5 h-3.5" />
-              <span>Retry</span>
+              <span>পুনরায় চেষ্টা করুন</span>
             </Button>
           </div>
         ) : isLoading ? (
@@ -298,8 +312,8 @@ export default function GalleryPage() {
             {totalPages > 1 && (
               <div className="flex items-center justify-between pt-6 border-t border-white/[0.08]">
                 <p className="text-xs font-mono text-[#A4B0A8]">
-                  Showing page <strong className="text-white">{page}</strong> of{" "}
-                  <strong className="text-white">{totalPages}</strong> ({totalCount} total media items)
+                  পৃষ্ঠা <strong className="text-white">{toBnNum(page)}</strong> /{" "}
+                  <strong className="text-white">{toBnNum(totalPages)}</strong> (মোট {toBnNum(totalCount)}টি মিডিয়া)
                 </p>
 
                 <div className="flex items-center gap-2">
@@ -309,7 +323,7 @@ export default function GalleryPage() {
                     className="bg-[#18251F] border border-white/10 text-white text-xs px-3 py-1.5 rounded-xl hover:border-[#B9F66B]/50 disabled:opacity-30 cursor-pointer"
                   >
                     <ChevronLeft className="w-4 h-4" />
-                    <span>Prev</span>
+                    <span>পূর্ববর্তী</span>
                   </Button>
 
                   <Button
@@ -317,7 +331,7 @@ export default function GalleryPage() {
                     isDisabled={page >= totalPages}
                     className="bg-[#18251F] border border-white/10 text-white text-xs px-3 py-1.5 rounded-xl hover:border-[#B9F66B]/50 disabled:opacity-30 cursor-pointer"
                   >
-                    <span>Next</span>
+                    <span>পরবর্তী</span>
                     <ChevronRight className="w-4 h-4" />
                   </Button>
                 </div>
@@ -331,17 +345,17 @@ export default function GalleryPage() {
               <Camera className="w-7 h-7" />
             </div>
             <h3 className="text-lg font-black text-white uppercase tracking-tight">
-              No Gallery Items Found
+              কোনো উপাদান পাওয়া যায়নি
             </h3>
             <p className="text-xs sm:text-sm text-[#A4B0A8] max-w-md mx-auto">
-              No published media moments match your current filter settings. Try resetting your search or category filters.
+              আপনার বর্তমান ফিল্টারের সাথে মিলে এমন কোনো ছবি বা ভিডিও পাওয়া যায়নি। অনুসন্ধান ফিল্টার রিসেট করে আবার চেষ্টা করুন।
             </p>
             <div className="pt-2">
               <Button
                 onPress={handleResetFilters}
                 className="bg-[#B9F66B] text-[#0A0A0A] font-black text-xs uppercase tracking-wider px-6 py-2.5 rounded-full hover:bg-[#cbfd82] transition-colors cursor-pointer"
               >
-                Reset All Filters
+                সকল ফিল্টার রিসেট করুন
               </Button>
             </div>
           </div>

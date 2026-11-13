@@ -25,20 +25,20 @@ export default function AdminDashboardPage() {
               className="bg-[#18251F] text-[#B9F66B] border border-[#B9F66B]/30 font-black tracking-[0.2em] text-[10px] uppercase px-2.5 py-0.5"
             >
               <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B] shadow-[0_0_8px_#B9F66B] mr-1.5 inline-block" />
-              OPERATIONAL OVERVIEW
+              কার্যক্রম সারসংক্ষেপ
             </Chip>
 
             <span className="text-[11px] font-mono text-[#A4B0A8]">
-              LIVE DATABASE CONNECTED
+              লাইভ ডাটাবেজ সংযুক্ত
             </span>
           </div>
 
           <h2 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight">
-            WELCOME BACK, {user?.name?.toUpperCase() || "ADMIN"}.
+            স্বাগতম, {user?.name?.toUpperCase() || "অ্যাডমিন"}।
           </h2>
 
           <p className="text-xs sm:text-sm text-[#A4B0A8]">
-            Here is what is happening across Morning Football Academy squads today.
+            আজকের মর্নিং ফুটবল একাডেমির সার্বিক কার্যক্রম ও স্কোয়াডের হালনাগাদ তথ্য।
           </p>
         </div>
 
@@ -47,7 +47,7 @@ export default function AdminDashboardPage() {
           <div className="flex items-center gap-2">
             <Activity className="w-3.5 h-3.5 text-[#B9F66B]" />
             <span className="text-white font-bold uppercase tracking-wider">
-              SEASON 2026/27
+              মৌসুম ২০২৬/২৭
             </span>
           </div>
         </div>
@@ -56,7 +56,7 @@ export default function AdminDashboardPage() {
       {/* 2. Key Performance Statistic Cards (Connected to REST API) */}
       <section aria-labelledby="metrics-heading">
         <h3 id="metrics-heading" className="sr-only">
-          Academy Key Performance Statistics
+          একাডেমির গুরুত্বপূর্ণ পরিসংখ্যান
         </h3>
         <AdminStats />
       </section>
@@ -77,7 +77,7 @@ export default function AdminDashboardPage() {
       {/* 4. Match Results Full Width Section */}
       <section aria-labelledby="results-section-heading">
         <h3 id="results-section-heading" className="sr-only">
-          Recent Match Results Overview
+          সাম্প্রতিক ম্যাচ ফলাফলের সারসংক্ষেপ
         </h3>
         <RecentResults />
       </section>
@@ -87,7 +87,7 @@ export default function AdminDashboardPage() {
         <p className="text-[11px] font-mono text-[#A4B0A8]/80 uppercase tracking-widest flex items-center justify-center gap-2">
           <Radio className="w-3.5 h-3.5 text-[#B9F66B] animate-pulse" />
           <span>
-            Connected to Morning Football Academy REST API Gateway (port 5000) • Real-time operational data
+            মর্নিং ফুটবল একাডেমি REST API গেটওয়ের সাথে সংযুক্ত • রিয়েল-টাইম কার্যক্রমের তথ্য
           </span>
         </p>
       </div>

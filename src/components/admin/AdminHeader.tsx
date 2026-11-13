@@ -17,8 +17,8 @@ interface AdminHeaderProps {
  */
 export default function AdminHeader({
   onOpenMobile,
-  title = "Dashboard",
-  subtitle = "Overview & System Analytics",
+  title = "ড্যাশবোর্ড",
+  subtitle = "সারসংক্ষেপ ও সিস্টেম অ্যানালিটিক্স",
 }: AdminHeaderProps) {
   const { user, logout } = useAdminAuth(null);
 
@@ -30,7 +30,7 @@ export default function AdminHeader({
           type="button"
           onClick={onOpenMobile}
           className="lg:hidden p-2 rounded-xl text-[#A4B0A8] hover:text-white bg-white/[0.04] border border-white/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B9F66B] shrink-0"
-          aria-label="Open navigation menu"
+          aria-label="নেভিগেশন মেনু খুলুন"
         >
           <Menu className="w-5 h-5" />
         </button>
@@ -56,7 +56,7 @@ export default function AdminHeader({
           rel="noopener noreferrer"
           className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 text-xs font-mono text-[#A4B0A8] hover:text-[#B9F66B] transition-colors"
         >
-          <span>VIEW SITE</span>
+          <span>ওয়েবসাইট দেখুন</span>
           <ExternalLink className="w-3.5 h-3.5" />
         </Link>
 
@@ -64,7 +64,7 @@ export default function AdminHeader({
         <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#101A17] border border-[#B9F66B]/30 shadow-sm">
           <span className="w-2 h-2 rounded-full bg-[#B9F66B] animate-pulse" />
           <span className="text-[11px] font-mono font-bold tracking-wider text-[#B9F66B] uppercase">
-            SUPER ADMIN
+            সুপার অ্যাডমিন
           </span>
         </div>
 
@@ -76,7 +76,7 @@ export default function AdminHeader({
 
           <div className="hidden xl:block text-left text-xs leading-tight">
             <span className="font-bold text-white block truncate max-w-[140px]">
-              {user?.name || "Administrator"}
+              {user?.name || "অ্যাডমিনিস্ট্রেটর"}
             </span>
             <span className="text-[10px] text-[#A4B0A8] font-mono block truncate max-w-[140px]">
               {user?.email || "admin@morningfootball.com"}
@@ -88,10 +88,10 @@ export default function AdminHeader({
             variant="outline"
             onPress={logout}
             className="p-2 min-w-9 w-9 h-9 sm:w-auto sm:px-3.5 sm:py-1.5 rounded-xl bg-white/[0.03] border border-white/10 hover:border-red-500/50 hover:bg-red-500/10 text-[#A4B0A8] hover:text-red-300 font-bold text-xs uppercase transition-all cursor-pointer flex items-center justify-center gap-1.5"
-            aria-label="Log Out"
+            aria-label="লগআউট"
           >
             <LogOut className="w-4 h-4 text-red-400" />
-            <span className="hidden sm:inline">LOGOUT</span>
+            <span className="hidden sm:inline">লগআউট</span>
           </Button>
         </div>
       </div>

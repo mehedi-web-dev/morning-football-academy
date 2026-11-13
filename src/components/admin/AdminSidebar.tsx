@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { useAdminAuth } from "../../lib/use-admin-auth";
 import { apiClient } from "../../lib/api-client";
+import { toBnNum } from "../../lib/bn-utils";
 
 export interface NavItem {
   label: string;
@@ -29,13 +30,13 @@ export interface NavItem {
 }
 
 export const ADMIN_NAV_ITEMS: NavItem[] = [
-  { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
-  { label: "Players", href: "/admin/players", icon: Users },
-  { label: "Matches", href: "/admin/matches", icon: Calendar },
-  { label: "Results", href: "/admin/results", icon: Trophy },
-  { label: "Gallery", href: "/admin/gallery", icon: ImageIcon },
-  { label: "Registrations", href: "/admin/registrations", icon: FileText },
-  { label: "Settings", href: "/admin/settings", icon: Settings },
+  { label: "ড্যাশবোর্ড", href: "/admin", icon: LayoutDashboard },
+  { label: "খেলোয়াড়বৃন্দ", href: "/admin/players", icon: Users },
+  { label: "ম্যাচ ফিক্সচার", href: "/admin/matches", icon: Calendar },
+  { label: "খেলার ফলাফল", href: "/admin/results", icon: Trophy },
+  { label: "ফটো গ্যালারি", href: "/admin/gallery", icon: ImageIcon },
+  { label: "ভর্তি রেজিস্ট্রেশন", href: "/admin/registrations", icon: FileText },
+  { label: "একাডেমি সেটিংস", href: "/admin/settings", icon: Settings },
 ];
 
 interface AdminSidebarProps {
@@ -109,7 +110,7 @@ export default function AdminSidebar({
                   MORNING FOOTBALL
                 </span>
                 <span className="text-[10px] font-mono font-bold tracking-[0.2em] text-[#B9F66B] uppercase block">
-                  ADMIN CONSOLE
+                  অ্যাডমিন কনসোল
                 </span>
               </div>
             )}
@@ -120,7 +121,7 @@ export default function AdminSidebar({
             type="button"
             onClick={onCloseMobile}
             className="lg:hidden p-1.5 rounded-lg text-[#A4B0A8] hover:text-white hover:bg-white/[0.06] transition-colors focus:outline-none"
-            aria-label="Close mobile sidebar"
+            aria-label="মোবাইল সাইডবার বন্ধ করুন"
           >
             <X className="w-5 h-5" />
           </button>
@@ -133,7 +134,7 @@ export default function AdminSidebar({
             const active = isActive(item.href);
             const badge =
               item.href === "/admin/registrations" && pendingCount > 0
-                ? String(pendingCount)
+                ? toBnNum(pendingCount)
                 : item.badge;
 
             return (
@@ -186,7 +187,7 @@ export default function AdminSidebar({
             </div>
             <div className="overflow-hidden space-y-0.5 flex-1">
               <span className="text-xs font-bold text-white block truncate">
-                {user?.name || "Administrator"}
+                {user?.name || "অ্যাডমিনিস্ট্রেটর"}
               </span>
               <span className="text-[10px] font-mono text-[#B9F66B] block truncate">
                 {user?.email || "admin@morningfootball.com"}
@@ -201,11 +202,11 @@ export default function AdminSidebar({
           <button
             type="button"
             onClick={logout}
-            title="Log Out"
+            title="লগআউট"
             className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wider text-red-300 hover:text-red-200 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
           >
             <LogOut className="w-3.5 h-3.5 shrink-0" />
-            {!isCollapsed && <span>LOG OUT</span>}
+            {!isCollapsed && <span>লগআউট</span>}
           </button>
 
           {/* Desktop Collapse Toggle */}
@@ -213,8 +214,8 @@ export default function AdminSidebar({
             type="button"
             onClick={onToggleCollapse}
             className="hidden lg:flex items-center justify-center w-8 h-8 rounded-xl text-[#A4B0A8] hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 transition-colors focus:outline-none cursor-pointer"
-            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-            title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            aria-label={isCollapsed ? "সাইডবার প্রসারিত করুন" : "সাইডবার সংকুচিত করুন"}
+            title={isCollapsed ? "সাইডবার প্রসারিত করুন" : "সাইডবার সংকুচিত করুন"}
           >
             {isCollapsed ? (
               <ChevronRight className="w-4 h-4 text-[#B9F66B]" />

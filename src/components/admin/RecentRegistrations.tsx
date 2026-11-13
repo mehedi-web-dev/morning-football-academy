@@ -17,6 +17,7 @@ import {
   RegistrationDocument,
   ApiError,
 } from "../../lib/api-client";
+import { toBnNum, formatBnDate, getBnPosition } from "../../lib/bn-utils";
 
 /**
  * Format registration submission timestamp into user-friendly string
@@ -29,18 +30,16 @@ function formatSubmissionDate(dateStr: string): string {
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
     if (diffDays === 0) {
-      return `Today, ${date.toLocaleTimeString("en-US", {
-        hour: "numeric",
-        minute: "2-digit",
-      })}`;
+      return `আজ, ${toBnNum(
+        date.toLocaleTimeString("en-US", {
+          hour: "numeric",
+          minute: "2-digit",
+        })
+      )}`;
     } else if (diffDays === 1) {
-      return "Yesterday";
+      return "গতকাল";
     }
-    return date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
+    return formatBnDate(dateStr);
   } catch {
     return dateStr;
   }
@@ -50,18 +49,18 @@ function formatSubmissionDate(dateStr: string): string {
  * Derive age / category label from candidate date of birth
  */
 function formatAgeGroup(dobStr?: string): string {
-  if (!dobStr) return "Trialist";
+  if (!dobStr) return "ট্রায়ালিস্ট";
   try {
     const birthYear = new Date(dobStr).getFullYear();
     const currentYear = new Date().getFullYear();
     const age = currentYear - birthYear;
-    if (age <= 13) return "Under-13";
-    if (age <= 15) return "Under-15";
-    if (age <= 17) return "Under-17";
-    if (age <= 19) return "Under-19";
-    return `Senior (${age} yrs)`;
+    if (age <= 13) return `অনূর্ধ্ব-${toBnNum(13)}`;
+    if (age <= 15) return `অনূর্ধ্ব-${toBnNum(15)}`;
+    if (age <= 17) return `অনূর্ধ্ব-${toBnNum(17)}`;
+    if (age <= 19) return `অনূর্ধ্ব-${toBnNum(19)}`;
+    return `সিনিয়র (${toBnNum(age)} বছর)`;
   } catch {
-    return "Youth";
+    return "যুব একাডেমি";
   }
 }
 
@@ -96,7 +95,7 @@ export default function RecentRegistrations() {
             setError(err.message);
             setIsAuthError(err.isAuthError);
           } else {
-            setError("Failed to fetch recent registrations from backend API.");
+            setError("ব্যাকএন্ড এপিআই থেকে সাম্প্রতিক রেজিস্ট্রেশন তথ্য লোড করতে ব্যর্থ হয়েছে।");
           }
           setIsLoading(false);
         }
@@ -124,21 +123,21 @@ export default function RecentRegistrations() {
         return (
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/30 text-[10px] font-mono font-bold uppercase tracking-wider">
             <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-            Pending Review
+            পর্যালোচনাধীন
           </span>
         );
       case "approved":
         return (
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#B9F66B]/15 text-[#B9F66B] border border-[#B9F66B]/30 text-[10px] font-mono font-bold uppercase tracking-wider">
             <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B]" />
-            Approved
+            অনুমোদিত
           </span>
         );
       case "rejected":
         return (
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-500/10 text-red-300 border border-red-500/30 text-[10px] font-mono font-bold uppercase tracking-wider">
             <span className="w-1.5 h-1.5 rounded-full bg-red-400" />
-            Rejected
+            প্রত্যাখ্যাত
           </span>
         );
       default:
@@ -160,10 +159,10 @@ export default function RecentRegistrations() {
           </div>
           <div>
             <h2 className="text-sm sm:text-base font-black text-white uppercase tracking-tight">
-              RECENT REGISTRATIONS
+              সাম্প্রতিক রেজিস্ট্রেশন
             </h2>
             <span className="text-[10px] font-mono text-[#A4B0A8] block">
-              Latest Academy Admission Requests
+              একাডেমিতে ভর্তির সর্বশেষ আবেদনসমূহ
             </span>
           </div>
         </div>
@@ -172,7 +171,7 @@ export default function RecentRegistrations() {
           href="/admin/registrations"
           className="inline-flex items-center gap-1 text-xs font-mono font-bold text-[#B9F66B] hover:text-white transition-colors"
         >
-          <span>ALL REGISTRATIONS</span>
+          <span>সকল রেজিস্ট্রেশন</span>
           <ArrowRight className="w-3.5 h-3.5" />
         </Link>
       </div>
@@ -208,7 +207,7 @@ export default function RecentRegistrations() {
                 className="bg-[#B9F66B] hover:bg-[#a8ec56] text-[#101A17] font-black text-xs uppercase px-3 py-1.5 rounded-xl cursor-pointer flex items-center gap-1.5 transition-colors"
               >
                 <LogIn className="w-3.5 h-3.5" />
-                <span>Sign In Again</span>
+                <span>আবার সাইন ইন করুন</span>
               </Link>
             ) : (
               <Button
@@ -217,7 +216,7 @@ export default function RecentRegistrations() {
                 className="bg-white/[0.04] border border-white/10 hover:border-[#B9F66B]/50 text-white hover:text-[#B9F66B] font-mono text-xs uppercase px-3 py-1.5 rounded-xl cursor-pointer flex items-center gap-1.5"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
-                <span>Retry</span>
+                <span>পুনরায় চেষ্টা করুন</span>
               </Button>
             )}
           </div>
@@ -229,10 +228,10 @@ export default function RecentRegistrations() {
             <Inbox className="w-5 h-5" />
           </div>
           <p className="text-xs font-bold text-white uppercase tracking-wider">
-            No Registrations Found
+            কোনো রেজিস্ট্রেশন পাওয়া যায়নি
           </p>
           <p className="text-[11px] font-mono text-[#A4B0A8] max-w-sm mx-auto">
-            No trialist registration applications have been submitted yet. Candidate submissions will appear here.
+            এখনও কোনো ট্রায়ালিস্ট রেজিস্ট্রেশন আবেদন জমা পড়েনি। নতুন প্রার্থীর আবেদন এখানে প্রদর্শিত হবে।
           </p>
         </div>
       ) : (
@@ -255,7 +254,7 @@ export default function RecentRegistrations() {
                 </div>
 
                 <div className="flex items-center gap-2 text-xs text-[#A4B0A8]">
-                  <span>{reg.position}</span>
+                  <span>{getBnPosition(reg.position)}</span>
                   <span className="text-white/20">•</span>
                   <div className="flex items-center gap-1 text-[11px] font-mono">
                     <Clock className="w-3 h-3 text-[#B9F66B]" />

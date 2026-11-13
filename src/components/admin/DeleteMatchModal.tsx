@@ -3,6 +3,7 @@
 import { AlertTriangle, Trash2, X, Calendar, Clock, MapPin } from "lucide-react";
 import { Button } from "@heroui/react";
 import { MatchDocument } from "../../lib/api-client";
+import { formatBnDate, formatBnKickOffTime } from "../../lib/bn-utils";
 
 interface DeleteMatchModalProps {
   isOpen: boolean;
@@ -10,23 +11,6 @@ interface DeleteMatchModalProps {
   match: MatchDocument | null;
   onConfirm: () => Promise<void>;
   isDeleting: boolean;
-}
-
-/**
- * Format date for confirmation dialog
- */
-function formatMatchDate(dateStr?: string): string {
-  if (!dateStr) return "";
-  try {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  } catch {
-    return dateStr;
-  }
 }
 
 /**
@@ -71,10 +55,10 @@ export default function DeleteMatchModal({
               id="delete-match-title"
               className="text-base sm:text-lg font-black text-white uppercase tracking-tight"
             >
-              Cancel & Delete Fixture?
+              ফিক্সচার বাতিল ও মুছে ফেলতে চান?
             </h3>
             <span className="text-[11px] font-mono text-red-300 block uppercase">
-              Permanent Database Removal
+              স্থায়ী ডাটাবেস অপসারণ
             </span>
           </div>
         </div>
@@ -83,10 +67,10 @@ export default function DeleteMatchModal({
         <div className="p-4 rounded-xl bg-[#101A17] border border-white/5 space-y-2 text-xs text-[#A4B0A8]">
           <div className="flex items-center justify-between text-white">
             <span className="font-black text-sm uppercase tracking-tight">
-              MFA <span className="text-[#B9F66B]">VS</span> {match.opponent}
+              MFA <span className="text-[#B9F66B]">বনাম</span> {match.opponent}
             </span>
             <span className="px-2 py-0.5 rounded bg-white/5 border border-white/10 text-[10px] font-mono uppercase text-[#B9F66B]">
-              {match.homeAway === "home" ? "HOME" : "AWAY"}
+              {match.homeAway === "home" ? "হোম" : "অ্যাওয়ে"}
             </span>
           </div>
 
@@ -97,10 +81,10 @@ export default function DeleteMatchModal({
           <div className="pt-2 border-t border-white/5 space-y-1 font-mono text-[11px]">
             <div className="flex items-center gap-2 text-white/80">
               <Calendar className="w-3.5 h-3.5 text-[#B9F66B]" />
-              <span>{formatMatchDate(match.matchDate)}</span>
+              <span>{formatBnDate(match.matchDate)}</span>
               <span className="text-white/20">•</span>
               <Clock className="w-3 h-3 text-[#A4B0A8]" />
-              <span>{match.kickOffTime}</span>
+              <span>{formatBnKickOffTime(match.kickOffTime)}</span>
             </div>
 
             <div className="flex items-center gap-2 text-[#A4B0A8]">
@@ -112,7 +96,7 @@ export default function DeleteMatchModal({
 
         {/* Warning text */}
         <p className="text-xs text-[#A4B0A8]">
-          Are you sure you want to remove this fixture? This will delete the schedule, referee notifications, and match day assignment records.
+          আপনি কি নিশ্চিত যে আপনি এই ফিক্সচারটি মুছে ফেলতে চান? এটি ম্যাচ সূচি ও ম্যাচ ডে অ্যাসাইনমেন্ট রেকর্ড স্থায়ীভাবে মুছে ফেলবে।
         </p>
 
         {/* Action Buttons */}
@@ -123,7 +107,7 @@ export default function DeleteMatchModal({
             isDisabled={isDeleting}
             className="px-4 py-2 rounded-xl bg-white/[0.04] border border-white/10 text-xs font-mono text-white hover:bg-white/[0.08] transition-colors cursor-pointer"
           >
-            CANCEL
+            বাতিল
           </Button>
 
           <Button
@@ -132,7 +116,7 @@ export default function DeleteMatchModal({
             className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer flex items-center gap-2 shadow-lg shadow-red-950/50"
           >
             <Trash2 className="w-4 h-4" />
-            <span>{isDeleting ? "DELETING..." : "DELETE FIXTURE"}</span>
+            <span>{isDeleting ? "মুছে ফেলা হচ্ছে..." : "ফিক্সচার মুছুন"}</span>
           </Button>
         </div>
       </div>

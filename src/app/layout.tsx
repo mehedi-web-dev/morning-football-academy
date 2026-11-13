@@ -10,16 +10,18 @@ export const metadata: Metadata = {
     "https://morning-football-academy.vercel.app"
   ),
   title: {
-    default: "Morning Football Academy | Official Football Club",
+    default: "Morning Football Academy | অফিসিয়াল ফুটবল একাডেমি",
     template: "%s | Morning Football Academy",
   },
   description:
-    "Welcome to Morning Football Academy. Discover our players, fixtures, results, news, and football journey.",
+    "Morning Football Academy-তে স্বাগতম। আমাদের প্রতিভাবান খেলোয়াড়বৃন্দ, ম্যাচ সূচি, ফলাফল, ক্লাব সংবাদ ও ফুটবল একাডেমির যাবতীয় তথ্য জানুন।",
   keywords: [
     "Morning Football Academy",
-    "Football Club",
-    "Football Players",
-    "Football Academy",
+    "মর্নিং ফুটবল একাডেমি",
+    "ফুটবল একাডেমি",
+    "ফুটবল ক্লাব",
+    "বাংলাদেশ ফুটবল একাডেমি",
+    "ফুটবল প্রশিক্ষণ",
   ],
   authors: [{ name: "Morning Football Academy" }],
 };
@@ -30,7 +32,11 @@ interface RootLayoutProps {
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <html lang="en">
+    <html lang="bn">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      </head>
       <body
         className="min-h-screen antialiased flex flex-col bg-[#0A0A0A] text-white"
       >

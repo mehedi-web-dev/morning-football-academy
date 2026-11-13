@@ -3,6 +3,7 @@
 import { AlertTriangle, Trash2, X, Video, Calendar } from "lucide-react";
 import { Button } from "@heroui/react";
 import { GalleryDocument } from "../../lib/api-client";
+import { formatBnDate } from "../../lib/bn-utils";
 
 interface DeleteGalleryModalProps {
   isOpen: boolean;
@@ -18,12 +19,7 @@ interface DeleteGalleryModalProps {
 function formatDate(dateStr?: string): string {
   if (!dateStr) return "";
   try {
-    const d = new Date(dateStr);
-    return d.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
+    return formatBnDate(dateStr);
   } catch {
     return dateStr;
   }
@@ -53,10 +49,10 @@ export default function DeleteGalleryModal({
             </div>
             <div>
               <h2 className="text-base font-black text-white uppercase tracking-tight">
-                DELETE MEDIA ASSET?
+                মিডিয়া সম্পদ মুছে ফেলবেন?
               </h2>
               <p className="text-[11px] text-[#A4B0A8] font-mono">
-                Permanent deletion confirmation
+                স্থায়ীভাবে মুছে ফেলার নিশ্চয়তা
               </p>
             </div>
           </div>
@@ -75,7 +71,7 @@ export default function DeleteGalleryModal({
         {/* Modal Body */}
         <div className="p-5 sm:p-6 space-y-4">
           <p className="text-xs sm:text-sm text-[#A4B0A8] leading-relaxed">
-            Are you sure you want to permanently delete this media asset from the Morning Football Academy gallery repository?
+            আপনি কি নিশ্চিত যে আপনি Morning Football Academy গ্যালারি ভাণ্ডার থেকে এই মিডিয়া সম্পদটি স্থায়ীভাবে মুছে ফেলতে চান?
           </p>
 
           {/* Media Summary Card */}
@@ -115,13 +111,13 @@ export default function DeleteGalleryModal({
                 <span className="text-white/20">•</span>
 
                 <span className="text-[#A4B0A8] uppercase">
-                  {item.mediaType}
+                  {item.mediaType === "image" ? "ছবি" : "ভিডিও"}
                 </span>
 
                 <span className="text-white/20">•</span>
 
                 <span className={item.isPublished ? "text-[#B9F66B]" : "text-amber-300"}>
-                  {item.isPublished ? "PUBLISHED" : "DRAFT"}
+                  {item.isPublished ? "প্রকাশিত" : "খসড়া"}
                 </span>
               </div>
 
@@ -135,7 +131,7 @@ export default function DeleteGalleryModal({
           </div>
 
           <div className="p-3 rounded-lg bg-red-950/20 border border-red-500/20 text-[11px] text-red-300">
-            ⚠️ This action cannot be undone. The media record will be permanently removed from MongoDB.
+            ⚠️ এই পদক্ষেপটি পরিবর্তনযোগ্য নয়। মিডিয়া রেকর্ডটি ডেটাবেজ থেকে স্থায়ীভাবে মুছে যাবে।
           </div>
         </div>
 
@@ -147,7 +143,7 @@ export default function DeleteGalleryModal({
             isDisabled={isDeleting}
             className="bg-transparent border border-white/10 text-[#A4B0A8] hover:text-white hover:border-white/20 text-xs font-mono uppercase tracking-wider px-4 py-2 rounded-xl transition-colors cursor-pointer"
           >
-            Cancel
+            বাতিল
           </Button>
 
           <Button
@@ -159,12 +155,12 @@ export default function DeleteGalleryModal({
             {isDeleting ? (
               <>
                 <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                <span>DELETING...</span>
+                <span>মুছে ফেলা হচ্ছে...</span>
               </>
             ) : (
               <>
                 <Trash2 className="w-4 h-4" />
-                <span>CONFIRM DELETE</span>
+                <span>মুছে ফেলার নিশ্চিতকরণ</span>
               </>
             )}
           </Button>
