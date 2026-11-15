@@ -34,7 +34,9 @@ const LOCAL_PHOTO_PRESETS = [
   },
   { label: "প্রিসেট ২", path: "/images/players/nuru.jpg" },
   { label: "প্রিসেট ৩", path: "/images/players/asik.jpg" },
-  { label: "প্রিসেট ৪", path: "/images/players/player-4.jpg" },
+  { label: "প্রিসেট ৪", path: "/images/players/jamsed.jpg" },
+  { label: "প্রিসেট ৫", path: "/images/players/somir.jpg" },
+  { label: "প্রিসেট ৬", path: "/images/players/player-6.jpg" },
 ];
 
 const POSITIONS = ["Forward", "Midfielder", "Defender", "Goalkeeper"] as const;
@@ -71,6 +73,59 @@ function slugify(text: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
+const CM_PER_INCH = 2.54;
+const INCHES_PER_FOOT = 12;
+const MIN_HEIGHT_FEET = 1;
+const MAX_HEIGHT_FEET = 8;
+const MAX_HEIGHT_INCHES = 11;
+
+interface HeightParts {
+  feet: number | "";
+  inches: number | "";
+}
+
+/**
+ * Parse a stored height value into feet/inches parts.
+ * Supports metric ("178 cm", "158cm") and imperial ("5 ft 3 in", "5'3\"") strings.
+ * Empty or unrecognized values yield two empty (optional) fields.
+ */
+function parseHeight(value?: string | null): HeightParts {
+  const empty: HeightParts = { feet: "", inches: "" };
+  if (!value) return empty;
+
+  const raw = String(value).trim().toLowerCase();
+
+  const metric = raw.match(/^(\d+(?:\.\d+)?)\s*(?:cm|centimet(?:er|re)s?)$/);
+  if (metric) {
+    const totalInches = Math.round(Number(metric[1]) / CM_PER_INCH);
+    return {
+      feet: Math.floor(totalInches / INCHES_PER_FOOT),
+      inches: totalInches % INCHES_PER_FOOT,
+    };
+  }
+
+  const imperial = raw.match(
+    /^(\d{1,2})\s*(?:ft|feet|foot|')\s*(?:(\d{1,2})\s*(?:in|inch|inches|")?)?$/
+  );
+  if (imperial) {
+    return {
+      feet: Number(imperial[1]),
+      inches: imperial[2] === undefined ? 0 : Number(imperial[2]),
+    };
+  }
+
+  return empty;
+}
+
+/**
+ * Convert the feet/inches fields into the stored string format, e.g. "5 ft 3 in".
+ * Returns undefined when feet is empty so the field stays optional.
+ */
+function formatHeight(feet: number | "", inches: number | ""): string | undefined {
+  if (feet === "") return undefined;
+  return `${feet} ft ${inches === "" ? 0 : inches} in`;
+}
+
 /**
  * PlayerFormInner Component
  * Stateful form content remounted via key when playerToEdit changes
@@ -100,7 +155,12 @@ function PlayerFormInner({
       ? new Date(playerToEdit.dateOfBirth).toISOString().split("T")[0]
       : "2008-01-01"
   );
-  const [height, setHeight] = useState(playerToEdit?.height ?? "178 cm");
+  const [heightFeet, setHeightFeet] = useState<number | "">(
+    () => parseHeight(playerToEdit ? playerToEdit.height : "178 cm").feet
+  );
+  const [heightInches, setHeightInches] = useState<number | "">(
+    () => parseHeight(playerToEdit ? playerToEdit.height : "178 cm").inches
+  );
   const [weight, setWeight] = useState(playerToEdit?.weight ?? "70 kg");
   const [bio, setBio] = useState(playerToEdit?.bio ?? "");
   const [photo, setPhoto] = useState(playerToEdit?.photo ?? "/images/players/mehedi.jpeg");
@@ -214,6 +274,25 @@ function PlayerFormInner({
       const parsedDate = new Date(dateOfBirth);
       if (isNaN(parsedDate.getTime())) {
         errors.dateOfBirth = "অকার্যকর তারিখ ফরম্যাট।";
+      }
+    }
+
+    if (heightFeet === "" && heightInches !== "") {
+      errors.height = "ইঞ্চি প্রদানের আগে ফুট নির্বাচন করুন।";
+    } else if (heightFeet !== "") {
+      if (
+        !Number.isInteger(heightFeet) ||
+        heightFeet < MIN_HEIGHT_FEET ||
+        heightFeet > MAX_HEIGHT_FEET
+      ) {
+        errors.height = "উচ্চতা ১ থেকে ৮ ফুটের মধ্যে পূর্ণসংখ্যা হতে হবে।";
+      } else if (
+        heightInches !== "" &&
+        (!Number.isInteger(heightInches) ||
+          heightInches < 0 ||
+          heightInches > MAX_HEIGHT_INCHES)
+      ) {
+        errors.height = "ইঞ্চি ০ থেকে ১১ এর মধ্যে পূর্ণসংখ্যা হতে হবে।";
       }
     }
 
@@ -332,7 +411,7 @@ function PlayerFormInner({
       position,
       nationality: nationality.trim(),
       dateOfBirth,
-      height: height.trim() || undefined,
+      height: formatHeight(heightFeet, heightInches),
       weight: weight.trim() || undefined,
       bio: bio.trim() || undefined,
       photo: photo.trim(),
@@ -727,16 +806,65 @@ function PlayerFormInner({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-xs font-mono uppercase text-[#A4B0A8] tracking-wider block">
+              <span className="text-xs font-mono uppercase text-[#A4B0A8] tracking-wider block">
                 উচ্চতা (ঐচ্ছিক)
-              </label>
-              <input
-                type="text"
-                placeholder="যেমনঃ 182 cm"
-                value={height}
-                onChange={(e) => setHeight(e.target.value)}
-                className="w-full bg-[#101A17] border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-white/20 focus:outline-none focus:border-[#B9F66B]/60 transition-colors"
-              />
+              </span>
+              <div className="grid grid-cols-2 gap-2">
+                {/* Feet */}
+                <div className="relative">
+                  <input
+                    id="player-height-feet"
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={2}
+                    placeholder="5"
+                    aria-label="উচ্চতা (ফুট)"
+                    value={heightFeet}
+                    onChange={(e) => {
+                      const digits = e.target.value.replace(/\D/g, "").slice(0, 2);
+                      setHeightFeet(digits === "" ? "" : parseInt(digits, 10));
+                    }}
+                    className={`w-full bg-[#101A17] border rounded-xl pl-3.5 pr-9 py-2.5 text-xs text-white font-mono placeholder-white/20 focus:outline-none transition-colors ${
+                      fieldErrors.height
+                        ? "border-red-500 focus:border-red-400"
+                        : "border-white/10 focus:border-[#B9F66B]/60"
+                    }`}
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono uppercase text-[#A4B0A8] pointer-events-none">
+                    ft
+                  </span>
+                </div>
+
+                {/* Inches */}
+                <div className="relative">
+                  <input
+                    id="player-height-inches"
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={2}
+                    placeholder="3"
+                    aria-label="উচ্চতা (ইঞ্চি)"
+                    value={heightInches}
+                    onChange={(e) => {
+                      const digits = e.target.value.replace(/\D/g, "").slice(0, 2);
+                      setHeightInches(digits === "" ? "" : parseInt(digits, 10));
+                    }}
+                    className={`w-full bg-[#101A17] border rounded-xl pl-3.5 pr-9 py-2.5 text-xs text-white font-mono placeholder-white/20 focus:outline-none transition-colors ${
+                      fieldErrors.height
+                        ? "border-red-500 focus:border-red-400"
+                        : "border-white/10 focus:border-[#B9F66B]/60"
+                    }`}
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono uppercase text-[#A4B0A8] pointer-events-none">
+                    in
+                  </span>
+                </div>
+              </div>
+              {fieldErrors.height && (
+                <p className="text-[11px] text-red-400 font-mono">
+                  {fieldErrors.height}
+                </p>
+              )}
             </div>
 
             <div className="space-y-1">

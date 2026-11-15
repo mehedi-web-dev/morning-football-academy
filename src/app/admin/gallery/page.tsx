@@ -72,6 +72,35 @@ function formatAssetDate(dateStr?: string): string {
 }
 
 /**
+ * Merge gallery API result sets into a single list, keeping only the first
+ * occurrence of every `_id`.
+ *
+ * The backend is expected to honour `isPublished=false`, but its query validator
+ * cannot persist the coerced boolean (Express 5 re-parses `req.query` on every
+ * access), so the endpoint always falls back to `filter.isPublished = true`.
+ * The "published" and "draft" requests therefore return the same rows, and
+ * blindly concatenating them rendered each record twice — which produced the
+ * duplicate React keys and the doubled metric counters.
+ */
+function mergeGalleryItems(...resultSets: GalleryDocument[][]): GalleryDocument[] {
+  const seenIds = new Set<string>();
+  const merged: GalleryDocument[] = [];
+
+  for (const items of resultSets) {
+    for (const item of items) {
+      if (!item) continue;
+      if (item._id) {
+        if (seenIds.has(item._id)) continue;
+        seenIds.add(item._id);
+      }
+      merged.push(item);
+    }
+  }
+
+  return merged;
+}
+
+/**
  * Admin Gallery Management Page (CRUD)
  * Fully connected to MongoDB through the Express backend Gallery REST APIs
  */
@@ -120,7 +149,7 @@ export default function AdminGalleryPage() {
       apiClient.gallery.getAll({ limit: 100, isPublished: false, sortBy: "createdAt", sortOrder: "desc" }),
     ])
       .then(([pubRes, unpubRes]) => {
-        const combined = [...(pubRes.data || []), ...(unpubRes.data || [])];
+        const combined = mergeGalleryItems(pubRes.data || [], unpubRes.data || []);
         setAllMetricsItems(combined);
       })
       .catch(() => {
@@ -160,15 +189,23 @@ export default function AdminGalleryPage() {
         ])
           .then(([pubRes, unpubRes]) => {
             if (!abortSignal?.aborted) {
-              const combined = [
-                ...(pubRes.data || []),
-                ...(unpubRes.data || []),
-              ].sort(
+              const fetched = mergeGalleryItems(
+                pubRes.data || [],
+                unpubRes.data || []
+              );
+              const combined = [...fetched].sort(
                 (a, b) =>
                   new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
               );
 
-              const total = (pubRes.pagination?.total ?? 0) + (unpubRes.pagination?.total ?? 0);
+              // Both queries can return the same rows (see mergeGalleryItems),
+              // so summing the two totals double-counts duplicates. Use the
+              // largest known count instead of a duplicated sum.
+              const total = Math.max(
+                pubRes.pagination?.total ?? 0,
+                unpubRes.pagination?.total ?? 0,
+                fetched.length
+              );
               const totalPages = Math.ceil(total / limit) || 1;
               const startIndex = (page - 1) * limit;
               const paginatedSlice = combined.slice(startIndex, startIndex + limit);
@@ -214,7 +251,7 @@ export default function AdminGalleryPage() {
           })
           .then((response) => {
             if (!abortSignal?.aborted) {
-              setItems(response.data || []);
+              setItems(mergeGalleryItems(response.data || []));
               setPagination(response.pagination || null);
               setError(null);
               setIsAuthError(false);
@@ -335,10 +372,13 @@ export default function AdminGalleryPage() {
 
   // Client-side search filtering (title, category, description, mediaUrl)
   const filteredItems = useMemo(() => {
-    if (!searchTerm.trim()) return items;
+    // De-duplicate by `_id` here as well so the rendered grid can never contain
+    // two cards with the same React key, regardless of how `items` was loaded.
+    const uniqueItems = mergeGalleryItems(items);
+    if (!searchTerm.trim()) return uniqueItems;
     const term = searchTerm.toLowerCase().trim();
 
-    return items.filter((item) => {
+    return uniqueItems.filter((item) => {
       const matchesTitle = item.title.toLowerCase().includes(term);
       const matchesCategory = item.category.toLowerCase().includes(term);
       const matchesDesc = item.description?.toLowerCase().includes(term) ?? false;

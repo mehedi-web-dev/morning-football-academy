@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, ReactNode } from "react";
+import { useState, useEffect, useRef, useCallback, ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import AdminGuard from "./AdminGuard";
 import AdminSidebar, { ADMIN_NAV_ITEMS } from "./AdminSidebar";
@@ -20,6 +20,48 @@ export default function AdminDashboardShell({
   const pathname = usePathname();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement | null>(null);
+
+  const closeMobileNav = useCallback(() => {
+    setIsMobileOpen(false);
+    // Return focus to the hamburger before the drawer becomes inert/hidden.
+    menuButtonRef.current?.focus({ preventScroll: true });
+  }, []);
+
+  // Lock background scrolling (document + console pane) while the drawer is open.
+  useEffect(() => {
+    if (!isMobileOpen) return;
+
+    const previousBodyOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousBodyOverflow;
+    };
+  }, [isMobileOpen]);
+
+  // Close the drawer with the Escape key.
+  useEffect(() => {
+    if (!isMobileOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        closeMobileNav();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isMobileOpen, closeMobileNav]);
+
+  // Close the drawer whenever the route changes (e.g. browser back/forward).
+  useEffect(() => {
+    const handleRouteChange = () => {
+      setIsMobileOpen(false);
+    };
+
+    window.addEventListener("popstate", handleRouteChange);
+    return () => window.removeEventListener("popstate", handleRouteChange);
+  }, []);
 
   // /admin/login is the public entry point for admin credentials
   if (pathname === "/admin/login") {
@@ -43,7 +85,7 @@ export default function AdminDashboardShell({
         {/* Left Sidebar */}
         <AdminSidebar
           isMobileOpen={isMobileOpen}
-          onCloseMobile={() => setIsMobileOpen(false)}
+          onCloseMobile={closeMobileNav}
           isCollapsed={isCollapsed}
           onToggleCollapse={() => setIsCollapsed((prev) => !prev)}
         />
@@ -53,6 +95,8 @@ export default function AdminDashboardShell({
           {/* Top Sticky Header */}
           <AdminHeader
             onOpenMobile={() => setIsMobileOpen(true)}
+            isMobileOpen={isMobileOpen}
+            menuButtonRef={menuButtonRef}
             title={pageTitle}
             subtitle={
               pathname === "/admin"
@@ -61,8 +105,12 @@ export default function AdminDashboardShell({
             }
           />
 
-          {/* Scrollable Page Body */}
-          <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8">
+          {/* Scrollable Page Body (scroll-locked while the mobile drawer is open) */}
+          <main
+            className={`flex-1 p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8 ${
+              isMobileOpen ? "overflow-hidden" : "overflow-y-auto"
+            }`}
+          >
             {children}
           </main>
         </div>

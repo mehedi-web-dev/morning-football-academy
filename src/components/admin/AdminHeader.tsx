@@ -1,5 +1,6 @@
 "use client";
 
+import type { RefObject } from "react";
 import Link from "next/link";
 import { Button } from "@heroui/react";
 import { Menu, LogOut, ExternalLink, ShieldCheck } from "lucide-react";
@@ -7,6 +8,8 @@ import { useAdminAuth } from "../../lib/use-admin-auth";
 
 interface AdminHeaderProps {
   onOpenMobile: () => void;
+  isMobileOpen?: boolean;
+  menuButtonRef?: RefObject<HTMLButtonElement | null>;
   title?: string;
   subtitle?: string;
 }
@@ -17,6 +20,8 @@ interface AdminHeaderProps {
  */
 export default function AdminHeader({
   onOpenMobile,
+  isMobileOpen = false,
+  menuButtonRef,
   title = "ড্যাশবোর্ড",
   subtitle = "সারসংক্ষেপ ও সিস্টেম অ্যানালিটিক্স",
 }: AdminHeaderProps) {
@@ -27,10 +32,13 @@ export default function AdminHeader({
       {/* Left: Mobile Menu Trigger & Section Title */}
       <div className="flex items-center gap-3 sm:gap-4 min-w-0">
         <button
+          ref={menuButtonRef}
           type="button"
           onClick={onOpenMobile}
-          className="lg:hidden p-2 rounded-xl text-[#A4B0A8] hover:text-white bg-white/[0.04] border border-white/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B9F66B] shrink-0"
+          className="lg:hidden p-2.5 rounded-xl text-[#A4B0A8] hover:text-white hover:bg-white/[0.08] bg-white/[0.04] border border-white/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B9F66B] shrink-0"
           aria-label="নেভিগেশন মেনু খুলুন"
+          aria-expanded={isMobileOpen}
+          aria-controls="admin-mobile-navigation"
         >
           <Menu className="w-5 h-5" />
         </button>

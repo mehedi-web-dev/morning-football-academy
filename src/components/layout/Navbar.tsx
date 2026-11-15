@@ -128,6 +128,15 @@ export default function Navbar() {
     }
   };
 
+  // The authenticated admin console renders its own full-viewport shell
+  // (desktop sidebar + mobile drawer). This sticky header sits at z-50 and, on
+  // small screens, completely covers the admin header at z-40 — so taps on the
+  // admin hamburger opened the public menu instead. Hide the public chrome
+  // inside the console (the login screen keeps it as an escape hatch).
+  if (pathname?.startsWith("/admin") && pathname !== "/admin/login") {
+    return null;
+  }
+
   return (
     <header
       className={`sticky top-0 z-50 w-full transition-all duration-300 ${
