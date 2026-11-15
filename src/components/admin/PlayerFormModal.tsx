@@ -32,8 +32,8 @@ const LOCAL_PHOTO_PRESETS = [
     label: "প্রিসেট ১",
     path: "/images/players/player.jpg",
   },
-  { label: "প্রিসেট ২", path: "/images/players/player-2.jpg" },
-  { label: "প্রিসেট ৩", path: "/images/players/player-3.jpg" },
+  { label: "প্রিসেট ২", path: "/images/players/nuru.jpg" },
+  { label: "প্রিসেট ৩", path: "/images/players/asik.jpg" },
   { label: "প্রিসেট ৪", path: "/images/players/player-4.jpg" },
 ];
 
