@@ -18,6 +18,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "খেলোয়াড়বৃন্দ", href: "/#players" },
   { label: "ফিক্সচার", href: "/#fixtures" },
   { label: "ফলাফল", href: "/#results" },
+  { label: "টুর্নামেন্ট", href: "/tournaments" },
   { label: "সংবাদ", href: "/#news" },
   { label: "গ্যালারি", href: "/gallery" },
 ];

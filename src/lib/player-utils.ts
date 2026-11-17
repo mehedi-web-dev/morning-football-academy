@@ -59,3 +59,20 @@ export function formatDate(dateStr?: string): string {
   if (!dateStr) return "উপলব্ধ নয়";
   return formatBnDate(dateStr);
 }
+
+/**
+ * Checks whether an academy player is active and eligible for tournament selection.
+ * Safely evaluates both `isActive` and `playerStatus` to guarantee active players
+ * like "Somir" are not excluded due to schema discrepancies.
+ */
+export function isPlayerActive(player: {
+  isActive?: boolean;
+  playerStatus?: string;
+}): boolean {
+  if (!player) return false;
+  // If explicitly flagged as inactive in either property, exclude
+  if (player.isActive === false) return false;
+  if (player.playerStatus === "inactive") return false;
+  // Active if flagged as active in either property or not marked inactive
+  return true;
+}

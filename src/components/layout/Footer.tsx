@@ -9,6 +9,7 @@ const QUICK_LINKS = [
   { label: "খেলোয়াড়বৃন্দ", href: "/#players" },
   { label: "ফিক্সচার ও সূচি", href: "/#fixtures" },
   { label: "ম্যাচ ফলাফল", href: "/#results" },
+  { label: "টুর্নামেন্ট", href: "/tournaments" },
 ];
 
 // Club Resources Data

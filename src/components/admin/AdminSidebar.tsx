@@ -9,6 +9,7 @@ import {
   Users,
   Calendar,
   Trophy,
+  Award,
   Image as ImageIcon,
   FileText,
   Settings,
@@ -32,8 +33,9 @@ export interface NavItem {
 export const ADMIN_NAV_ITEMS: NavItem[] = [
   { label: "ড্যাশবোর্ড", href: "/admin", icon: LayoutDashboard },
   { label: "খেলোয়াড়বৃন্দ", href: "/admin/players", icon: Users },
+  { label: "টুর্নামেন্ট", href: "/admin/tournaments", icon: Trophy },
   { label: "ম্যাচ ফিক্সচার", href: "/admin/matches", icon: Calendar },
-  { label: "খেলার ফলাফল", href: "/admin/results", icon: Trophy },
+  { label: "খেলার ফলাফল", href: "/admin/results", icon: Award },
   { label: "ফটো গ্যালারি", href: "/admin/gallery", icon: ImageIcon },
   { label: "ভর্তি রেজিস্ট্রেশন", href: "/admin/registrations", icon: FileText },
   { label: "একাডেমি সেটিংস", href: "/admin/settings", icon: Settings },

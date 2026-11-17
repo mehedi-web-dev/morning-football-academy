@@ -298,6 +298,191 @@ export type UpdateRegistrationInput = Partial<CreateRegistrationInput> & {
   status?: RegistrationStatus;
 };
 
+// ==========================================
+// TOURNAMENT DATA MODELS & DTOS
+// ==========================================
+
+export type TournamentStatus =
+  | "draft"
+  | "teams_registered"
+  | "fixtures_generated"
+  | "in_progress"
+  | "completed"
+  | "cancelled";
+
+export type TournamentStage = "league" | "final";
+
+export type TournamentMatchStatus =
+  | "scheduled"
+  | "live"
+  | "completed"
+  | "postponed"
+  | "cancelled";
+
+export type GoalType = "regular" | "extra_time" | "own_goal";
+
+export interface TournamentRules {
+  minTeams: number;
+  maxTeams: number | null;
+  minPlayersPerTeam: number;
+  maxPlayersPerTeam: number;
+  pointsForWin: number;
+  pointsForDraw: number;
+  pointsForLoss: number;
+  hasExtraTimeInFinal: boolean;
+  hasPenaltiesInFinal: boolean;
+  teamsCount?: number;
+  playersPerTeam?: number;
+}
+
+export interface MatchGoalEvent {
+  playerId: string;
+  teamId: string;
+  minute?: number;
+  type: GoalType;
+}
+
+export interface MatchResultDetails {
+  homeScore: number;
+  awayScore: number;
+  regularTimeHomeScore?: number;
+  regularTimeAwayScore?: number;
+  extraTimeHomeScore?: number;
+  extraTimeAwayScore?: number;
+  wentToExtraTime: boolean;
+  wentToPenalties: boolean;
+  homePenaltyScore?: number;
+  awayPenaltyScore?: number;
+  winnerTeamId?: string | null;
+}
+
+export interface TournamentDocument {
+  _id: string;
+  name: string;
+  slug: string;
+  season: string;
+  description?: string;
+  status: TournamentStatus;
+  startDate: string;
+  endDate?: string;
+  venue?: string;
+  rules: TournamentRules;
+  registeredTeamCount?: number;
+  finalMatchId?: string;
+  winnerTeamId?: string;
+  goldenBootPlayerId?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TournamentTeamDocument {
+  _id: string;
+  tournamentId: string;
+  name: string;
+  shortCode?: string;
+  logo?: string;
+  color?: string;
+  playerIds: string[];
+  players?: PlayerDocument[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TournamentMatchDocument {
+  _id: string;
+  tournamentId: string;
+  stage: TournamentStage;
+  round?: number;
+  matchNumber: number;
+  homeTeamId: string;
+  awayTeamId: string;
+  matchDate?: string;
+  kickOffTime?: string;
+  venue?: string;
+  status: TournamentMatchStatus;
+  result?: MatchResultDetails;
+  goals: MatchGoalEvent[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TeamStanding {
+  rank: number;
+  teamId: string;
+  teamName: string;
+  teamShortCode?: string;
+  teamLogo?: string;
+  teamColor?: string;
+  played: number;
+  won: number;
+  drawn: number;
+  lost: number;
+  goalsFor: number;
+  goalsAgainst: number;
+  goalDifference: number;
+  points: number;
+}
+
+export interface GoldenBootEntry {
+  rank: number;
+  playerId: string;
+  playerFullName: string;
+  jerseyNumber: number;
+  position: string;
+  photo?: string;
+  teamId: string;
+  teamName: string;
+  teamColor?: string;
+  goalsCount: number;
+}
+
+export interface CreateTournamentInput {
+  name: string;
+  slug: string;
+  season: string;
+  description?: string;
+  startDate: string;
+  endDate?: string;
+  venue?: string;
+}
+
+export type UpdateTournamentInput = Partial<CreateTournamentInput> & {
+  status?: TournamentStatus;
+};
+
+export interface RegisterTournamentTeamInput {
+  name: string;
+  shortCode?: string;
+  logo?: string;
+  color?: string;
+  playerIds: string[];
+}
+
+export type UpdateTournamentTeamInput = Partial<RegisterTournamentTeamInput>;
+
+export interface ScheduleTournamentMatchInput {
+  matchDate?: string;
+  kickOffTime?: string;
+  venue?: string;
+  status?: TournamentMatchStatus;
+}
+
+export interface SubmitTournamentMatchResultInput {
+  stage?: TournamentStage;
+  homeScore: number;
+  awayScore: number;
+  regularTimeHomeScore?: number;
+  regularTimeAwayScore?: number;
+  extraTimeHomeScore?: number;
+  extraTimeAwayScore?: number;
+  wentToExtraTime?: boolean;
+  wentToPenalties?: boolean;
+  homePenaltyScore?: number;
+  awayPenaltyScore?: number;
+  winnerTeamId?: string | null;
+  goals?: MatchGoalEvent[];
+}
+
 export interface DashboardStats {
   totalPlayers: number;
   upcomingMatches: number;
@@ -393,7 +578,10 @@ export const apiClient = {
     }) => {
       const query = new URLSearchParams();
       if (params?.page) query.set("page", String(params.page));
-      if (params?.limit) query.set("limit", String(params.limit));
+      // Clamp limit to backend schema maximum of 100
+      if (params?.limit !== undefined) {
+        query.set("limit", String(Math.min(Math.max(1, params.limit), 100)));
+      }
       if (typeof params?.isActive === "boolean") {
         query.set("isActive", String(params.isActive));
       }
@@ -402,6 +590,73 @@ export const apiClient = {
 
       const qs = query.toString();
       return request<PlayerDocument[]>(`/players${qs ? `?${qs}` : ""}`);
+    },
+
+    // Retrieve all players across all pagination pages
+    getAllPages: async (params?: {
+      isActive?: boolean;
+      search?: string;
+      position?: string;
+    }): Promise<PlayerDocument[]> => {
+      let page = 1;
+      const limit = 100;
+      let allPlayers: PlayerDocument[] = [];
+      let totalPages = 1;
+
+      do {
+        const query = new URLSearchParams();
+        query.set("page", String(page));
+        query.set("limit", String(limit));
+        query.set("sortBy", "jerseyNumber");
+        query.set("sortOrder", "asc");
+        if (typeof params?.isActive === "boolean") {
+          query.set("isActive", String(params.isActive));
+        }
+        if (params?.search) query.set("search", params.search);
+        if (params?.position) query.set("position", params.position);
+
+        const qs = query.toString();
+        const res = await request<PlayerDocument[]>(`/players?${qs}`);
+        if (res.data && Array.isArray(res.data)) {
+          allPlayers = allPlayers.concat(res.data);
+        }
+        totalPages = res.pagination?.totalPages ?? 1;
+        page++;
+      } while (page <= totalPages);
+
+      return allPlayers;
+    },
+
+    // Retrieve all active & eligible academy players across all pagination pages
+    // Evaluates both isActive and playerStatus so no active player is excluded
+    getAllActive: async (): Promise<PlayerDocument[]> => {
+      let page = 1;
+      const limit = 100;
+      let allPlayers: PlayerDocument[] = [];
+      let totalPages = 1;
+
+      do {
+        // Query players without hard server-side isActive filter to prevent excluding
+        // documents where activity is stored via playerStatus instead of isActive.
+        const res = await request<PlayerDocument[]>(
+          `/players?page=${page}&limit=${limit}&sortBy=jerseyNumber&sortOrder=asc`
+        );
+        if (res.data && Array.isArray(res.data)) {
+          allPlayers = allPlayers.concat(res.data);
+        }
+        totalPages = res.pagination?.totalPages ?? 1;
+        page++;
+      } while (page <= totalPages);
+
+      // Safe activity check:
+      // A player is active if:
+      // - isActive is not explicitly false
+      // - playerStatus is not 'inactive'
+      return allPlayers.filter((p) => {
+        if (p.isActive === false) return false;
+        if (p.playerStatus === "inactive") return false;
+        return true;
+      });
     },
 
     // Get all players with private admin fields (Protected Admin Endpoint)
@@ -414,7 +669,9 @@ export const apiClient = {
     }) => {
       const query = new URLSearchParams();
       if (params?.page) query.set("page", String(params.page));
-      if (params?.limit) query.set("limit", String(params.limit));
+      if (params?.limit !== undefined) {
+        query.set("limit", String(Math.min(Math.max(1, params.limit), 100)));
+      }
       if (typeof params?.isActive === "boolean") {
         query.set("isActive", String(params.isActive));
       }
@@ -798,6 +1055,183 @@ export const apiClient = {
         matchResults,
         pendingRegistrations,
       };
+    },
+  },
+
+  // 6. Tournament Management APIs
+  tournaments: {
+    // List tournaments with pagination & filter
+    getAll: (params?: {
+      page?: number;
+      limit?: number;
+      status?: TournamentStatus;
+      season?: string;
+    }) => {
+      const query = new URLSearchParams();
+      if (params?.page) query.set("page", String(params.page));
+      if (params?.limit) query.set("limit", String(params.limit));
+      if (params?.status) query.set("status", params.status);
+      if (params?.season) query.set("season", params.season);
+
+      const qs = query.toString();
+      return request<TournamentDocument[]>(`/tournaments${qs ? `?${qs}` : ""}`);
+    },
+
+    // Get single tournament by ID
+    getById: (id: string) => {
+      return request<TournamentDocument>(`/tournaments/${id}`);
+    },
+
+    // Get single tournament by Slug
+    getBySlug: (slug: string) => {
+      return request<TournamentDocument>(`/tournaments/slug/${slug}`);
+    },
+
+    // Create tournament (Admin)
+    create: (data: CreateTournamentInput) => {
+      return request<TournamentDocument>("/tournaments", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+    },
+
+    // Update tournament (Admin)
+    update: (id: string, data: UpdateTournamentInput) => {
+      return request<TournamentDocument>(`/tournaments/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify(data),
+      });
+    },
+
+    // Cancel tournament (Admin)
+    cancel: (id: string) => {
+      return request<TournamentDocument>(`/tournaments/${id}/cancel`, {
+        method: "POST",
+      });
+    },
+
+    // Delete tournament (Admin)
+    delete: (id: string) => {
+      return request<{ deleted: boolean; id: string }>(`/tournaments/${id}`, {
+        method: "DELETE",
+      });
+    },
+
+    // Teams
+    getTeams: (tournamentId: string) => {
+      return request<TournamentTeamDocument[]>(`/tournaments/${tournamentId}/teams`);
+    },
+
+    getTeamById: (teamId: string) => {
+      return request<TournamentTeamDocument & { players?: PlayerDocument[] }>(
+        `/tournaments/teams/${teamId}`
+      );
+    },
+
+    registerTeam: (tournamentId: string, data: RegisterTournamentTeamInput) => {
+      return request<TournamentTeamDocument>(`/tournaments/${tournamentId}/teams`, {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+    },
+
+    updateTeam: (teamId: string, data: UpdateTournamentTeamInput) => {
+      return request<TournamentTeamDocument>(`/tournaments/teams/${teamId}`, {
+        method: "PATCH",
+        body: JSON.stringify(data),
+      });
+    },
+
+    deleteTeam: (teamId: string) => {
+      return request<{ deleted: boolean; teamId: string }>(
+        `/tournaments/teams/${teamId}`,
+        {
+          method: "DELETE",
+        }
+      );
+    },
+
+    // Fixtures & Matches
+    getMatches: (
+      tournamentId: string,
+      params?: {
+        stage?: TournamentStage;
+        round?: number;
+        status?: TournamentMatchStatus;
+        teamId?: string;
+      }
+    ) => {
+      const query = new URLSearchParams();
+      if (params?.stage) query.set("stage", params.stage);
+      if (params?.round !== undefined) query.set("round", String(params.round));
+      if (params?.status) query.set("status", params.status);
+      if (params?.teamId) query.set("teamId", params.teamId);
+
+      const qs = query.toString();
+      return request<TournamentMatchDocument[]>(
+        `/tournaments/${tournamentId}/matches${qs ? `?${qs}` : ""}`
+      );
+    },
+
+    getMatchById: (tournamentId: string, matchId: string) => {
+      return request<TournamentMatchDocument>(
+        `/tournaments/${tournamentId}/matches/${matchId}`
+      );
+    },
+
+    generateFixtures: (tournamentId: string) => {
+      return request<TournamentMatchDocument[]>(
+        `/tournaments/${tournamentId}/fixtures/generate`,
+        {
+          method: "POST",
+        }
+      );
+    },
+
+    generateFinal: (tournamentId: string) => {
+      return request<TournamentMatchDocument>(
+        `/tournaments/${tournamentId}/final/generate`,
+        {
+          method: "POST",
+        }
+      );
+    },
+
+    scheduleMatch: (
+      tournamentId: string,
+      matchId: string,
+      data: ScheduleTournamentMatchInput
+    ) => {
+      return request<TournamentMatchDocument>(
+        `/tournaments/${tournamentId}/matches/${matchId}/schedule`,
+        {
+          method: "PATCH",
+          body: JSON.stringify(data),
+        }
+      );
+    },
+
+    submitResult: (
+      tournamentId: string,
+      matchId: string,
+      data: SubmitTournamentMatchResultInput
+    ) => {
+      return request<TournamentMatchDocument>(
+        `/tournaments/${tournamentId}/matches/${matchId}/result`,
+        {
+          method: "PUT",
+          body: JSON.stringify(data),
+        }
+      );
+    },
+
+    // Standings & Leaderboard
+    getStandings: (tournamentId: string) => {
+      return request<TeamStanding[]>(`/tournaments/${tournamentId}/standings`);
+    },
+
+    getGoldenBoot: (tournamentId: string) => {
+      return request<GoldenBootEntry[]>(`/tournaments/${tournamentId}/golden-boot`);
     },
   },
 };

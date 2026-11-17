@@ -36,7 +36,7 @@ const LOCAL_PHOTO_PRESETS = [
   { label: "প্রিসেট ৩", path: "/images/players/asik.jpg" },
   { label: "প্রিসেট ৪", path: "/images/players/jamsed.jpg" },
   { label: "প্রিসেট ৫", path: "/images/players/somir.jpg" },
-  { label: "প্রিসেট ৬", path: "/images/players/player-6.jpg" },
+  { label: "প্রিসেট ৬", path: "/images/players/sagor.jpeg" },
 ];
 
 const POSITIONS = ["Forward", "Midfielder", "Defender", "Goalkeeper"] as const;

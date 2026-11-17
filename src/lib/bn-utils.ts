@@ -188,3 +188,83 @@ export function getBnRegistrationStatus(status?: string): string {
       return status || "";
   }
 }
+
+/**
+ * Translate tournament status to Bengali
+ */
+export function getBnTournamentStatus(status?: string): string {
+  switch (status) {
+    case "draft":
+      return "খসড়া";
+    case "teams_registered":
+      return "দলসমূহ নিবন্ধিত";
+    case "fixtures_generated":
+      return "ফিক্সচার তৈরি সম্পন্ন";
+    case "in_progress":
+      return "চলমান";
+    case "completed":
+      return "সমাপ্ত";
+    case "cancelled":
+      return "বাতিল";
+    default:
+      return status || "";
+  }
+}
+
+/**
+ * Translate tournament stage to Bengali
+ */
+export function getBnTournamentStage(stage?: string): string {
+  switch (stage) {
+    case "league":
+      return "লিগ পর্ব";
+    case "final":
+      return "ফাইনাল";
+    default:
+      return stage || "";
+  }
+}
+
+/**
+ * Translate tournament round to Bengali
+ */
+export function getBnRound(round?: number | null): string {
+  if (!round) return "ফাইনাল";
+  return `রাউন্ড ${toBnNum(round)}`;
+}
+
+/**
+ * Translate tournament match status to Bengali
+ */
+export function getBnTournamentMatchStatus(status?: string): string {
+  switch (status) {
+    case "scheduled":
+      return "নির্ধারিত";
+    case "live":
+      return "লাইভ";
+    case "completed":
+      return "সমাপ্ত";
+    case "postponed":
+      return "স্থগিত";
+    case "cancelled":
+      return "বাতিল";
+    default:
+      return status || "";
+  }
+}
+
+/**
+ * Translate goal type to Bengali
+ */
+export function getBnGoalType(type?: string): string {
+  switch (type) {
+    case "regular":
+      return "নিয়মিত গোল";
+    case "extra_time":
+      return "অতিরিক্ত সময়ের গোল";
+    case "own_goal":
+      return "আত্মঘাতী গোল";
+    default:
+      return type || "";
+  }
+}
