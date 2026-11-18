@@ -19,6 +19,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "ফিক্সচার", href: "/#fixtures" },
   { label: "ফলাফল", href: "/#results" },
   { label: "টুর্নামেন্ট", href: "/tournaments" },
+  { label: "ফ্রেন্ডলি সিরিজ", href: "/friendly-series" },
   { label: "সংবাদ", href: "/#news" },
   { label: "গ্যালারি", href: "/gallery" },
 ];

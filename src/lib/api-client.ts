@@ -483,6 +483,189 @@ export interface SubmitTournamentMatchResultInput {
   goals?: MatchGoalEvent[];
 }
 
+// ==========================================
+// Friendly Series Types & DTOs
+// ==========================================
+
+export type FriendlySeriesFormat = "best_of_3" | "best_of_5";
+
+export type FriendlySeriesStatus =
+  | "upcoming"
+  | "ongoing"
+  | "completed"
+  | "cancelled";
+
+export type FriendlyMatchStatus =
+  | "scheduled"
+  | "live"
+  | "completed"
+  | "postponed"
+  | "cancelled";
+
+export type FriendlyGoalType = "normal" | "own_goal";
+
+export interface FriendlyMatchGoalEvent {
+  playerId: string;
+  teamId: string;
+  type: FriendlyGoalType;
+  minute?: number;
+}
+
+export interface FriendlyMatchResult {
+  homeScore: number;
+  awayScore: number;
+  winnerTeamId: string | null;
+  isDraw: boolean;
+  notes?: string;
+  goals?: FriendlyMatchGoalEvent[];
+}
+
+export interface FriendlySeriesStats {
+  teamAWins: number;
+  teamBWins: number;
+  draws: number;
+  matchesPlayed: number;
+  matchesRemaining: number;
+  maxMatches: number; // 3 for bo3, 5 for bo5
+  requiredWins: number; // 2 for bo3, 3 for bo5
+  status: FriendlySeriesStatus;
+  championTeamId: string | null;
+  isDrawnSeries: boolean;
+}
+
+export interface FriendlySeriesDocument {
+  _id: string;
+  name: string;
+  slug: string;
+  season: string;
+  description?: string;
+  format: FriendlySeriesFormat;
+  teamAId: string;
+  teamBId: string;
+  status: FriendlySeriesStatus;
+  startDate?: string;
+  endDate?: string;
+  venue?: string;
+  championTeamId?: string | null;
+  isDrawnSeries: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FriendlySeriesMatchDocument {
+  _id: string;
+  seriesId: string;
+  matchNumber: number;
+  homeTeamId: string;
+  awayTeamId: string;
+  matchDate?: string;
+  kickOffTime?: string;
+  venue?: string;
+  status: FriendlyMatchStatus;
+  result?: FriendlyMatchResult;
+  goals?: FriendlyMatchGoalEvent[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FriendlyTeamSummary {
+  _id: string;
+  name: string;
+  shortCode?: string;
+  logo?: string;
+  color?: string;
+}
+
+export interface TopGoalScorerEntry {
+  rank: number;
+  playerId: string;
+  playerName: string;
+  playerFullName?: string;
+  playerImage?: string;
+  photo?: string;
+  jerseyNumber?: number;
+  position?: string;
+  teamId: string;
+  teamName: string;
+  teamColor?: string;
+  totalGoals: number;
+  goalsCount?: number;
+  matchesScored?: number;
+}
+
+export interface FriendlySeriesRosterTeam {
+  _id: string;
+  name: string;
+  shortCode?: string;
+  logo?: string;
+  color?: string;
+  players: PlayerDocument[];
+}
+
+export interface FriendlySeriesTeamPlayersResponse {
+  seriesId: string;
+  teamA: FriendlySeriesRosterTeam;
+  teamB: FriendlySeriesRosterTeam;
+}
+
+export interface FriendlySeriesDetailResponse {
+  series: FriendlySeriesDocument;
+  teamA: FriendlyTeamSummary;
+  teamB: FriendlyTeamSummary;
+  stats: FriendlySeriesStats;
+  championTeam?: FriendlyTeamSummary | null;
+}
+
+export interface CreateFriendlySeriesInput {
+  name: string;
+  slug: string;
+  season: string;
+  description?: string;
+  format: FriendlySeriesFormat;
+  teamAId: string;
+  teamBId: string;
+  startDate?: string;
+  endDate?: string;
+  venue?: string;
+}
+
+export interface UpdateFriendlySeriesInput {
+  name?: string;
+  slug?: string;
+  season?: string;
+  description?: string;
+  startDate?: string;
+  endDate?: string;
+  venue?: string;
+  status?: FriendlySeriesStatus;
+}
+
+export interface ScheduleFriendlyMatchInput {
+  matchNumber?: number;
+  homeTeamId: string;
+  awayTeamId: string;
+  matchDate?: string;
+  kickOffTime?: string;
+  venue?: string;
+  status?: FriendlyMatchStatus;
+}
+
+export interface UpdateFriendlyMatchScheduleInput {
+  matchDate?: string;
+  kickOffTime?: string;
+  venue?: string;
+  status?: FriendlyMatchStatus;
+  homeTeamId?: string;
+  awayTeamId?: string;
+}
+
+export interface SubmitFriendlyMatchResultInput {
+  homeScore: number;
+  awayScore: number;
+  notes?: string;
+  goals?: FriendlyMatchGoalEvent[];
+}
+
 export interface DashboardStats {
   totalPlayers: number;
   upcomingMatches: number;
@@ -1232,6 +1415,194 @@ export const apiClient = {
 
     getGoldenBoot: (tournamentId: string) => {
       return request<GoldenBootEntry[]>(`/tournaments/${tournamentId}/golden-boot`);
+    },
+  },
+
+  // ==========================================
+  // Friendly Series Module
+  // ==========================================
+  friendlySeries: {
+    getAll: (params?: {
+      page?: number;
+      limit?: number;
+      status?: FriendlySeriesStatus;
+      format?: FriendlySeriesFormat;
+      season?: string;
+      teamId?: string;
+    }) => {
+      const query = new URLSearchParams();
+      if (params?.page) query.set("page", String(params.page));
+      if (params?.limit) query.set("limit", String(params.limit));
+      if (params?.status) query.set("status", params.status);
+      if (params?.format) query.set("format", params.format);
+      if (params?.season) query.set("season", params.season);
+      if (params?.teamId) query.set("teamId", params.teamId);
+
+      const qs = query.toString();
+      return request<FriendlySeriesDetailResponse[]>(
+        `/friendly-series${qs ? `?${qs}` : ""}`
+      );
+    },
+
+    getBySlug: (slug: string) => {
+      return request<FriendlySeriesDetailResponse>(`/friendly-series/slug/${slug}`);
+    },
+
+    getById: (id: string) => {
+      return request<FriendlySeriesDetailResponse>(`/friendly-series/${id}`);
+    },
+
+    getStats: (id: string) => {
+      return request<FriendlySeriesStats>(`/friendly-series/${id}/standings`);
+    },
+
+    getMatches: (seriesId: string) => {
+      return request<FriendlySeriesMatchDocument[]>(
+        `/friendly-series/${seriesId}/matches`
+      );
+    },
+
+    getMatchById: (seriesId: string, matchId: string) => {
+      return request<FriendlySeriesMatchDocument>(
+        `/friendly-series/${seriesId}/matches/${matchId}`
+      );
+    },
+
+    getPlayers: (id: string) => {
+      return request<FriendlySeriesTeamPlayersResponse>(
+        `/friendly-series/${id}/players`
+      );
+    },
+
+    getTopScorers: (id: string) => {
+      return request<TopGoalScorerEntry[]>(
+        `/friendly-series/${id}/top-scorers`
+      );
+    },
+
+    // Admin Actions
+    create: (data: CreateFriendlySeriesInput) => {
+      return request<FriendlySeriesDocument>("/friendly-series", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+    },
+
+    update: (id: string, data: UpdateFriendlySeriesInput) => {
+      return request<FriendlySeriesDocument>(`/friendly-series/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify(data),
+      });
+    },
+
+    delete: (id: string) => {
+      return request<{ deleted: boolean }>(`/friendly-series/${id}`, {
+        method: "DELETE",
+      });
+    },
+
+    scheduleMatch: (
+      seriesId: string,
+      data: ScheduleFriendlyMatchInput
+    ) => {
+      return request<FriendlySeriesMatchDocument>(
+        `/friendly-series/${seriesId}/matches`,
+        {
+          method: "POST",
+          body: JSON.stringify(data),
+        }
+      );
+    },
+
+    updateMatchSchedule: (
+      seriesId: string,
+      matchId: string,
+      data: UpdateFriendlyMatchScheduleInput
+    ) => {
+      return request<FriendlySeriesMatchDocument>(
+        `/friendly-series/${seriesId}/matches/${matchId}/schedule`,
+        {
+          method: "PATCH",
+          body: JSON.stringify(data),
+        }
+      );
+    },
+
+    submitMatchResult: (
+      seriesId: string,
+      matchId: string,
+      data: SubmitFriendlyMatchResultInput
+    ) => {
+      return request<{
+        match: FriendlySeriesMatchDocument;
+        stats: FriendlySeriesStats;
+      }>(`/friendly-series/${seriesId}/matches/${matchId}/result`, {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+    },
+
+    correctMatchResult: (
+      seriesId: string,
+      matchId: string,
+      data: SubmitFriendlyMatchResultInput
+    ) => {
+      return request<{
+        match: FriendlySeriesMatchDocument;
+        stats: FriendlySeriesStats;
+      }>(`/friendly-series/${seriesId}/matches/${matchId}/result`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+      });
+    },
+
+    /**
+     * Aggregates all existing academy teams without duplicates from tournaments and series
+     */
+    getAvailableAcademyTeams: async (): Promise<FriendlyTeamSummary[]> => {
+      const teamsMap = new Map<string, FriendlyTeamSummary>();
+      try {
+        const tournamentsRes = await apiClient.tournaments.getAll({ limit: 100 });
+        const tournaments = tournamentsRes.data || [];
+        const teamPromises = tournaments.map((t) =>
+          apiClient.tournaments.getTeams(t._id).catch(() => ({ data: [] as TournamentTeamDocument[] }))
+        );
+        const results = await Promise.all(teamPromises);
+        for (const res of results) {
+          if (Array.isArray(res.data)) {
+            for (const t of res.data) {
+              if (t._id && !teamsMap.has(t._id)) {
+                teamsMap.set(t._id, {
+                  _id: t._id,
+                  name: t.name,
+                  shortCode: t.shortCode,
+                  logo: t.logo,
+                  color: t.color,
+                });
+              }
+            }
+          }
+        }
+      } catch (e) {
+        console.error("Failed to fetch teams from tournaments:", e);
+      }
+
+      try {
+        const seriesRes = await apiClient.friendlySeries.getAll({ limit: 100 });
+        const seriesList = seriesRes.data || [];
+        for (const s of seriesList) {
+          if (s.teamA && !teamsMap.has(s.teamA._id)) {
+            teamsMap.set(s.teamA._id, s.teamA);
+          }
+          if (s.teamB && !teamsMap.has(s.teamB._id)) {
+            teamsMap.set(s.teamB._id, s.teamB);
+          }
+        }
+      } catch {
+        // Silently continue
+      }
+
+      return Array.from(teamsMap.values());
     },
   },
 };

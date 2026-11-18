@@ -18,6 +18,7 @@ import {
   ChevronRight,
   X,
   ShieldCheck,
+  Swords,
 } from "lucide-react";
 import { useAdminAuth } from "../../lib/use-admin-auth";
 import { apiClient } from "../../lib/api-client";
@@ -34,6 +35,7 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
   { label: "ড্যাশবোর্ড", href: "/admin", icon: LayoutDashboard },
   { label: "খেলোয়াড়বৃন্দ", href: "/admin/players", icon: Users },
   { label: "টুর্নামেন্ট", href: "/admin/tournaments", icon: Trophy },
+  { label: "ফ্রেন্ডলি সিরিজ", href: "/admin/friendly-series", icon: Swords },
   { label: "ম্যাচ ফিক্সচার", href: "/admin/matches", icon: Calendar },
   { label: "খেলার ফলাফল", href: "/admin/results", icon: Award },
   { label: "ফটো গ্যালারি", href: "/admin/gallery", icon: ImageIcon },

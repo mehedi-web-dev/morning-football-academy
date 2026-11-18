@@ -268,3 +268,58 @@ export function getBnGoalType(type?: string): string {
       return type || "";
   }
 }
+
+/**
+ * Translate friendly series status to natural Bengali
+ */
+export function getBnFriendlySeriesStatus(status?: string): string {
+  switch (status) {
+    case "upcoming":
+      return "আসন্ন";
+    case "ongoing":
+      return "চলমান";
+    case "completed":
+      return "সমাপ্ত";
+    case "cancelled":
+      return "বাতিল";
+    default:
+      return status || "";
+  }
+}
+
+/**
+ * Translate friendly series format to natural Bengali
+ */
+export function getBnFriendlySeriesFormat(
+  format?: string,
+  options?: { short?: boolean }
+): string {
+  switch (format) {
+    case "best_of_3":
+      return options?.short ? "বেস্ট অব ৩" : "বেস্ট অব ৩ (Best of 3)";
+    case "best_of_5":
+      return options?.short ? "বেস্ট অব ৫" : "বেস্ট অব ৫ (Best of 5)";
+    default:
+      return format || "";
+  }
+}
+
+/**
+ * Translate friendly match status to natural Bengali
+ */
+export function getBnFriendlyMatchStatus(status?: string): string {
+  switch (status) {
+    case "scheduled":
+      return "নির্ধারিত";
+    case "live":
+      return "লাইভ";
+    case "completed":
+      return "সমাপ্ত";
+    case "postponed":
+      return "স্থগিত";
+    case "cancelled":
+      return "বাতিল";
+    default:
+      return status || "";
+  }
+}
