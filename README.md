@@ -1,149 +1,127 @@
-
 # Morning Football Academy
 
-### RISE TOGETHER. PLAY TO WIN.
+A modern football academy management website built to showcase academy activities, players, matches, tournaments, and friendly football series.
 
-A modern, responsive football academy management platform built to manage players, registrations, matches, results, gallery content, and academy administration.
+**Live Website:** https://morning-football-academy.vercel.app
 
-<p align="center">
-  <a href="https://morning-football-academy.vercel.app/">
-    <strong>Visit Live Website</strong>
-  </a>
-</p>
+**Backend API:** https://morning-football-academy-server.vercel.app
 
 ---
 
-## 🌐 Live Links
+## About the Project
 
-| Resource | URL |
-|---|---|
-| Live Website | https://morning-football-academy.vercel.app |
-| Backend API | https://morning-football-academy-server.vercel.app |
-| API Health Check | https://morning-football-academy-server.vercel.app/api/v1/health |
+Morning Football Academy is a football academy website designed to manage and showcase academy information, player profiles, match results, tournaments, and friendly football competitions.
 
----
+The platform provides a public-facing website for visitors and an administrative dashboard for managing academy activities.
 
-## 📌 About the Project
-
-Morning Football Academy is a full-stack web application designed to provide a digital platform for a football academy.
-
-The platform offers a public-facing website for visitors and players, along with an administrative dashboard for managing academy operations.
-
-It focuses on a clean user experience, responsive layouts, secure authentication, and efficient data management.
-
----
-
-## ✨ Features
+## Features
 
 ### Public Website
-- Modern and responsive landing page
-- Academy information and introduction
-- Player registration system
-- Player profiles and details
-- Match information
-- Match results
-- Photo gallery
-- Mobile-friendly navigation
-- Bengali language interface
+
+- Modern, responsive homepage.
+- Academy information and activities.
+- Player profiles and squad directory.
+- Upcoming matches and match results.
+- Tournament listings and tournament details.
+- Tournament standings and fixtures.
+- Tournament top goal scorers.
+- Friendly football series listings.
+- Friendly series match results and statistics.
+- Friendly series team rosters.
+- Friendly series top goal scorers.
+- Latest Friendly Series section on the homepage.
+- Responsive layouts for desktop, tablet, and mobile.
+
+### Tournament Management
+
+- Create and manage tournaments.
+- Register teams and assign players.
+- Team roster size: 5–6 players.
+- Minimum 3 teams, with no fixed maximum.
+- Automatic single round-robin fixture generation.
+- Automatic bye handling for odd-numbered teams.
+- League standings and points calculation.
+- Top 2 teams qualify for the final.
+- Match scheduling and result management.
+- Goal scorer tracking and Golden Boot leaderboard.
+
+### Friendly Series Management
+
+- Create and manage two-team friendly series.
+- Best of 3 and Best of 5 formats.
+- Match scheduling and result submission.
+- Multiple goal scorers per match.
+- Normal goal and own-goal tracking.
+- Player roster validation.
+- Automatic series standings and winner calculation.
+- Match result corrections.
+- Top goal scorer leaderboard.
+- Team-wise player roster display.
 
 ### Admin Dashboard
-- Secure admin authentication
-- Dashboard overview
-- Player management
-- Player registration management
-- Match management
-- Match result management
-- Gallery content management
-- Administrative data management
-- Responsive admin navigation
 
-### UI & Experience
-- Premium football club-inspired design
-- Responsive desktop, tablet, and mobile layouts
-- Consistent design system
-- Modern typography
-- Smooth and intuitive user experience
-- Bengali typography support
+- Secure administrator access.
+- Manage tournaments and friendly series.
+- Manage teams and player assignments.
+- Schedule matches.
+- Submit and correct match results.
+- Manage goal scorer information.
 
 ---
 
-## 🛠️ Technology Stack
+## Technologies Used
 
-| Technology | Purpose |
-|---|---|
-| Next.js | React framework |
-| React | User interface |
-| TypeScript | Type safety |
-| Tailwind CSS | Styling |
-| HeroUI | UI components |
-| Lucide React | Icons |
-| Better Auth | Authentication |
-| REST API | Backend communication |
-| Vercel | Deployment |
+- **Framework:** Next.js
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS
+- **Backend:** Node.js, Express.js
+- **Database:** MongoDB
+- **Authentication:** Better Auth
+- **Validation:** Zod
+- **Deployment:** Vercel
 
 ---
 
-## 🎨 Design System
-
-The website follows a premium European football club-inspired visual style.
-
-| Element | Value |
-|---|---|
-| Primary Background | `#101A17` |
-| Secondary Background | `#18251F` |
-| Card Background | `#202E27` |
-| Accent Color | `#B9F66B` |
-| Muted Text | `#A4B0A8` |
-| Main Text | `#FFFFFF` |
-
-**Typography:** Hind Siliguri and Noto Sans Bengali.
-
----
-
-## 📂 Project Structure
+## Project Structure
 
 ```text
 morning-football-academy/
-│
 ├── public/
-│   └── images/
-│       └── logo.jpeg
-│
 ├── src/
 │   ├── app/
-│   │   ├── (public)/
 │   │   ├── admin/
-│   │   ├── api/
-│   │   ├── globals.css
-│   │   ├── layout.tsx
+│   │   ├── friendly-series/
+│   │   ├── tournaments/
+│   │   ├── squad/
 │   │   └── page.tsx
-│   │
 │   ├── components/
-│   │
-│   ├── lib/
-│   │   └── api-client.ts
-│   │
-│   └── ...
-│
-├── .env.local
-├── .gitignore
-├── next.config.ts
+│   │   ├── admin/
+│   │   ├── friendly-series/
+│   │   ├── home/
+│   │   └── tournaments/
+│   └── lib/
+│       ├── api-client.ts
+│       └── bn-utils.ts
 ├── package.json
-├── postcss.config.mjs
-├── tsconfig.json
 └── README.md
 ```
 
 ---
 
-## ⚙️ Getting Started
+## Getting Started
 
-Follow these steps to run the project locally.
+### Prerequisites
+
+Make sure you have installed:
+
+- Node.js
+- npm
+- Git
 
 ### 1. Clone the Repository
 
 ```bash
-git clone YOUR_FRONTEND_REPOSITORY_URL
+git clone <YOUR_FRONTEND_REPOSITORY_URL>
 ```
 
 ### 2. Navigate to the Project
@@ -158,16 +136,19 @@ cd morning-football-academy
 npm install
 ```
 
-### 4. Configure Environment Variables
+### 4. Configure the Backend API
 
-Create a `.env.local` file in the root directory.
+The frontend communicates with the backend through the `/api/v1` API routes.
 
-```env
-NEXT_PUBLIC_API_URL=http://localhost:5000
-NEXT_PUBLIC_SITE_URL=http://localhost:3000
+For local development, make sure the frontend API proxy/rewrite configuration points to your local backend server.
+
+Production Backend:
+
+```text
+https://morning-football-academy-server.vercel.app
 ```
 
-For production, configure the appropriate environment variables in your deployment platform.
+Do not expose private API keys or credentials in frontend code.
 
 ### 5. Start the Development Server
 
@@ -175,7 +156,7 @@ For production, configure the appropriate environment variables in your deployme
 npm run dev
 ```
 
-Open your browser and visit:
+Open:
 
 ```text
 http://localhost:3000
@@ -183,21 +164,61 @@ http://localhost:3000
 
 ---
 
-## 🔗 Backend Repository
+## Available Scripts
 
-This frontend application communicates with a separate backend API built using Express.js, TypeScript, MongoDB, and Better Auth.
-
-**Backend Live URL:**
-
-https://morning-football-academy-server.vercel.app
-
-**API Base URL:**
-
-https://morning-football-academy-server.vercel.app/api/v1
+| Command | Description |
+|---|---|
+| `npm run dev` | Start development server |
+| `npm run build` | Create production build |
+| `npm run start` | Start production server |
+| `npm run lint` | Run ESLint |
 
 ---
 
-## 🚀 Deployment
+## API Integration
+
+The frontend communicates with the Morning Football Academy backend.
+
+**Production API Base:**
+
+```text
+https://morning-football-academy-server.vercel.app/api/v1
+```
+
+### Main API Modules
+
+- Players
+- Matches
+- Results
+- Tournaments
+- Tournament Teams
+- Tournament Fixtures
+- Tournament Standings
+- Tournament Goal Scorers
+- Friendly Series
+- Friendly Series Matches
+- Friendly Series Players
+- Friendly Series Top Scorers
+
+### Friendly Series API
+
+| Method | Endpoint | Access |
+|---|---|---|
+| GET | `/friendly-series` | Public |
+| GET | `/friendly-series/:id` | Public |
+| GET | `/friendly-series/:id/standings` | Public |
+| GET | `/friendly-series/:id/matches` | Public |
+| GET | `/friendly-series/:id/top-scorers` | Public |
+| GET | `/friendly-series/:id/players` | Public |
+| POST | `/friendly-series` | Admin |
+| POST | `/friendly-series/:id/matches` | Admin |
+| POST | `/friendly-series/:id/matches/:matchId/result` | Admin |
+
+All endpoints are prefixed with `/api/v1`.
+
+---
+
+## Deployment
 
 The frontend is deployed on Vercel.
 
@@ -209,31 +230,43 @@ To deploy your own version:
 
 1. Push the frontend repository to GitHub.
 2. Import the repository into Vercel.
-3. Configure the required environment variables.
+3. Configure the required environment variables and API rewrite settings.
 4. Deploy the application.
 
----
-
-## 👨‍💻 Developer
-
-**Mehedi Hasan**
-
-Full-Stack Web Developer
-
-- Portfolio: https://developerjoy.me
-- GitHub: https://github.com/
+Make sure the backend is deployed and accessible before testing production API integration.
 
 ---
 
-## 📄 License
+## Backend Repository
 
-This project was developed for Morning Football Academy.
+The backend is maintained separately.
+
+**Backend Repository:** Add your backend GitHub repository URL here.
+
+**Backend Production URL:**
+
+https://morning-football-academy-server.vercel.app
+
+---
+
+## Project Status
+
+The project includes:
+
+- Public academy website.
+- Player profile system.
+- Tournament management.
+- Friendly Series management.
+- Goal scorer tracking.
+- Team roster management.
+- Administrative dashboard.
+
+Frontend TypeScript checks, ESLint, and production build have been reported as successful during development.
+
+---
+
+## License
+
+This project is maintained for Morning Football Academy.
 
 All rights reserved unless otherwise specified.
-
----
-
-<p align="center">
-  <strong>MORNING FOOTBALL ACADEMY</strong><br />
-  RISE TOGETHER. PLAY TO WIN.
-</p>
