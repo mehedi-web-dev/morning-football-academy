@@ -689,9 +689,14 @@ async function request<T>(
   const baseUrl = getApiBaseUrl();
   const url = `${baseUrl}${path}`;
 
-  const defaultHeaders: HeadersInit = {
-    "Content-Type": "application/json",
-  };
+  const isFormData =
+    typeof FormData !== "undefined" && options.body instanceof FormData;
+
+  const defaultHeaders: Record<string, string> = isFormData
+    ? {}
+    : {
+        "Content-Type": "application/json",
+      };
 
   try {
     const response = await fetch(url, {
@@ -902,6 +907,27 @@ export const apiClient = {
       return request<{ deleted: boolean; id: string }>(`/players/${id}`, {
         method: "DELETE",
       });
+    },
+
+    // Upload player image to ImgBB via backend (Protected Admin Endpoint)
+    uploadPlayerImage: async (file: File): Promise<string> => {
+      const formData = new FormData();
+      formData.append("image", file);
+
+      const res = await request<{ imageUrl: string }>("/players/upload-image", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.data?.imageUrl) {
+        throw new ApiError("সার্ভার থেকে ছবির লিঙ্ক পাওয়া যায়নি।", 500);
+      }
+
+      return res.data.imageUrl;
+    },
+
+    uploadImage: async (file: File): Promise<string> => {
+      return apiClient.players.uploadPlayerImage(file);
     },
   },
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Image from "next/image";
 import {
   X,
@@ -8,6 +8,10 @@ import {
   AlertCircle,
   CheckCircle2,
   Sparkles,
+  Upload,
+  Loader2,
+  RefreshCw,
+  ImageIcon,
 } from "lucide-react";
 import { Button } from "@heroui/react";
 import {
@@ -164,6 +168,81 @@ function PlayerFormInner({
   const [weight, setWeight] = useState(playerToEdit?.weight ?? "70 kg");
   const [bio, setBio] = useState(playerToEdit?.bio ?? "");
   const [photo, setPhoto] = useState(playerToEdit?.photo ?? "/images/players/mehedi.jpeg");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [localPreviewUrl, setLocalPreviewUrl] = useState<string | null>(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [imageUploadSuccess, setImageUploadSuccess] = useState(false);
+  const [imageUploadError, setImageUploadError] = useState<string | null>(null);
+
+  const uploadFileToBackend = async (file: File) => {
+    setIsUploadingImage(true);
+    setImageUploadError(null);
+    setImageUploadSuccess(false);
+
+    try {
+      const uploadedUrl = await apiClient.players.uploadPlayerImage(file);
+      setPhoto(uploadedUrl);
+      setImageUploadSuccess(true);
+      setImageUploadError(null);
+      setFieldErrors((prev) => {
+        const next = { ...prev };
+        delete next.photo;
+        return next;
+      });
+    } catch (err: unknown) {
+      let errorMsg = "ছবি আপলোড করতে ব্যর্থ হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।";
+      if (err instanceof ApiError) {
+        if (err.statusCode === 401 || err.statusCode === 403) {
+          errorMsg = "ছবি আপলোড করার অনুমতি নেই। অনুগ্রহ করে অ্যাডমিন হিসেবে লগইন করুন।";
+        } else if (err.message) {
+          errorMsg = err.message;
+        }
+      } else if (err instanceof Error) {
+        errorMsg = err.message;
+      }
+      setImageUploadError(errorMsg);
+      setImageUploadSuccess(false);
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Reset previous states
+    setImageUploadError(null);
+    setImageUploadSuccess(false);
+
+    // Validate mime / extension
+    const allowedMimes = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
+    const allowedExtensions = [".jpg", ".jpeg", ".png", ".webp"];
+    const fileExt = file.name.substring(file.name.lastIndexOf(".")).toLowerCase();
+
+    if (!allowedMimes.includes(file.type.toLowerCase()) && !allowedExtensions.includes(fileExt)) {
+      setImageUploadError("শুধুমাত্র JPEG, PNG এবং WebP ফরম্যাটের ছবি গ্রহণযোগ্য।");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+
+    // Validate size (max 5 MB)
+    const MAX_FILE_SIZE = 5 * 1024 * 1024;
+    if (file.size > MAX_FILE_SIZE) {
+      setImageUploadError("ছবির আকার সর্বোচ্চ ৫ মেগাবাইট (5 MB) হতে পারবে।");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+
+    // Set local preview
+    const previewUrl = URL.createObjectURL(file);
+    setLocalPreviewUrl(previewUrl);
+    setSelectedFile(file);
+
+    // Trigger upload
+    uploadFileToBackend(file);
+  };
   const [isActive, setIsActive] = useState(playerToEdit?.isActive ?? true);
 
   // Personal & Contact
@@ -397,6 +476,16 @@ function PlayerFormInner({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError(null);
+
+    if (isUploadingImage) {
+      setFormError("ছবি আপলোড হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...");
+      return;
+    }
+
+    if (selectedFile && imageUploadError) {
+      setFormError("নির্বাচিত ছবিটি আপলোড করতে ব্যর্থ হয়েছে। অনুগ্রহ করে ছবিটি সফলভাবে আপলোড করে পুনরায় চেষ্টা করুন।");
+      return;
+    }
 
     if (!validateForm()) {
       return;
@@ -1154,55 +1243,179 @@ function PlayerFormInner({
           </div>
         </div>
 
-        {/* Section 4: Photo Selection */}
-        <div className="space-y-3 pt-2 border-t border-white/10">
-          <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-[#B9F66B] flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B]" />
-            ৪. খেলোয়াড়ের ছবি
-          </h3>
+        {/* Section 4: Photo Selection & ImgBB Upload */}
+        <div className="space-y-4 pt-2 border-t border-white/10">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-[#B9F66B] flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#B9F66B]" />
+              ৪. খেলোয়াড়ের ছবি (ImgBB আপলোড)
+            </h3>
+            <span className="text-[11px] font-mono text-[#A4B0A8]">
+              JPEG, PNG, WebP • সর্বোচ্চ ৫ MB
+            </span>
+          </div>
 
-          <div className="space-y-2">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[11px] font-mono text-[#A4B0A8]">কুইক প্রিসেট:</span>
-              {LOCAL_PHOTO_PRESETS.map((p) => (
-                <button
-                  key={p.path}
-                  type="button"
-                  onClick={() => setPhoto(p.path)}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-mono transition-colors ${
-                    photo === p.path
-                      ? "bg-[#B9F66B] text-[#101A17] font-black"
-                      : "bg-[#101A17] text-[#A4B0A8] hover:text-white border border-white/10"
-                  }`}
-                >
-                  {p.label}
-                </button>
-              ))}
+          <div className="p-4 rounded-2xl bg-[#101A17] border border-white/10 space-y-4">
+            {/* Top row: Preview + Upload Action */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+              {/* Image Preview Box */}
+              <div className="relative w-24 h-24 rounded-2xl overflow-hidden bg-black/60 border-2 border-white/15 shrink-0 shadow-lg flex items-center justify-center">
+                {localPreviewUrl || photo ? (
+                  <Image
+                    src={localPreviewUrl || photo || "/images/players/mehedi.jpeg"}
+                    alt="Player photo preview"
+                    fill
+                    className="object-cover"
+                    unoptimized
+                  />
+                ) : (
+                  <ImageIcon className="w-8 h-8 text-[#A4B0A8]" />
+                )}
+
+                {/* Uploading Overlay */}
+                {isUploadingImage && (
+                  <div className="absolute inset-0 bg-black/75 flex flex-col items-center justify-center gap-1 z-10 text-white p-1 text-center">
+                    <Loader2 className="w-6 h-6 animate-spin text-[#B9F66B]" />
+                    <span className="text-[10px] font-mono font-bold text-[#B9F66B]">
+                      আপলোড হচ্ছে
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Upload controls & descriptions */}
+              <div className="flex-1 space-y-2">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/jpg"
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploadingImage || isSubmitting}
+                    className="px-4 py-2.5 rounded-xl bg-[#B9F66B] hover:bg-[#a8ec56] text-[#101A17] font-black text-xs uppercase tracking-wider transition-all shadow-md cursor-pointer flex items-center gap-2 disabled:opacity-50"
+                  >
+                    {isUploadingImage ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>আপলোড হচ্ছে...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-4 h-4" />
+                        <span>
+                          {isEdit
+                            ? "নতুন ছবি আপলোড / প্রতিস্থাপন করুন"
+                            : "ডিভাইস থেকে ছবি আপলোড করুন"}
+                        </span>
+                      </>
+                    )}
+                  </button>
+
+                  {selectedFile && imageUploadError && (
+                    <button
+                      type="button"
+                      onClick={() => uploadFileToBackend(selectedFile)}
+                      disabled={isUploadingImage || isSubmitting}
+                      className="px-3 py-2 rounded-xl bg-red-500/20 border border-red-500/40 text-red-300 text-xs font-mono hover:bg-red-500/30 transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                    >
+                      <RefreshCw className="w-3.5 h-3.5" />
+                      <span>পুনরায় চেষ্টা করুন</span>
+                    </button>
+                  )}
+                </div>
+
+                {isEdit && !selectedFile && (
+                  <p className="text-[11px] font-mono text-[#A4B0A8]">
+                    * নতুন ছবি নির্বাচন না করলে বর্তমান ছবিটি অক্ষুণ্ণ থাকবে।
+                  </p>
+                )}
+              </div>
             </div>
 
-            <div className="flex items-center gap-3">
-              <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-[#101A17] border border-white/15 shrink-0 flex items-center justify-center">
-                <Image
-                  src={photo || "/images/players/mehedi.jpeg"}
-                  alt="Player photo preview"
-                  fill
-                  className="object-cover"
-                  unoptimized
+            {/* Upload Feedback Messages */}
+            {isUploadingImage && (
+              <div className="p-3 rounded-xl bg-[#B9F66B]/10 border border-[#B9F66B]/30 flex items-center gap-2.5 text-xs text-[#B9F66B]">
+                <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+                <span>ImgBB সার্ভারে ছবি আপলোড হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...</span>
+              </div>
+            )}
+
+            {imageUploadSuccess && (
+              <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between gap-2.5 text-xs text-emerald-300">
+                <div className="flex items-center gap-2 min-w-0">
+                  <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
+                  <span className="font-bold">ImgBB-তে ছবি সফলভাবে আপলোড হয়েছে!</span>
+                </div>
+                <span className="text-[10px] font-mono text-[#A4B0A8] truncate max-w-[200px]">
+                  {photo}
+                </span>
+              </div>
+            )}
+
+            {imageUploadError && (
+              <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center gap-2.5 text-xs text-red-300">
+                <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
+                <span>{imageUploadError}</span>
+              </div>
+            )}
+
+            {/* Presets and URL Fallback Input */}
+            <div className="pt-2 border-t border-white/5 space-y-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-[11px] font-mono text-[#A4B0A8]">কুইক প্রিসেট:</span>
+                {LOCAL_PHOTO_PRESETS.map((p) => (
+                  <button
+                    key={p.path}
+                    type="button"
+                    onClick={() => {
+                      setPhoto(p.path);
+                      setLocalPreviewUrl(null);
+                      setSelectedFile(null);
+                      setImageUploadError(null);
+                      setImageUploadSuccess(false);
+                    }}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-mono transition-colors ${
+                      photo === p.path
+                        ? "bg-[#B9F66B] text-[#101A17] font-black"
+                        : "bg-[#18251F] text-[#A4B0A8] hover:text-white border border-white/10"
+                    }`}
+                  >
+                    {p.label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-mono uppercase text-[#A4B0A8] block">
+                  ছবি ইউআরএল / ফাইল পাথ
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="ইমেজ ফাইল পাথ বা ইউআরএল লিখুন..."
+                  value={photo}
+                  onChange={(e) => {
+                    setPhoto(e.target.value);
+                    setLocalPreviewUrl(null);
+                    setSelectedFile(null);
+                    setImageUploadError(null);
+                    setImageUploadSuccess(false);
+                  }}
+                  className={`w-full bg-[#18251F] border rounded-xl px-3.5 py-2 text-xs text-white font-mono placeholder-white/20 focus:outline-none transition-colors ${
+                    fieldErrors.photo
+                      ? "border-red-500 focus:border-red-400"
+                      : "border-white/10 focus:border-[#B9F66B]/60"
+                  }`}
                 />
               </div>
-              <input
-                type="text"
-                required
-                placeholder="ইমেজ ফাইল পাথ বা ইউআরএল লিখুন..."
-                value={photo}
-                onChange={(e) => setPhoto(e.target.value)}
-                className={`flex-1 bg-[#101A17] border rounded-xl px-3.5 py-2.5 text-xs text-white font-mono placeholder-white/20 focus:outline-none transition-colors ${
-                  fieldErrors.photo
-                    ? "border-red-500 focus:border-red-400"
-                    : "border-white/10 focus:border-[#B9F66B]/60"
-                }`}
-              />
             </div>
+
             {fieldErrors.photo && (
               <p className="text-[11px] text-red-400 font-mono">
                 {fieldErrors.photo}
@@ -1485,11 +1698,16 @@ function PlayerFormInner({
 
           <Button
             type="submit"
-            isDisabled={isSubmitting}
-            className="px-5 py-2.5 rounded-xl bg-[#B9F66B] hover:bg-[#a8ec56] text-[#101A17] font-black text-xs uppercase tracking-wider transition-all shadow-md cursor-pointer flex items-center gap-2"
+            isDisabled={isSubmitting || isUploadingImage}
+            className="px-5 py-2.5 rounded-xl bg-[#B9F66B] hover:bg-[#a8ec56] text-[#101A17] font-black text-xs uppercase tracking-wider transition-all shadow-md cursor-pointer flex items-center gap-2 disabled:opacity-50"
           >
             {isSubmitting ? (
               <span>সংরক্ষণ করা হচ্ছে...</span>
+            ) : isUploadingImage ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>ছবি আপলোড হচ্ছে...</span>
+              </>
             ) : isEdit ? (
               <>
                 <CheckCircle2 className="w-4 h-4" />
