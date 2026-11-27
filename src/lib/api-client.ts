@@ -763,6 +763,8 @@ export const apiClient = {
       isActive?: boolean;
       search?: string;
       position?: string;
+      sortBy?: string;
+      sortOrder?: "asc" | "desc";
     }) => {
       const query = new URLSearchParams();
       if (params?.page) query.set("page", String(params.page));
@@ -775,9 +777,31 @@ export const apiClient = {
       }
       if (params?.search) query.set("search", params.search);
       if (params?.position) query.set("position", params.position);
+      if (params?.sortBy) query.set("sortBy", params.sortBy);
+      if (params?.sortOrder) query.set("sortOrder", params.sortOrder);
 
       const qs = query.toString();
       return request<PlayerDocument[]>(`/players${qs ? `?${qs}` : ""}`);
+    },
+
+    // Retrieve top goal scorers
+    getTopScorers: (limit = 5) => {
+      return apiClient.players.getAll({
+        sortBy: "statistics.goals",
+        sortOrder: "desc",
+        limit,
+        isActive: true,
+      });
+    },
+
+    // Retrieve top assist providers
+    getTopAssists: (limit = 5) => {
+      return apiClient.players.getAll({
+        sortBy: "statistics.assists",
+        sortOrder: "desc",
+        limit,
+        isActive: true,
+      });
     },
 
     // Retrieve all players across all pagination pages
